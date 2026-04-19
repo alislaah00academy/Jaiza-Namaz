@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "170319084683",
+    "project_id": "jaiza-namaz",
+    "storage_bucket": "jaiza-namaz.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170319084683:android:51da85dfdaf33b76aaa88e",
+        "android_client_info": {
+          "package_name": "com.alislaacademy.jayzanamaz.jaiza_namaz"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6Hj5hMUoR4B2olPxevrHDNxSqni3jLKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

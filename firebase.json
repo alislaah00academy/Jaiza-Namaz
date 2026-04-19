@@ -1,0 +1,6 @@
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter":{"platforms":{"android":{"default":{"projectId":"jaiza-namaz","appId":"1:170319084683:android:51da85dfdaf33b76aaa88e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"jaiza-namaz","configurations":{"android":"1:170319084683:android:51da85dfdaf33b76aaa88e","ios":"1:170319084683:ios:35080d2a2c5d5b5eaaa88e","macos":"1:170319084683:ios:35080d2a2c5d5b5eaaa88e","web":"1:170319084683:web:26733ff3ef97cff7aaa88e","windows":"1:170319084683:web:e134b559c5bdb8acaaa88e"}}}}}}
