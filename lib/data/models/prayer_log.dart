@@ -69,6 +69,7 @@ class PrayerLog {
     required this.type,
     required this.status,
     required this.dateTime,
+    this.ownerUid,
   });
 
   final String id;
@@ -77,6 +78,11 @@ class PrayerLog {
   final PrayerType type;
   final PrayerStatus status;
   final DateTime dateTime;
+
+  /// Set when this log belongs to a Parent's child or an Organization's
+  /// student: the Firebase Auth uid of the account that owns/manages this
+  /// log (the parent, or the teacher). `null` for Individual logs.
+  final String? ownerUid;
 
   /// Deterministic id: one row per user / local day / prayer / type (latest wins).
   static String deterministicId({
@@ -95,6 +101,7 @@ class PrayerLog {
       'type': type.firestoreValue,
       'status': status.firestoreValue,
       'dateTime': AppDateUtils.dateTimeToTimestampUtc(dateTime),
+      if (ownerUid != null) 'ownerUid': ownerUid,
     };
   }
 
@@ -119,6 +126,7 @@ class PrayerLog {
       type: type,
       status: status,
       dateTime: AppDateUtils.timestampToLocalDateTime(ts),
+      ownerUid: data['ownerUid'] as String?,
     );
   }
 
@@ -141,6 +149,7 @@ class PrayerLog {
       type: type,
       status: status,
       dateTime: dt,
+      ownerUid: data['ownerUid'] as String?,
     );
   }
 }

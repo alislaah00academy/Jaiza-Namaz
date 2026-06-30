@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="jaiza_widget_bg">#FBF6EC</color>
+    <color name="jaiza_widget_border">#D4C4B0</color>
+    <color name="jaiza_widget_title">#3D2F25</color>
+    <color name="jaiza_widget_muted">#7B6B5C</color>
+    <color name="jaiza_widget_sage">#3F7A6A</color>
+    <color name="jaiza_widget_error">#B3261E</color>
+    <color name="jaiza_widget_gold">#C49B5B</color>
+	<color name="ic_launcher_background">#FBF3E3</color>
+</resources>

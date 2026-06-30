@@ -3,15 +3,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../core/constants/prayer_catalog.dart';
 import '../../core/logging/app_log.dart';
 import '../../core/utils/date_utils.dart';
+import '../../services/notifications_service.dart';
 import '../models/prayer_log.dart';
 import 'streak_repository.dart';
 
 /// Top-level `prayers` collection with deterministic document ids.
 class PrayerRepository {
-  PrayerRepository(
-    this._firestore, {
-    StreakRepository? streakRepository,
-  }) : _streakRepository = streakRepository;
+  PrayerRepository(this._firestore, {StreakRepository? streakRepository})
+    : _streakRepository = streakRepository;
 
   final FirebaseFirestore _firestore;
   final StreakRepository? _streakRepository;
@@ -25,6 +24,7 @@ class PrayerRepository {
     required PrayerName prayerName,
     required PrayerType type,
     required PrayerStatus status,
+    String? ownerUid,
   }) async {
     try {
       final now = DateTime.now();
@@ -42,8 +42,12 @@ class PrayerRepository {
         type: type,
         status: status,
         dateTime: now,
+        ownerUid: ownerUid,
       );
       await _col.doc(id).set(log.toFirestore(), SetOptions(merge: true));
+      if (type == PrayerType.fard && status == PrayerStatus.completed) {
+        await NotificationsService.instance.cancelForPrayer(now, prayerName);
+      }
       if (type == PrayerType.fard) {
         await _streakRepository?.recomputeAfterFardChange(userId);
       } else if (type == PrayerType.nawafil &&
@@ -56,26 +60,51 @@ class PrayerRepository {
     }
   }
 
+  /// All Fard logs for this user (client-side filtering by day/month).
+  Stream<List<PrayerLog>> watchAllFard(String userId) {
+    return watchAllByType(userId, PrayerType.fard);
+  }
+
+  /// All logs of [type] for this user (client-side filtering by day/month).
+  /// Generalizes [watchAllFard] for Nawafil/Qaza history views.
+  Stream<List<PrayerLog>> watchAllByType(String userId, PrayerType type) {
+    return _col
+        .where('userId', isEqualTo: userId)
+        .where('type', isEqualTo: type.firestoreValue)
+        .snapshots()
+        .map((snap) {
+          final list = <PrayerLog>[];
+          for (final doc in snap.docs) {
+            final log = PrayerLog.fromFirestore(doc);
+            if (log != null) list.add(log);
+          }
+          return list;
+        });
+  }
+
   /// Stream merged state for today's Fard prayers (6 docs).
   Stream<Map<PrayerName, PrayerLog>> watchTodayFard(String userId) {
     final names = kFardPrayerDefs.map((e) => e.name).toList();
     return _col
         .where('userId', isEqualTo: userId)
         .where('type', isEqualTo: PrayerType.fard.firestoreValue)
-        .where('prayerName', whereIn: names.map((n) => n.firestoreValue).toList())
+        .where(
+          'prayerName',
+          whereIn: names.map((n) => n.firestoreValue).toList(),
+        )
         .snapshots()
         .map((snap) {
-      final dateKey = AppDateUtils.localDateKey(DateTime.now());
-      final map = <PrayerName, PrayerLog>{};
-      for (final doc in snap.docs) {
-        final log = PrayerLog.fromFirestore(doc);
-        if (log == null) continue;
-        final key = AppDateUtils.localDateKey(log.dateTime);
-        if (key != dateKey) continue;
-        map[log.prayerName] = log;
-      }
-      return map;
-    });
+          final dateKey = AppDateUtils.localDateKey(DateTime.now());
+          final map = <PrayerName, PrayerLog>{};
+          for (final doc in snap.docs) {
+            final log = PrayerLog.fromFirestore(doc);
+            if (log == null) continue;
+            final key = AppDateUtils.localDateKey(log.dateTime);
+            if (key != dateKey) continue;
+            map[log.prayerName] = log;
+          }
+          return map;
+        });
   }
 
   /// Today's nawafil logs (same day filter client-side).
@@ -87,17 +116,17 @@ class PrayerRepository {
         .where('prayerName', whereIn: names)
         .snapshots()
         .map((snap) {
-      final today = AppDateUtils.localDateKey(DateTime.now());
-      final list = <PrayerLog>[];
-      for (final doc in snap.docs) {
-        final log = PrayerLog.fromFirestore(doc);
-        if (log == null) continue;
-        if (AppDateUtils.localDateKey(log.dateTime) == today) {
-          list.add(log);
-        }
-      }
-      return list;
-    });
+          final today = AppDateUtils.localDateKey(DateTime.now());
+          final list = <PrayerLog>[];
+          for (final doc in snap.docs) {
+            final log = PrayerLog.fromFirestore(doc);
+            if (log == null) continue;
+            if (AppDateUtils.localDateKey(log.dateTime) == today) {
+              list.add(log);
+            }
+          }
+          return list;
+        });
   }
 
   /// All-time count of completed nawafil (for badges). Cap query with count aggregation optional — simple snapshot size for MVP.

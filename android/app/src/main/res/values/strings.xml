@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_a_label">Jaiza – Prayer tracker</string>
+    <string name="widget_a_description">Today’s five prayers with quick mark buttons.</string>
+    <string name="widget_b_label">Jaiza – Prayer times</string>
+    <string name="widget_b_description">Today’s prayer times and countdown to the next salah.</string>
+    <string name="widget_unified_label">Jaiza – Today’s prayers</string>
+    <string name="widget_unified_description">Glass-style prayer dashboard with Fard, Nawafil, location, and countdown.</string>
+</resources>

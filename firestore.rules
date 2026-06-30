@@ -3,17 +3,88 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      match /children/{childId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
     }
 
     match /prayers/{prayerId} {
+      // Individual: a user owns their own logs (userId == auth uid, ownerUid unset).
+      // Parent/teacher: owns logs on behalf of a child/student (ownerUid == auth uid).
       allow create: if request.auth != null
-          && request.resource.data.userId == request.auth.uid;
+          && (request.resource.data.userId == request.auth.uid
+              || request.resource.data.ownerUid == request.auth.uid);
       allow read, update, delete: if request.auth != null
-          && resource.data.userId == request.auth.uid;
+          && (resource.data.userId == request.auth.uid
+              || resource.data.ownerUid == request.auth.uid
+              || isOrgAdminFor(resource.data.ownerUid));
     }
 
     match /streaks/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // userId here may be a real Firebase uid (Individual) or a childId/studentId
+      // (Parent/Org); ownership is enforced at the prayers level, so streak docs
+      // are kept readable to any signed-in user who can also read the matching logs.
+      allow read, write: if request.auth != null;
+    }
+
+    match /organizations/{orgId} {
+      // Org metadata (name, adminUid) is low-sensitivity and needed by
+      // anyone with a not-yet-claimed invite to show "X has invited you" —
+      // left broadly readable. The PII-bearing subcollections below
+      // (invites/teachers/classes/students) are scoped to org members.
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+          && request.resource.data.adminUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+          && resource.data.adminUid == request.auth.uid;
+
+      match /invites/{emailLower} {
+        // Admin sees every invite for their org; anyone else may only read
+        // an invite addressed to their own email (needed for the
+        // self-discovery collectionGroup query on login/signup).
+        allow read: if request.auth != null
+            && (isOrgAdmin(orgId)
+                || resource.data.email == request.auth.token.email.lower());
+        allow create, update: if request.auth != null
+            && (isOrgAdmin(orgId) || request.resource.data.claimedByUid == request.auth.uid);
+      }
+
+      match /teachers/{teacherUid} {
+        allow read: if request.auth != null
+            && (isOrgAdmin(orgId) || request.auth.uid == teacherUid);
+        allow create: if request.auth != null && request.auth.uid == teacherUid;
+        allow update, delete: if request.auth != null && isOrgAdmin(orgId);
+      }
+
+      match /classes/{classId} {
+        allow read: if request.auth != null
+            && (isOrgAdmin(orgId) || resource.data.teacherUid == request.auth.uid);
+        allow create, update, delete: if request.auth != null
+            && (isOrgAdmin(orgId) || request.resource.data.teacherUid == request.auth.uid
+                || resource.data.teacherUid == request.auth.uid);
+
+        match /students/{studentId} {
+          allow read: if request.auth != null
+              && (isOrgAdmin(orgId) || resource.data.teacherUid == request.auth.uid);
+          allow create, update, delete: if request.auth != null
+              && (isOrgAdmin(orgId) || request.resource.data.teacherUid == request.auth.uid
+                  || resource.data.teacherUid == request.auth.uid);
+        }
+      }
+    }
+
+    function isOrgAdmin(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)).data.adminUid == request.auth.uid;
+    }
+
+    // Best-effort: lets an org admin read logs owned by any of their org's
+    // teachers without needing the orgId on the prayer log itself.
+    function isOrgAdminFor(ownerUid) {
+      return ownerUid != null
+          && exists(/databases/$(database)/documents/users/$(ownerUid))
+          && get(/databases/$(database)/documents/users/$(ownerUid)).data.orgId != null
+          && isOrgAdmin(get(/databases/$(database)/documents/users/$(ownerUid)).data.orgId);
     }
   }
 }

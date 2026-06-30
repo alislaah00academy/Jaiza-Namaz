@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/logging/app_log.dart';
 import '../models/app_user.dart';
+import '../models/user_role.dart';
 
 /// Firestore user profile at `users/{uid}`.
 class UserRepository {
@@ -23,21 +24,18 @@ class UserRepository {
     required String name,
   }) async {
     try {
-      await _users.doc(user.uid).set(
-        {
-          'uid': user.uid,
-          'name': name.trim(),
-          'email': user.email ?? '',
-          'createdAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-          'nawafilEnabled': false,
-          'qazaBacklogYears': 0,
-          'qazaBacklogMonths': 0,
-          'qazaBacklogDays': 0,
-          'qazaDailyTarget': 1,
-        },
-        SetOptions(merge: true),
-      );
+      await _users.doc(user.uid).set({
+        'uid': user.uid,
+        'name': name.trim(),
+        'email': user.email ?? '',
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'nawafilEnabled': false,
+        'qazaBacklogYears': 0,
+        'qazaBacklogMonths': 0,
+        'qazaBacklogDays': 0,
+        'qazaDailyTarget': 1,
+      }, SetOptions(merge: true));
     } catch (e, st) {
       appLog('createUserProfile', error: e, stackTrace: st);
       rethrow;
@@ -95,6 +93,78 @@ class UserRepository {
       await _users.doc(uid).set(map, SetOptions(merge: true));
     } catch (e, st) {
       appLog('updateProfile', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  /// Sets the account type once, after the role-selection screen. Individual
+  /// stays the implicit default for any account that never calls this.
+  Future<void> setRole({
+    required String uid,
+    required UserRole role,
+    String? orgId,
+    OrgMemberRole? orgMemberRole,
+  }) async {
+    try {
+      await _users.doc(uid).set({
+        'role': role.firestoreValue,
+        'orgId': ?orgId,
+        'orgMemberRole': ?orgMemberRole?.firestoreValue,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e, st) {
+      appLog('setRole', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  /// Attaches this account as a teacher of [orgId] (used when claiming a
+  /// pending invite on login/signup).
+  Future<void> attachAsOrgTeacher({
+    required String uid,
+    required String orgId,
+  }) async {
+    try {
+      await _users.doc(uid).set({
+        'role': UserRole.organization.firestoreValue,
+        'orgId': orgId,
+        'orgMemberRole': OrgMemberRole.teacher.firestoreValue,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e, st) {
+      appLog('attachAsOrgTeacher', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  /// Merges `users/{uid}.prayerSettings` (widget + notification prefs).
+  Future<void> updatePrayerSettings({
+    required String uid,
+    required Map<String, dynamic> prayerSettings,
+  }) async {
+    try {
+      await _users.doc(uid).set({
+        'prayerSettings': prayerSettings,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e, st) {
+      appLog('updatePrayerSettings', error: e, stackTrace: st);
+      rethrow;
+    }
+  }
+
+  /// Merges `users/{uid}.qazaPlan` (per-prayer Qaza backlog + frequency).
+  Future<void> updateQazaPlan({
+    required String uid,
+    required Map<String, dynamic> qazaPlan,
+  }) async {
+    try {
+      await _users.doc(uid).set({
+        'qazaPlan': qazaPlan,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e, st) {
+      appLog('updateQazaPlan', error: e, stackTrace: st);
       rethrow;
     }
   }

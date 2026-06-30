@@ -1,11 +1,17 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/animations/jaiza_motion.dart';
+import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/models/badge_definitions.dart';
+import '../../../core/utils/jaiza_dates.dart';
+import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../providers/providers.dart';
+import '../../../services/prayer_times_service.dart';
 
 class _HubTile {
   const _HubTile({
@@ -21,45 +27,47 @@ class _HubTile {
   final String path;
 }
 
-/// Main hub: categories + streak summary + badges strip.
+/// Individual home: today's date + current prayer card, and the main
+/// feature grid. Streak/badge UI was removed from here per product
+/// decision — the underlying streak computation keeps running unchanged.
 class HomeHubScreen extends ConsumerWidget {
   const HomeHubScreen({super.key});
 
   static const _tiles = [
     _HubTile(
-      title: 'Faraiz',
-      subtitle: 'Obligatory prayers',
-      icon: Icons.wb_twilight_rounded,
+      title: 'Obligatory Prayers',
+      subtitle: 'Faraiz',
+      icon: Icons.mosque_outlined,
       path: '/app/fard',
     ),
     _HubTile(
-      title: 'Nawafil',
+      title: 'Nawafil Prayers',
       subtitle: 'Optional prayers',
-      icon: Icons.auto_awesome_outlined,
+      icon: Icons.front_hand_outlined,
       path: '/app/nawafil',
     ),
     _HubTile(
-      title: 'Qaza',
+      title: 'Qaza Prayers',
       subtitle: 'Missed prayers',
       icon: Icons.history_edu_outlined,
       path: '/app/qaza',
     ),
     _HubTile(
-      title: 'Benefits',
-      subtitle: 'Why prayer matters',
-      icon: Icons.favorite_outline,
+      title: 'Fazail of prayers',
+      subtitle: 'Virtues & rewards',
+      icon: Icons.menu_book_outlined,
       path: '/app/benefits',
     ),
     _HubTile(
       title: 'About Us',
-      subtitle: AppStrings.academyCredit,
+      subtitle: 'Al Islaah Academy',
       icon: Icons.info_outline,
       path: '/app/about',
     ),
     _HubTile(
-      title: 'Contact',
-      subtitle: 'Reach Al Islaah Academy',
-      icon: Icons.mail_outline,
+      title: 'Contact Us',
+      subtitle: 'Reach out to us',
+      icon: Icons.call_outlined,
       path: '/app/contact',
     ),
     _HubTile(
@@ -72,201 +80,294 @@ class HomeHubScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final streakAsync = ref.watch(streakStreamProvider);
-    final userAsync = ref.watch(appUserStreamProvider);
-    final theme = Theme.of(context);
-
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-            decoration: BoxDecoration(
-              gradient: AppTheme.primaryGradient(context),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Assalamu alaikum',
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                userAsync.when(
-                  data: (u) => Text(
-                    u?.name.isNotEmpty == true ? u!.name : 'Muslim',
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  loading: () => const LinearProgressIndicator(),
-                  error: (e, st) => const Text('Muslim'),
-                ),
-                const SizedBox(height: 16),
-                streakAsync.when(
-                  data: (s) {
-                    final cur = s?.currentStreak ?? 0;
-                    final best = s?.longestStreak ?? 0;
-                    return Row(
-                      children: [
-                        _StreakChip(
-                          icon: Icons.local_fire_department_outlined,
-                          label: '$cur day streak',
-                        ),
-                        const SizedBox(width: 12),
-                        _StreakChip(
-                          icon: Icons.emoji_events_outlined,
-                          label: 'Best: $best',
-                        ),
-                      ],
-                    );
-                  },
-                  loading: () => const SizedBox(
-                    height: 40,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                  error: (e, st) => const SizedBox.shrink(),
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  'Badges',
-                  style: theme.textTheme.titleSmall,
-                ),
-                const SizedBox(height: 8),
-                streakAsync.when(
-                  data: (s) {
-                    final unlocked = s?.badgesUnlocked ?? [];
-                    return SizedBox(
-                      height: 88,
-                      child: ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: kBadgeDefinitions.length,
-                        separatorBuilder: (context, i) => const SizedBox(width: 8),
-                        itemBuilder: (context, i) {
-                          final b = kBadgeDefinitions[i];
-                          final on = unlocked.contains(b.id);
-                          return _BadgeCard(definition: b, unlocked: on);
-                        },
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gridColumns = AppBreakpoints.hubGridCrossAxisCount(
+          constraints.maxWidth,
+        );
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                // Below ~360 logical px there isn't room for the card and
+                // the wordmark side by side without squeezing the card's
+                // Start/End row — stack them instead of overflowing.
+                child: constraints.maxWidth < 360
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const _PrayerStatusCard(),
+                          const SizedBox(height: 12),
+                          const Center(
+                            child: JaizaWordmark(compact: true, maxSize: 110),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Expanded(flex: 3, child: _PrayerStatusCard()),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 2,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: Center(
+                                child: JaizaWordmark(
+                                  compact: true,
+                                  maxSize: 130,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  loading: () => const SizedBox.shrink(),
-                  error: (e, st) => const SizedBox.shrink(),
+              ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverGrid(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: gridColumns,
+                  mainAxisSpacing: 14,
+                  crossAxisSpacing: 14,
+                  childAspectRatio: 1.05,
                 ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    ActionChip(
-                      label: const Text(AppStrings.askQuestions),
-                      onPressed: () => context.push(
-                        '/app/coming-soon?title=${Uri.encodeComponent(AppStrings.askQuestions)}',
-                      ),
-                    ),
-                    ActionChip(
-                      label: const Text(AppStrings.prayerPhilosophy),
-                      onPressed: () => context.push(
-                        '/app/coming-soon?title=${Uri.encodeComponent(AppStrings.prayerPhilosophy)}',
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final t = _tiles[index];
+                  return _CategoryCard(tile: t).jaizaEnter(index: index);
+                }, childCount: _tiles.length),
+              ),
             ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.05,
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: JaizaMosqueSkyline(),
+              ),
             ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final t = _tiles[index];
-                return _CategoryCard(tile: t);
-              },
-              childCount: _tiles.length,
-            ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
 
-class _StreakChip extends StatelessWidget {
-  const _StreakChip({required this.icon, required this.label});
+/// Today's date (Hijri + Gregorian) and the currently-active Fard prayer's
+/// start/end window, refreshed every minute so the active prayer updates
+/// itself as the day goes on.
+class _PrayerStatusCard extends ConsumerStatefulWidget {
+  const _PrayerStatusCard();
 
-  final IconData icon;
-  final String label;
+  @override
+  ConsumerState<_PrayerStatusCard> createState() => _PrayerStatusCardState();
+}
+
+class _PrayerStatusCardState extends ConsumerState<_PrayerStatusCard> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      ref.invalidate(currentPrayerCardProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final c = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final now = DateTime.now();
+    final cardAsync = ref.watch(currentPrayerCardProvider);
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: c.surface.withValues(alpha: 0.9),
-        borderRadius: BorderRadius.circular(20),
+        color: scheme.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+        boxShadow: AppTokens.softShadow(context),
+        border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: c.primary),
-          const SizedBox(width: 6),
-          Text(label, style: Theme.of(context).textTheme.labelLarge),
+          Text(
+            formatHijriDate(now),
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            formatGregorianFull(now),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Divider(color: scheme.outlineVariant, height: 1),
+          const SizedBox(height: 10),
+          cardAsync.when(
+            data: (data) => _ActivePrayerRow(data: data),
+            loading: () => const SizedBox(
+              height: 44,
+              child: Center(
+                child: SizedBox(
+                  height: 18,
+                  width: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            ),
+            error: (e, st) => Text(
+              'Prayer times unavailable',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
-class _BadgeCard extends StatelessWidget {
-  const _BadgeCard({required this.definition, required this.unlocked});
+class _ActivePrayerRow extends StatelessWidget {
+  const _ActivePrayerRow({required this.data});
 
-  final BadgeDefinition definition;
-  final bool unlocked;
+  final ({DailyPrayerSchedule today, PrayerWindowStatus status}) data;
+
+  String _fmt(DateTime t) => DateFormat('hh:mm a').format(t.toLocal());
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return SizedBox(
-      width: 120,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                unlocked ? Icons.verified : Icons.lock_outline,
-                color: unlocked
-                    ? theme.colorScheme.primary
-                    : theme.colorScheme.outline,
+    final scheme = theme.colorScheme;
+    final activeKey = data.status.activePrayerKey;
+    final isActive = activeKey != null;
+    final window = isActive
+        ? data.today.fardWindows.firstWhere((w) => w.key == activeKey)
+        : null;
+    final label = window?.label ?? data.status.nextLabel;
+    final start = window?.start ?? data.status.nextTime;
+    final end = window?.end ?? data.status.targetTime;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            isActive
+                ? const PulsingDot(color: Colors.green, size: 9)
+                : Container(
+                    width: 9,
+                    height: 9,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: scheme.outline,
+                    ),
+                  ),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              const Spacer(),
-              Text(
-                definition.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
+            ),
+          ],
+        ),
+        const SizedBox(height: 2),
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Text(
+            isActive ? 'Current Prayer' : 'Next Prayer',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isActive ? Colors.green[700] : scheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
+        const SizedBox(height: 10),
+        Divider(color: scheme.outlineVariant, height: 1),
+        const SizedBox(height: 10),
+        // Two flexible halves (not a fixed-width Row) so this never
+        // overflows, no matter how narrow the card gets next to the logo.
+        Row(
+          children: [
+            Expanded(
+              child: _TimeBlock(
+                icon: Icons.wb_twilight_outlined,
+                label: 'Start',
+                time: _fmt(start),
+              ),
+            ),
+            Container(width: 1, height: 28, color: scheme.outlineVariant),
+            Expanded(
+              child: _TimeBlock(
+                icon: Icons.brightness_high_outlined,
+                label: 'End',
+                time: _fmt(end),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _TimeBlock extends StatelessWidget {
+  const _TimeBlock({
+    required this.icon,
+    required this.label,
+    required this.time,
+  });
+
+  final IconData icon;
+  final String label;
+  final String time;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 15, color: scheme.primary),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+                Text(
+                  time,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -279,32 +380,68 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    final c = Theme.of(context).colorScheme;
+    return Material(
+      color: c.surface,
+      elevation: 0,
+      shadowColor: Colors.transparent,
       clipBehavior: Clip.antiAlias,
+      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
       child: InkWell(
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
         onTap: () => context.push(tile.path),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(tile.icon, color: Theme.of(context).colorScheme.primary),
-              const Spacer(),
-              Text(
-                tile.title,
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              Text(
-                tile.subtitle,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+            border: Border.all(color: c.outline.withValues(alpha: 0.18)),
+            // A tighter, lighter shadow than AppTokens.softShadow (tuned
+            // for big standalone cards) — that one's 18px blur bled into
+            // neighboring grid tiles at the corners where 4 cards meet.
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
               ),
             ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: c.primaryContainer.withValues(alpha: 0.65),
+                    border: Border.all(
+                      color: c.outline.withValues(alpha: 0.15),
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Icon(tile.icon, color: c.primary, size: 28),
+                ),
+                const Spacer(),
+                Text(
+                  tile.title,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  tile.subtitle,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

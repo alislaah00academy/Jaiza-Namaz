@@ -1,6 +1,6 @@
 /// Central user-visible strings. Future: replace with generated l10n / ARB.
 abstract final class AppStrings {
-  static const appName = 'Jaiza (Namaz)';
+  static const appName = 'Jaiza';
   static const academyCredit = 'A project by Al Islaah Academy';
   static const startWithSalaam = 'Start with Salaam';
   static const welcomeSubtitle =

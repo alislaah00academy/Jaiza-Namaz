@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/widgets/jaiza_scaffold.dart';
 
 class DonationScreen extends StatelessWidget {
   const DonationScreen({super.key});
@@ -12,7 +13,9 @@ class DonationScreen extends StatelessWidget {
       children: [
         Text(
           'Support the project',
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 12),
         Text(
@@ -21,38 +24,38 @@ class DonationScreen extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 24),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'How to donate',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Connect your real donation link (bank, gateway, or campaign) '
-                  'here when ready. This screen is structured for future '
-                  'integration.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Link your donation URL in the codebase.'),
-                      ),
-                    );
-                  },
-                  child: const Text('Open donation (placeholder)'),
-                ),
-              ],
-            ),
+        JaizaSurfaceCard(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'How to donate',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Connect your real donation link (bank, gateway, or campaign) '
+                'here when ready. This screen is structured for future '
+                'integration.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Link your donation URL in the codebase.'),
+                    ),
+                  );
+                },
+                child: const Text('Open donation (placeholder)'),
+              ),
+            ],
           ),
         ),
       ],

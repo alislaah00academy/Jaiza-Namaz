@@ -40,6 +40,22 @@ dependencies:
   flutter_riverpod: ^2.6.1
   go_router: ^14.6.2
   flutter_animate: ^4.5.2
+  device_preview: ^1.3.1
+  google_fonts: ^6.2.1
+  home_widget: ^0.7.0
+  table_calendar: ^3.1.3
+  hijri: ^3.0.0
+  intl: ^0.20.2
+  adhan_dart: ^1.2.0
+  geolocator: ^14.0.2
+  flutter_local_notifications: ^19.0.0
+  timezone: ^0.10.0
+  permission_handler: ^12.0.0
+  android_alarm_manager_plus: ^5.0.0
+  flutter_timezone: ^5.0.2
+  geocoding: ^4.0.0
+  lottie: ^3.1.2
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +67,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -70,6 +87,11 @@ flutter:
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
+  assets:
+    - assets/branding/jaiza_logo_full.png
+    - assets/branding/jaiza_emblem.png
+    - assets/branding/jaiza_icon_solid.png
+    - assets/animations/
 
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
@@ -93,3 +115,23 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  # Legacy/iOS/web icon: emblem pre-flattened onto a solid cream background
+  # with a soft gold glow — avoids the transparent-icon-on-dark-mask look
+  # some Android launchers (e.g. MIUI) render for alpha PNGs.
+  image_path: "assets/branding/jaiza_icon_solid.png"
+  android: "ic_launcher"
+  # Android 8+ adaptive icon: explicit solid cream background behind the
+  # transparent emblem foreground, so every launcher mask shape (circle,
+  # squircle, rounded square) gets a consistent, intentional background
+  # instead of whatever the launcher does with leftover transparency.
+  adaptive_icon_background: "#FBF3E3"
+  adaptive_icon_foreground: "assets/branding/jaiza_emblem.png"
+  ios: true
+  remove_alpha_ios: true
+  web:
+    generate: true
+    image_path: "assets/branding/jaiza_icon_solid.png"
+    background_color: "#FBF3E3"
+    theme_color: "#FBF3E3"

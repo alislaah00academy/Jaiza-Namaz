@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/animations/jaiza_motion.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/jaiza_ornaments.dart';
+import '../../../core/widgets/jaiza_scaffold.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -11,50 +15,55 @@ class WelcomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient(context),
-        ),
+      body: JaizaBackground(
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: AuthMaxWidth(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Spacer(flex: 2),
-                Icon(
-                  Icons.mosque_outlined,
-                  size: 80,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  AppStrings.appName,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+                JaizaArchCrown(
+                  height: 230,
+                  child: const JaizaWordmark(),
+                ).jaizaEnter(beginY: 0.1),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          AppStrings.appName,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ).jaizaEnter(index: 1),
+                        const SizedBox(height: 12),
+                        Text(
+                          AppStrings.welcomeSubtitle,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ).jaizaEnter(index: 2),
+                        const Spacer(),
+                        FilledButton(
+                          onPressed: () => context.go('/login'),
+                          child: const Text('Log in'),
+                        ).jaizaEnter(index: 3),
+                        const SizedBox(height: 12),
+                        FilledButton.tonal(
+                          style: AppTheme.tonalButtonStyle(context),
+                          onPressed: () => context.go('/get-started'),
+                          child: const Text('Create account'),
+                        ).jaizaEnter(index: 4),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  AppStrings.welcomeSubtitle,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const Spacer(flex: 2),
-                FilledButton(
-                  onPressed: () => context.go('/login'),
-                  child: const Text('Log in'),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
-                  onPressed: () => context.go('/signup'),
-                  child: const Text('Create account'),
-                ),
-                const SizedBox(height: 32),
+                const JaizaMosqueSkyline(),
               ],
             ),
           ),

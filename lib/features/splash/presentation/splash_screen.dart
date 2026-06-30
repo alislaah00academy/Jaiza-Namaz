@@ -1,20 +1,25 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_strings.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/layout/app_breakpoints.dart';
+import '../../../core/widgets/jaiza_ornaments.dart';
+import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../providers/providers.dart';
 
-/// Entry splash: Salaam + academy credit, then routes by auth state.
-class SplashScreen extends StatefulWidget {
+/// Entry splash: animated logo reveal, then routes to onboarding (first
+/// install), the app, or the welcome flow depending on state.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  State<SplashScreen> createState() => _SplashScreenState();
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -22,13 +27,16 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _goNext() async {
-    await Future<void>.delayed(const Duration(milliseconds: 2200));
+    await Future<void>.delayed(const Duration(milliseconds: 2400));
     if (!mounted) return;
+    final onboardingDone = ref.read(onboardingRepositoryProvider).isComplete;
     final user = FirebaseAuth.instance.currentUser;
     if (user != null && user.emailVerified) {
       context.go('/app/home');
     } else if (user != null) {
       context.go('/verify-email');
+    } else if (!onboardingDone) {
+      context.go('/onboarding');
     } else {
       context.go('/welcome');
     }
@@ -37,55 +45,52 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final gold = theme.colorScheme.tertiary;
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          gradient: AppTheme.primaryGradient(context),
-        ),
+      body: JaizaBackground(
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(32),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.mosque_rounded,
-                  size: 88,
-                  color: theme.colorScheme.primary,
-                )
-                    .animate()
-                    .fadeIn(duration: 600.ms)
-                    .scale(begin: const Offset(0.85, 0.85)),
-                const SizedBox(height: 24),
-                Text(
-                  AppStrings.startWithSalaam,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
-                  ),
-                ).animate().fadeIn(delay: 200.ms),
-                const SizedBox(height: 12),
-                Text(
-                  AppStrings.appName,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ).animate().fadeIn(delay: 350.ms),
-                const SizedBox(height: 32),
-                Text(
-                  AppStrings.academyCredit,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ).animate().fadeIn(delay: 500.ms),
-                const SizedBox(height: 48),
-                const CircularProgressIndicator(),
-              ],
+          child: AuthMaxWidth(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  // Logo: fade + scale up with a gentle settle, then a
+                  // one-pass shimmer sweep across the gold artwork.
+                  const JaizaWordmark(maxSize: 200)
+                      .animate()
+                      .fadeIn(duration: 700.ms, curve: Curves.easeOut)
+                      .scale(
+                        begin: const Offset(0.7, 0.7),
+                        end: const Offset(1, 1),
+                        duration: 800.ms,
+                        curve: Curves.easeOutBack,
+                      )
+                      .then(delay: 200.ms)
+                      .shimmer(
+                        duration: 1100.ms,
+                        color: gold.withValues(alpha: 0.6),
+                      ),
+                  const SizedBox(height: 28),
+                  Text(
+                    AppStrings.startWithSalaam,
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ).animate().fadeIn(delay: 600.ms).moveY(begin: 12, end: 0),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: 34,
+                    height: 34,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3,
+                      color: gold,
+                    ),
+                  ).animate().fadeIn(delay: 900.ms),
+                ],
+              ),
             ),
           ),
         ),

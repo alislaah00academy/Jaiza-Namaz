@@ -1,5 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../features/qaza/data/qaza_plan.dart';
+import '../../features/settings/data/prayer_settings.dart';
+import 'user_role.dart';
+
 /// Firestore `users/{userId}` — document id matches Auth UID.
 class AppUser {
   const AppUser({
@@ -16,6 +20,11 @@ class AppUser {
     this.qazaBacklogMonths = 0,
     this.qazaBacklogDays = 0,
     this.qazaDailyTarget = 1,
+    this.prayerSettings,
+    this.role,
+    this.orgId,
+    this.orgMemberRole,
+    this.qazaPlan,
   });
 
   final String uid;
@@ -31,6 +40,31 @@ class AppUser {
   final int qazaBacklogMonths;
   final int qazaBacklogDays;
   final int qazaDailyTarget;
+
+  /// Widget + notification preferences (see [PrayerSettingsParsed]).
+  final Map<String, dynamic>? prayerSettings;
+
+  /// Account type. `null` means the user hasn't picked one yet (legacy
+  /// Individual users included) — treated as "needs role selection".
+  final UserRole? role;
+
+  /// Set when [role] is [UserRole.organization]: the org this account
+  /// owns (admin) or has been attached to as a teacher.
+  final String? orgId;
+
+  /// Disambiguates admin vs. teacher when [role] is [UserRole.organization].
+  final OrgMemberRole? orgMemberRole;
+
+  /// Per-prayer Qaza backlog + reminder frequency (see [QazaPlanParsed]).
+  /// Supersedes the legacy combined `qazaBacklog*`/`qazaDailyTarget`
+  /// fields below, which are kept read/write for backward compatibility
+  /// but no longer driven by the Qaza screen.
+  final Map<String, dynamic>? qazaPlan;
+
+  PrayerSettingsParsed get prayerSettingsParsed =>
+      PrayerSettingsParsed.fromRaw(prayerSettings);
+
+  QazaPlanParsed get qazaPlanParsed => QazaPlanParsed.fromRaw(qazaPlan);
 
   /// Estimated total Fard prayers missed (rough heuristic for UX; documented in UI).
   int get estimatedQazaPrayers {
@@ -53,6 +87,11 @@ class AppUser {
       'qazaBacklogMonths': qazaBacklogMonths,
       'qazaBacklogDays': qazaBacklogDays,
       'qazaDailyTarget': qazaDailyTarget,
+      if (prayerSettings != null) 'prayerSettings': prayerSettings,
+      if (qazaPlan != null) 'qazaPlan': qazaPlan,
+      if (role != null) 'role': role!.firestoreValue,
+      if (orgId != null) 'orgId': orgId,
+      if (orgMemberRole != null) 'orgMemberRole': orgMemberRole!.firestoreValue,
     };
   }
 
@@ -84,6 +123,17 @@ class AppUser {
       qazaBacklogMonths: (data['qazaBacklogMonths'] as num?)?.toInt() ?? 0,
       qazaBacklogDays: (data['qazaBacklogDays'] as num?)?.toInt() ?? 0,
       qazaDailyTarget: (data['qazaDailyTarget'] as num?)?.toInt() ?? 1,
+      prayerSettings: data['prayerSettings'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(data['prayerSettings'] as Map)
+          : null,
+      role: UserRoleX.fromFirestore(data['role'] as String?),
+      orgId: data['orgId'] as String?,
+      orgMemberRole: OrgMemberRoleX.fromFirestore(
+        data['orgMemberRole'] as String?,
+      ),
+      qazaPlan: data['qazaPlan'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(data['qazaPlan'] as Map)
+          : null,
     );
   }
 
@@ -111,6 +161,17 @@ class AppUser {
       qazaBacklogMonths: (data['qazaBacklogMonths'] as num?)?.toInt() ?? 0,
       qazaBacklogDays: (data['qazaBacklogDays'] as num?)?.toInt() ?? 0,
       qazaDailyTarget: (data['qazaDailyTarget'] as num?)?.toInt() ?? 1,
+      prayerSettings: data['prayerSettings'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(data['prayerSettings'] as Map)
+          : null,
+      role: UserRoleX.fromFirestore(data['role'] as String?),
+      orgId: data['orgId'] as String?,
+      orgMemberRole: OrgMemberRoleX.fromFirestore(
+        data['orgMemberRole'] as String?,
+      ),
+      qazaPlan: data['qazaPlan'] is Map<String, dynamic>
+          ? Map<String, dynamic>.from(data['qazaPlan'] as Map)
+          : null,
     );
   }
 
@@ -125,6 +186,11 @@ class AppUser {
     int? qazaBacklogMonths,
     int? qazaBacklogDays,
     int? qazaDailyTarget,
+    Map<String, dynamic>? prayerSettings,
+    UserRole? role,
+    String? orgId,
+    OrgMemberRole? orgMemberRole,
+    Map<String, dynamic>? qazaPlan,
   }) {
     return AppUser(
       uid: uid,
@@ -140,6 +206,11 @@ class AppUser {
       qazaBacklogMonths: qazaBacklogMonths ?? this.qazaBacklogMonths,
       qazaBacklogDays: qazaBacklogDays ?? this.qazaBacklogDays,
       qazaDailyTarget: qazaDailyTarget ?? this.qazaDailyTarget,
+      prayerSettings: prayerSettings ?? this.prayerSettings,
+      qazaPlan: qazaPlan ?? this.qazaPlan,
+      role: role ?? this.role,
+      orgId: orgId ?? this.orgId,
+      orgMemberRole: orgMemberRole ?? this.orgMemberRole,
     );
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/l10n/app_strings.dart';
+import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 
@@ -38,38 +39,41 @@ class _NawafilScreenState extends ConsumerState<NawafilScreen> {
         return ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            SwitchListTile(
-              title: const Text('Enable Nawafil tracking'),
-              subtitle: const Text(
-                'Turn on to log optional prayers and work toward badges.',
-              ),
-              value: enabled,
-              onChanged: _busy
-                  ? null
-                  : (v) async {
-                      setState(() => _busy = true);
-                      try {
-                        await ref.read(userRepositoryProvider).updateProfile(
-                              uid: uid,
-                              name: displayName,
-                              nawafilEnabled: v,
+            JaizaSurfaceCard(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: SwitchListTile(
+                title: const Text('Enable Nawafil tracking'),
+                subtitle: const Text(
+                  'Turn on to log optional prayers and work toward badges.',
+                ),
+                value: enabled,
+                onChanged: _busy
+                    ? null
+                    : (v) async {
+                        setState(() => _busy = true);
+                        try {
+                          await ref.read(userRepositoryProvider).updateProfile(
+                                uid: uid,
+                                name: displayName,
+                                nawafilEnabled: v,
+                              );
+                        } catch (_) {
+                          if (context.mounted) {
+                            AppSnackBar.error(
+                              context,
+                              'Could not update preference.',
                             );
-                      } catch (_) {
-                        if (context.mounted) {
-                          AppSnackBar.error(
-                            context,
-                            'Could not update preference.',
-                          );
+                          }
+                        } finally {
+                          if (context.mounted) setState(() => _busy = false);
                         }
-                      } finally {
-                        if (context.mounted) setState(() => _busy = false);
-                      }
-                    },
+                      },
+              ),
             ),
-            const Divider(),
+            const SizedBox(height: 12),
             if (!enabled)
-              Padding(
-                padding: const EdgeInsets.all(24),
+              JaizaSurfaceCard(
+                padding: const EdgeInsets.all(22),
                 child: Text(
                   'Enable tracking above to record nawafil and grow your rewards.',
                   textAlign: TextAlign.center,
@@ -93,17 +97,20 @@ class _NawafilScreenState extends ConsumerState<NawafilScreen> {
                         children: [
                           if (logs.isEmpty)
                             Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: Text(
-                                AppStrings.noPrayersYet,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
+                              padding: const EdgeInsets.only(bottom: 14),
+                              child: JaizaSurfaceCard(
+                                padding: const EdgeInsets.all(18),
+                                child: Text(
+                                  AppStrings.noPrayersYet,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyMedium
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
                               ),
                             ),
                           ...kNawafilDefs.map((def) {
@@ -112,21 +119,37 @@ class _NawafilScreenState extends ConsumerState<NawafilScreen> {
                                   l.prayerName == def.name &&
                                   l.status == PrayerStatus.completed,
                             );
-                            return Card(
-                              margin: const EdgeInsets.only(bottom: 8),
-                              child: ListTile(
-                                title: Text(def.label),
-                                trailing: done
-                                    ? Icon(
-                                        Icons.check_circle,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      )
-                                    : FilledButton(
-                                        onPressed: () => _mark(context, def.name),
-                                        child: const Text('Mark'),
-                                      ),
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: JaizaSurfaceCard(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 4,
+                                ),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                  ),
+                                  title: Text(
+                                    def.label,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  trailing: done
+                                      ? Icon(
+                                          Icons.check_circle,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                        )
+                                      : FilledButton(
+                                          onPressed: () =>
+                                              _mark(context, def.name),
+                                          child: const Text('Mark'),
+                                        ),
+                                ),
                               ),
                             );
                           }),
