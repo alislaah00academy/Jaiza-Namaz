@@ -32,7 +32,7 @@ const _kInfoItems = [
     icon: Icons.mosque_outlined,
     title: 'Count Only Missed Obligatory Prayers',
     body:
-        'Include only the obligatory prayers you missed: Fajr, Zuhr, Asr, Maghrib, Isha, and Witr.',
+        'Include only the obligatory prayers you missed: Fajr, Zuhr, Asr, Maghrib and Isha.',
   ),
   _InfoItem(
     icon: Icons.calendar_month_outlined,

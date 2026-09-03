@@ -1,15 +1,14 @@
 import '../../../data/models/prayer_log.dart';
 
-/// The 6 Fard prayer names tracked individually for Qaza make-up — same
-/// list as [kFardPrayerDefs], kept as a constant here so qaza_plan.dart has
-/// no dependency on the catalog's display-label structure.
+/// The five obligatory (Fard) prayer names tracked individually for Qaza
+/// make-up — same list as [kFardPrayerDefs], kept as a constant here so
+/// qaza_plan.dart has no dependency on the catalog's display-label structure.
 const List<PrayerName> kQazaPrayerNames = [
   PrayerName.fajr,
   PrayerName.zuhr,
   PrayerName.asr,
   PrayerName.maghrib,
   PrayerName.isha,
-  PrayerName.witr,
 ];
 
 /// How often the user wants to be reminded to make up a given prayer's

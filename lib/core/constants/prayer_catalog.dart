@@ -46,12 +46,10 @@ const List<FardPrayerDef> kFardPrayerDefs = [
     startHint: 'Night begins',
     endHint: 'Until Fajr',
   ),
-  FardPrayerDef(
-    name: PrayerName.witr,
-    label: 'Witr',
-    startHint: 'After Isha',
-    endHint: 'Before Fajr',
-  ),
+  // Witr was removed from individual tracking — the app tracks the five
+  // obligatory (Fard) prayers only. `PrayerName.witr` is kept in the enum so
+  // any historical Firestore records still parse, but it's no longer shown
+  // or markable anywhere.
 ];
 
 /// Optional nawafil the user may track when enabled.

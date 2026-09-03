@@ -3,33 +3,29 @@ package com.alislaacademy.jayzanamaz.jaiza_namaz.widget
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
-import android.net.Uri
 import android.widget.RemoteViews
 import com.alislaacademy.jayzanamaz.jaiza_namaz.R
-import es.antonborri.home_widget.HomeWidgetBackgroundIntent
 import es.antonborri.home_widget.HomeWidgetProvider
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import org.json.JSONObject
+import java.util.Locale
+import kotlin.math.max
 
-private data class PrayerRow(
-    val key: String,
-    val statusId: Int,
-    val doneId: Int,
-    val missId: Int,
-)
+/**
+ * 4x2 widget: app logo, today's five prayer times, the next prayer + countdown,
+ * and the user's location. Informational only — marking lives in the 4x3
+ * tracker widget.
+ */
+private data class TimeCell(val key: String, val timeId: Int)
 
 class JaizaPrayerWidget : HomeWidgetProvider() {
 
-  private val rows =
+  private val cells =
       listOf(
-          PrayerRow("fajr", R.id.row_fajr_status, R.id.btn_fajr_done, R.id.btn_fajr_miss),
-          PrayerRow("zuhr", R.id.row_zuhr_status, R.id.btn_zuhr_done, R.id.btn_zuhr_miss),
-          PrayerRow("asr", R.id.row_asr_status, R.id.btn_asr_done, R.id.btn_asr_miss),
-          PrayerRow("maghrib", R.id.row_maghrib_status, R.id.btn_maghrib_done, R.id.btn_maghrib_miss),
-          PrayerRow("isha", R.id.row_isha_status, R.id.btn_isha_done, R.id.btn_isha_miss),
+          TimeCell("fajr", R.id.time_fajr),
+          TimeCell("zuhr", R.id.time_zuhr),
+          TimeCell("asr", R.id.time_asr),
+          TimeCell("maghrib", R.id.time_maghrib),
+          TimeCell("isha", R.id.time_isha),
       )
 
   override fun onEnabled(context: Context) {
@@ -47,61 +43,57 @@ class JaizaPrayerWidget : HomeWidgetProvider() {
 
     appWidgetIds.forEach { widgetId ->
       val views = RemoteViews(context.packageName, R.layout.jaiza_prayer_widget)
+      val root = safeJson(widgetData.getString("jaiza_widget_payload", null))
+      val times = root.optJSONObject("times") ?: JSONObject()
+      val starts = root.optJSONObject("startsEpochMs") ?: JSONObject()
+      val tomorrowFajr = root.optLong("tomorrowFajrEpochMs", 0L)
 
-      val payload = widgetData.getString("jaiza_widget_payload", null)
-      val root = if (payload != null) JSONObject(payload) else JSONObject()
+      views.setTextViewText(R.id.widget_title, root.optString("title", "Jaiza · Prayer Times"))
+      views.setTextViewText(R.id.widget_location, root.optString("location", "—"))
 
-      val title = root.optString("title", "Jaiza · Today's Prayers")
-      val greeting = root.optString("greeting", "Assalamu alaikum")
-      val today = root.optJSONObject("today") ?: JSONObject()
-      val prayers = root.optJSONObject("prayers") ?: JSONObject()
+      val now = System.currentTimeMillis()
+      val (nextKey, nextStart) = computeNext(now, starts, tomorrowFajr)
+      views.setTextViewText(
+          R.id.widget_next,
+          "Next: ${titleCasePrayer(nextKey)} · in ${compactDuration(nextStart - now)}",
+      )
 
-      views.setTextViewText(R.id.widget_title, title)
-      views.setTextViewText(R.id.widget_greeting, greeting)
-
-      val nowDateKey = localDateKey(Date())
-      val todayKey = today.optString("dateKey", "")
-      val shouldResetRows = todayKey != nowDateKey
-
-      for (row in rows) {
-        val raw = if (shouldResetRows) "" else prayers.optString(row.key, "")
-        applyStatus(views, row.statusId, raw)
-        views.setOnClickPendingIntent(row.doneId, backgroundPendingIntent(context, row.key, "completed"))
-        views.setOnClickPendingIntent(row.missId, backgroundPendingIntent(context, row.key, "missed"))
+      for (cell in cells) {
+        views.setTextViewText(cell.timeId, times.optString(cell.key, "—"))
       }
 
       appWidgetManager.updateAppWidget(widgetId, views)
     }
   }
 
-  private fun applyStatus(views: RemoteViews, statusViewId: Int, raw: String) {
-    when (raw) {
-      "completed" -> {
-        views.setTextViewText(statusViewId, "Prayed")
-        views.setTextColor(statusViewId, Color.parseColor("#3F7A6A"))
-      }
-      "missed" -> {
-        views.setTextViewText(statusViewId, "Missed")
-        views.setTextColor(statusViewId, Color.parseColor("#B3261E"))
-      }
-      else -> {
-        views.setTextViewText(statusViewId, "—")
-        views.setTextColor(statusViewId, Color.parseColor("#7B6B5C"))
-      }
+  private fun safeJson(raw: String?): JSONObject {
+    return try {
+      if (raw.isNullOrEmpty()) JSONObject() else JSONObject(raw)
+    } catch (_: Exception) {
+      JSONObject()
     }
   }
 
-  private fun backgroundPendingIntent(
-      context: Context,
-      prayer: String,
-      status: String,
-  ) = HomeWidgetBackgroundIntent.getBroadcast(
-      context,
-      Uri.parse("jaiza://prayer/mark?name=$prayer&status=$status"),
-  )
-
-  private fun localDateKey(now: Date): String {
-    val fmt = SimpleDateFormat("yyyy-MM-dd", Locale.US)
-    return fmt.format(now)
+  private fun computeNext(now: Long, starts: JSONObject, tomorrowFajr: Long): Pair<String, Long> {
+    val order = listOf("fajr", "zuhr", "asr", "maghrib", "isha")
+    for (k in order) {
+      if (!starts.has(k)) continue
+      val t = starts.optLong(k, 0L)
+      if (t > now) return k to t
+    }
+    val tf = if (tomorrowFajr > now) tomorrowFajr else now + 60_000L
+    return "fajr" to tf
   }
+
+  private fun compactDuration(ms: Long): String {
+    val totalMinutes = max(0L, ms / 60_000L)
+    val hours = totalMinutes / 60L
+    val minutes = totalMinutes % 60L
+    return if (hours <= 0L) "${minutes}m" else "${hours}h ${minutes}m"
+  }
+
+  private fun titleCasePrayer(key: String): String =
+      key.replaceFirstChar {
+        if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+      }
 }

@@ -6,6 +6,5 @@ struct JaizaWidgets: WidgetBundle {
     var body: some Widget {
         JaizaPrayerWidget()
         JaizaPrayerTimesHomeWidget()
-        JaizaUnifiedPrayerWidget()
     }
 }

@@ -31,7 +31,10 @@ class WelcomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        const SizedBox(height: 8),
+                        // Centre the wordmark + tagline in the space between
+                        // the arch and the action buttons (was top-aligned
+                        // with a large gap above the buttons).
+                        const Spacer(),
                         Text(
                           AppStrings.appName,
                           textAlign: TextAlign.center,

@@ -142,9 +142,10 @@ class _WidgetsNotificationsScreenState
               ),
               const SizedBox(height: 8),
               Text(
-                'Three widgets are available from the launcher: Prayer Tracker '
-                '(4x2), Prayer Times (4x3), and Today’s Prayers dashboard '
-                '(4x4). Use Refresh widgets now after changing location or '
+                'Two widgets are available from the launcher: Prayer Times '
+                '(4x2) showing today’s times and your location, and Prayer '
+                'Tracker (4x3) which adds tap-to-mark for the five daily '
+                'prayers. Use Refresh widgets now after changing location or '
                 'calculation settings.',
                 style: Theme.of(
                   context,

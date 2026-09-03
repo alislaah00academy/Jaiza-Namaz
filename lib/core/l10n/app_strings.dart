@@ -4,7 +4,8 @@ abstract final class AppStrings {
   static const academyCredit = 'A project by Al Islaah Academy';
   static const startWithSalaam = 'Start with Salaam';
   static const welcomeSubtitle =
-      'Track your prayers, build streaks, and stay motivated.';
+      'Track and mark your daily prayers, set reminders, and keep a '
+      'complete history of your worship.';
 
   static const namazMarkedSuccess = 'Namaz marked successfully 🤍';
   static const noPrayersYet = 'No prayers recorded yet';

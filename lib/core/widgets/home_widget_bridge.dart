@@ -52,12 +52,6 @@ abstract final class HomeWidgetBridge {
       'com.alislaacademy.jayzanamaz.jaiza_namaz.widget.JaizaPrayerTimesWidget';
   static const iosWidgetNameTimes = 'JaizaPrayerTimesWidget';
 
-  /// All-in-one glass widget payload.
-  static const payloadKeyUnified = 'jaiza_unified_widget_payload';
-  static const qualifiedAndroidWidgetUnified =
-      'com.alislaacademy.jayzanamaz.jaiza_namaz.widget.JaizaUnifiedPrayerWidget';
-  static const iosWidgetNameUnified = 'JaizaUnifiedPrayerWidget';
-
   static Future<void> bootstrap(WidgetRef ref) async {
     if (kIsWeb) return;
     if (!Platform.isAndroid && !Platform.isIOS) return;
@@ -83,6 +77,8 @@ abstract final class HomeWidgetBridge {
   }
 
   /// Saves today's strip state + pushes to native widgets.
+  /// 4x2 widget: logo + today's five prayer times + next prayer + location.
+  /// Informational only (marking lives on the 4x3 tracker widget).
   static Future<void> syncWidget(WidgetRef ref) async {
     if (kIsWeb) return;
     if (!Platform.isAndroid && !Platform.isIOS) return;
@@ -90,45 +86,66 @@ abstract final class HomeWidgetBridge {
     final uid = ref.read(currentUserProvider)?.uid;
     if (uid == null || uid.isEmpty) {
       await HomeWidget.saveWidgetData(uidKey, '');
+      await HomeWidget.updateWidget(
+        qualifiedAndroidName: qualifiedAndroidWidget,
+        iOSName: iosWidgetName,
+      );
       return;
     }
 
-    final map = ref.read(todayFardMapProvider).valueOrNull ?? {};
-    final user = ref.read(appUserStreamProvider).valueOrNull;
-    final greeting = user?.name.isNotEmpty == true
-        ? 'Assalamu — ${user!.name}'
-        : 'Assalamu alaikum';
+    try {
+      final user = ref.read(appUserStreamProvider).valueOrNull;
+      final settings =
+          user?.prayerSettingsParsed ?? PrayerSettingsParsed.defaults();
+      final loc = await _resolveLocation(settings);
+      final days = PrayerTimesService.threeDaySchedules(
+        latitude: loc.$1,
+        longitude: loc.$2,
+        settings: settings,
+      );
+      final today = days[0];
+      final tomorrow = days[1];
+      final now = DateTime.now();
+      final next = PrayerTimesService.nextFardPrayerStart(
+        now: now,
+        today: today,
+        tomorrow: tomorrow,
+      );
 
-    final prayers = <String, String>{};
-    for (final name in kJaizaStripPrayerNames) {
-      final log = map[name];
-      prayers[name.name] = log == null
-          ? ''
-          : (log.status == PrayerStatus.completed ? 'completed' : 'missed');
-    }
+      String fmt(DateTime t) => DateFormat('HH:mm').format(t.toLocal());
 
-    final now = DateTime.now();
-    final tomorrow = now.add(const Duration(days: 1));
-    final payload = jsonEncode({
-      'title': 'Jaiza · Today\'s Prayers',
-      'greeting': greeting,
-      'today': {
-        'dateKey': jaizaWidgetDateKey(now),
+      final payload = jsonEncode({
+        'title': 'Jaiza · Prayer Times',
+        'location': loc.$3,
         'dateLine': formatGregHijriLine(now),
-      },
-      'tomorrow': {
-        'dateKey': jaizaWidgetDateKey(tomorrow),
-        'dateLine': formatGregHijriLine(tomorrow),
-      },
-      'prayers': prayers,
-    });
+        'times': {
+          'fajr': fmt(today.fajr),
+          'zuhr': fmt(today.zuhr),
+          'asr': fmt(today.asr),
+          'maghrib': fmt(today.maghrib),
+          'isha': fmt(today.isha),
+        },
+        'startsEpochMs': {
+          'fajr': today.fajr.millisecondsSinceEpoch,
+          'zuhr': today.zuhr.millisecondsSinceEpoch,
+          'asr': today.asr.millisecondsSinceEpoch,
+          'maghrib': today.maghrib.millisecondsSinceEpoch,
+          'isha': today.isha.millisecondsSinceEpoch,
+        },
+        'tomorrowFajrEpochMs': tomorrow.fajr.millisecondsSinceEpoch,
+        'nextPrayer': next.$1.name,
+        'nextStartEpochMs': next.$2.millisecondsSinceEpoch,
+      });
 
-    await HomeWidget.saveWidgetData(uidKey, uid);
-    await HomeWidget.saveWidgetData(payloadKey, payload);
-    await HomeWidget.updateWidget(
-      qualifiedAndroidName: qualifiedAndroidWidget,
-      iOSName: iosWidgetName,
-    );
+      await HomeWidget.saveWidgetData(uidKey, uid);
+      await HomeWidget.saveWidgetData(payloadKey, payload);
+      await HomeWidget.updateWidget(
+        qualifiedAndroidName: qualifiedAndroidWidget,
+        iOSName: iosWidgetName,
+      );
+    } catch (_) {
+      /* keep widget resilient */
+    }
   }
 
   /// Prayer times + next countdown (Widget B) + reschedule end notifications.
@@ -238,97 +255,9 @@ abstract final class HomeWidgetBridge {
     }
   }
 
-  static Future<void> syncUnifiedWidget(WidgetRef ref) async {
-    if (kIsWeb) return;
-    if (!Platform.isAndroid && !Platform.isIOS) return;
-
-    final uid = ref.read(currentUserProvider)?.uid;
-    if (uid == null || uid.isEmpty) {
-      await HomeWidget.saveWidgetData(payloadKeyUnified, '{}');
-      await HomeWidget.updateWidget(
-        qualifiedAndroidName: qualifiedAndroidWidgetUnified,
-        iOSName: iosWidgetNameUnified,
-      );
-      return;
-    }
-
-    try {
-      final user = ref.read(appUserStreamProvider).valueOrNull;
-      final settings =
-          user?.prayerSettingsParsed ?? PrayerSettingsParsed.defaults();
-      final loc = await _resolveLocation(settings);
-      final days = PrayerTimesService.threeDaySchedules(
-        latitude: loc.$1,
-        longitude: loc.$2,
-        settings: settings,
-      );
-      final today = days[0];
-      final tomorrow = days[1];
-      final now = DateTime.now();
-      final status = PrayerTimesService.currentWindowStatus(
-        now: now,
-        today: today,
-        tomorrow: tomorrow,
-      );
-      final fardMap = ref.read(todayFardMapProvider).valueOrNull ?? {};
-
-      String fmt(DateTime t) => DateFormat('hh:mm a').format(t.toLocal());
-      String range(PrayerWindow w) => '${fmt(w.start)} – ${fmt(w.end)}';
-
-      final firstName = (user?.name.trim().split(RegExp(r'\s+')).first ?? '')
-          .trim();
-      final payload = jsonEncode({
-        'title': 'Jaiza · Today’s Prayers',
-        'firstName': firstName,
-        'dateLine': formatGregHijriLine(now),
-        'location': loc.$3,
-        'statusLine': status.message,
-        'activePrayer': status.activePrayerKey ?? '',
-        'targetEpochMs': status.targetTime.millisecondsSinceEpoch,
-        'nextPrayer': status.nextKey,
-        'nextPrayerLabel': status.nextLabel,
-        'nextStartEpochMs': status.nextTime.millisecondsSinceEpoch,
-        'fard': [
-          for (final window in today.fardWindows)
-            {
-              'key': window.key,
-              'label': window.label,
-              'time': fmt(window.start),
-              'startEpochMs': window.start.millisecondsSinceEpoch,
-              'endEpochMs': window.end.millisecondsSinceEpoch,
-              'status':
-                  fardMap[PrayerNameX.fromFirestore(window.key)]
-                      ?.status
-                      .firestoreValue ??
-                  '',
-            },
-        ],
-        'nawafil': [
-          for (final window in today.nawafilWindows)
-            {
-              'key': window.key,
-              'label': window.label,
-              'range': range(window),
-              'startEpochMs': window.start.millisecondsSinceEpoch,
-              'endEpochMs': window.end.millisecondsSinceEpoch,
-            },
-        ],
-      });
-
-      await HomeWidget.saveWidgetData(payloadKeyUnified, payload);
-      await HomeWidget.updateWidget(
-        qualifiedAndroidName: qualifiedAndroidWidgetUnified,
-        iOSName: iosWidgetNameUnified,
-      );
-    } catch (_) {
-      /* keep widget resilient */
-    }
-  }
-
   static Future<void> syncAllWidgets(WidgetRef ref) async {
     await syncWidget(ref);
     await syncWidgetB(ref);
-    await syncUnifiedWidget(ref);
   }
 
   static Map<String, Set<PrayerName>> _completedByDate(
@@ -487,7 +416,6 @@ abstract final class BackgroundWidgetWriter {
     );
 
     await _applyStatusToTimesPayload(prayer, parsedStatus);
-    await _applyStatusToUnifiedPayload(prayer, parsedStatus);
   }
 
   static Future<void> _applyStatusToTimesPayload(
@@ -511,36 +439,6 @@ abstract final class BackgroundWidgetWriter {
     await HomeWidget.updateWidget(
       qualifiedAndroidName: HomeWidgetBridge.qualifiedAndroidWidgetTimes,
       iOSName: HomeWidgetBridge.iosWidgetNameTimes,
-    );
-  }
-
-  static Future<void> _applyStatusToUnifiedPayload(
-    PrayerName prayer,
-    PrayerStatus status,
-  ) async {
-    final raw = await HomeWidget.getWidgetData<String>(
-      HomeWidgetBridge.payloadKeyUnified,
-      defaultValue: '{}',
-    );
-    final root = _decodeMap(raw);
-    final rows = List<dynamic>.from(root['fard'] as List? ?? const []);
-    root['fard'] = [
-      for (final row in rows)
-        if (row is Map)
-          {
-            ...Map<String, dynamic>.from(row),
-            if (row['key'] == prayer.name) 'status': status.firestoreValue,
-          }
-        else
-          row,
-    ];
-    await HomeWidget.saveWidgetData(
-      HomeWidgetBridge.payloadKeyUnified,
-      jsonEncode(root),
-    );
-    await HomeWidget.updateWidget(
-      qualifiedAndroidName: HomeWidgetBridge.qualifiedAndroidWidgetUnified,
-      iOSName: HomeWidgetBridge.iosWidgetNameUnified,
     );
   }
 

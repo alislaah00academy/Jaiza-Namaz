@@ -62,27 +62,11 @@
         </receiver>
 
         <receiver
-            android:name=".widget.JaizaUnifiedPrayerWidget"
-            android:exported="true"
-            android:label="@string/widget_unified_label">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/jaiza_unified_prayer_widget_info" />
-        </receiver>
-
-        <receiver
             android:name=".widget.JaizaWidgetMidnightAlarm"
             android:exported="false" />
 
         <receiver
             android:name=".widget.JaizaPrayerTimesAlarm"
-            android:exported="false" />
-
-        <receiver
-            android:name=".widget.JaizaUnifiedPrayerAlarm"
             android:exported="false" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
