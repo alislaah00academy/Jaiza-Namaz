@@ -1,18 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:intl/intl.dart';
 
-import '../../../core/animations/jaiza_motion.dart';
 import '../../../core/constants/prayer_catalog.dart';
-import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/date_utils.dart';
-import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/widgets/jz_ui.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
+import '../../../services/location_service.dart';
+import '../../../services/prayer_times_service.dart';
+import '../../home/presentation/prayer_marking.dart';
 
-/// Unified history: one calendar, with Fard, Nawafil, and Qaza status for
-/// the selected day shown together — replaces having to check three
-/// separate screens for past records.
+/// Prayer schedule for any local day (same location rules as Today, using
+/// the last cached GPS fix instead of asking for a new one).
+final _scheduleForDayProvider = FutureProvider.autoDispose
+    .family<DailyPrayerSchedule, DateTime>((ref, day) async {
+      final s = ref.watch(prayerSettingsProvider);
+      var lat = s.manualLat;
+      var lon = s.manualLon;
+      if (s.useGps) {
+        try {
+          final cached = await LocationService.readCachedCoords();
+          if (cached != null) {
+            lat = cached.lat;
+            lon = cached.lon;
+          }
+        } catch (_) {}
+      }
+      return PrayerTimesService.forLocalDay(
+        localDay: day,
+        latitude: lat,
+        longitude: lon,
+        settings: s,
+      );
+    });
+
+/// Records — one calendar for every prayer type; past days are editable.
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -21,258 +44,430 @@ class HistoryScreen extends ConsumerStatefulWidget {
 }
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
-  late DateTime _focusedDay;
-  late DateTime _selectedDay;
+  late DateTime _month;
+  late DateTime _selected;
 
   @override
   void initState() {
     super.initState();
     final n = DateTime.now();
-    _focusedDay = DateTime(n.year, n.month, n.day);
-    _selectedDay = _focusedDay;
+    _selected = DateTime(n.year, n.month, n.day);
+    _month = DateTime(n.year, n.month);
   }
 
-  DateTime _norm(DateTime d) => DateTime(d.year, d.month, d.day);
+  DateTime get _today {
+    final n = DateTime.now();
+    return DateTime(n.year, n.month, n.day);
+  }
 
-  String _dateLabel(DateTime d) => AppDateUtils.localDateKey(d);
+  void _shiftMonth(int delta) {
+    setState(() {
+      _month = DateTime(_month.year, _month.month + delta);
+      final last = DateTime(_month.year, _month.month + 1, 0).day;
+      final day = _selected.day.clamp(1, last);
+      final candidate = DateTime(_month.year, _month.month, day);
+      _selected = candidate.isAfter(_today) ? _today : candidate;
+      if (_selected.month != _month.month) {
+        _selected = DateTime(_month.year, _month.month, 1);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final monthAnchor = DateTime(_focusedDay.year, _focusedDay.month, 1);
-    final fullFardDays = ref.watch(
-      fullFardDayKeysForMonthProvider(monthAnchor),
-    );
-    final fardMap = ref.watch(fardMapForDateProvider(_selectedDay));
-    final nawafilMap = ref.watch(nawafilMapForDateProvider(_selectedDay));
-    final qazaLogs = ref.watch(qazaLogsForDateProvider(_selectedDay));
-    final qazaCompleted = qazaLogs
-        .where((l) => l.status == PrayerStatus.completed)
-        .length;
-
+    final t = Theme.of(context).textTheme;
+    final canGoForward = DateTime(
+      _month.year,
+      _month.month + 1,
+    ).isBefore(DateTime(_today.year, _today.month + 1));
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.only(bottom: 24),
       children: [
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.all(14),
+        const JzPageTitle('Records'),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'History',
-                style: textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _dateLabel(_selectedDay),
-                style: textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 12),
-              TableCalendar<void>(
-                firstDay: DateTime.utc(2020, 1, 1),
-                lastDay: DateTime.utc(2035, 12, 31),
-                focusedDay: _focusedDay,
-                selectedDayPredicate: (d) => isSameDay(_selectedDay, d),
-                calendarFormat: CalendarFormat.month,
-                startingDayOfWeek: StartingDayOfWeek.monday,
-                eventLoader: (day) {
-                  final k = AppDateUtils.localDateKey(day);
-                  if (fullFardDays.contains(k)) return [null];
-                  return [];
-                },
-                onDaySelected: (selected, focused) {
-                  setState(() {
-                    _selectedDay = _norm(selected);
-                    _focusedDay = _norm(focused);
-                  });
-                },
-                onPageChanged: (focused) {
-                  setState(() => _focusedDay = focused);
-                },
-                calendarStyle: CalendarStyle(
-                  outsideDaysVisible: false,
-                  weekendTextStyle: TextStyle(color: scheme.onSurfaceVariant),
-                  todayDecoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.45),
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: scheme.primary,
-                    shape: BoxShape.circle,
-                  ),
-                  selectedTextStyle: TextStyle(color: scheme.onPrimary),
-                  todayTextStyle: TextStyle(
-                    color: scheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  markersMaxCount: 1,
-                  markerDecoration: BoxDecoration(
-                    color: scheme.tertiary,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: textTheme.titleSmall ?? const TextStyle(),
-                  leftChevronIcon: Icon(
-                    Icons.chevron_left,
-                    color: scheme.primary,
-                  ),
-                  rightChevronIcon: Icon(
-                    Icons.chevron_right,
-                    color: scheme.primary,
-                  ),
-                ),
-                calendarBuilders: CalendarBuilders(
-                  markerBuilder: (context, day, events) {
-                    if (events.isEmpty) return null;
-                    return Positioned(
-                      bottom: 1,
-                      child: Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: scheme.tertiary,
-                          shape: BoxShape.circle,
+              JzCard(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.chevron_left_rounded),
+                          onPressed: () => _shiftMonth(-1),
                         ),
-                      ),
-                    );
-                  },
+                        Expanded(
+                          child: Text(
+                            DateFormat('MMMM y').format(_month),
+                            textAlign: TextAlign.center,
+                            style: t.titleSmall,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.chevron_right_rounded),
+                          onPressed: canGoForward ? () => _shiftMonth(1) : null,
+                        ),
+                      ],
+                    ),
+                    _MonthGrid(
+                      month: _month,
+                      selected: _selected,
+                      today: _today,
+                      onSelect: (d) => setState(() => _selected = d),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 14),
+              _DayFardCard(day: _selected, today: _today),
+              const SizedBox(height: 14),
+              _DayNawafilCard(day: _selected, today: _today),
+              _DayQazaCard(day: _selected),
+              const SizedBox(height: 14),
+              _MonthSummary(month: _month, today: _today),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        _HistorySection(
-          title: 'Obligatory (Fard)',
-          rows: [
-            for (final def in kFardPrayerDefs)
-              _StatusRow(label: def.label, status: fardMap[def.name]?.status),
-          ],
-        ).jaizaEnter(index: 1),
-        const SizedBox(height: 12),
-        _HistorySection(
-          title: 'Nawafil',
-          rows: [
-            for (final def in kNawafilDefs)
-              _StatusRow(
-                label: def.label,
-                status: nawafilMap[def.name]?.status,
-              ),
-          ],
-        ).jaizaEnter(index: 2),
-        const SizedBox(height: 12),
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(Icons.history_edu_outlined, color: scheme.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Qaza',
-                  style: textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Text(
-                '$qazaCompleted completed',
-                style: textTheme.labelMedium?.copyWith(
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-            ],
-          ),
-        ).jaizaEnter(index: 3),
       ],
     );
   }
 }
 
-class _HistorySection extends StatelessWidget {
-  const _HistorySection({required this.title, required this.rows});
+class _MonthGrid extends ConsumerWidget {
+  const _MonthGrid({
+    required this.month,
+    required this.selected,
+    required this.today,
+    required this.onSelect,
+  });
 
-  final String title;
-  final List<_StatusRow> rows;
+  final DateTime month;
+  final DateTime selected;
+  final DateTime today;
+  final ValueChanged<DateTime> onSelect;
 
   @override
-  Widget build(BuildContext context) {
-    return JaizaSurfaceCard(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: Theme.of(
-              context,
-            ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final full = ref.watch(fullFardDayKeysForMonthProvider(month));
+    final days = DateTime(month.year, month.month + 1, 0).day;
+    final lead = DateTime(month.year, month.month, 1).weekday - 1; // Mon=0
+    const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    final cells = <Widget>[
+      for (final d in dows)
+        Center(
+          child: Text(
+            d,
+            style: TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: c.onSurfaceVariant,
+            ),
           ),
-          const SizedBox(height: 10),
-          ...rows,
+        ),
+      for (var i = 0; i < lead; i++) const SizedBox.shrink(),
+      for (var day = 1; day <= days; day++)
+        Builder(
+          builder: (context) {
+            final date = DateTime(month.year, month.month, day);
+            final isSel = date == selected;
+            final isToday = date == today;
+            final future = date.isAfter(today);
+            final dot = full.contains(AppDateUtils.localDateKey(date));
+            return InkWell(
+              customBorder: const CircleBorder(),
+              onTap: future ? null : () => onSelect(date),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSel
+                      ? c.primary
+                      : isToday
+                      ? c.primaryContainer.withValues(alpha: 0.45)
+                      : null,
+                ),
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Text(
+                      '$day',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: isSel || isToday
+                            ? FontWeight.w600
+                            : FontWeight.w400,
+                        color: isSel
+                            ? c.onPrimary
+                            : future
+                            ? c.onSurfaceVariant.withValues(alpha: 0.5)
+                            : c.onSurface,
+                      ),
+                    ),
+                    if (dot && !isSel)
+                      Positioned(
+                        bottom: 3,
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: c.tertiary,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+    ];
+    return GridView.count(
+      crossAxisCount: 7,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      mainAxisSpacing: 2,
+      crossAxisSpacing: 2,
+      childAspectRatio: 1.1,
+      children: cells,
+    );
+  }
+}
+
+class _DayFardCard extends ConsumerWidget {
+  const _DayFardCard({required this.day, required this.today});
+
+  final DateTime day;
+  final DateTime today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context).textTheme;
+    final map = ref.watch(fardMapForDateProvider(day));
+    final schedule = ref.watch(_scheduleForDayProvider(day)).valueOrNull;
+    final now = DateTime.now();
+    final done = kFardPrayerDefs
+        .where((d) => map[d.name]?.status == PrayerStatus.completed)
+        .length;
+    // Records edits land at noon so they never slip into a neighbouring day.
+    final at = day == today ? null : DateTime(day.year, day.month, day.day, 12);
+    return JzCard(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    DateFormat('EEEE, d MMMM').format(day),
+                    style: t.titleMedium,
+                  ),
+                ),
+                JzChip('$done / ${kFardPrayerDefs.length}'),
+              ],
+            ),
+          ),
+          Divider(
+            height: 1,
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+          for (var i = 0; i < kFardPrayerDefs.length; i++)
+            Builder(
+              builder: (context) {
+                final def = kFardPrayerDefs[i];
+                final log = map[def.name];
+                final isDone = log?.status == PrayerStatus.completed;
+                final start = schedule?.startTimeFor(def.name);
+                final end = schedule?.endTimeFor(def.name);
+                final ended =
+                    day.isBefore(today) || (end != null && end.isBefore(now));
+                final missed = !isDone && ended;
+                return JzPrayerRow(
+                  name: def.label,
+                  checked: isDone,
+                  state: missed ? JzRowState.missed : JzRowState.normal,
+                  sub: missed
+                      ? null
+                      : start == null
+                      ? def.startHint
+                      : DateFormat('h:mm a').format(start),
+                  subWidget: !missed
+                      ? null
+                      : log?.status == PrayerStatus.missed
+                      ? Text(
+                          'Missed · in your Qaza list',
+                          style: t.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : MissedAddToQaza(
+                          onAdd: () => addMissedToQaza(
+                            context,
+                            ref,
+                            name: def.name,
+                            label: def.label,
+                            at: at,
+                          ),
+                        ),
+                  showDivider: i < kFardPrayerDefs.length - 1,
+                  onToggle: () => togglePrayer(
+                    context,
+                    ref,
+                    name: def.name,
+                    label: def.label,
+                    type: PrayerType.fard,
+                    currentlyDone: isDone,
+                    at: at,
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );
   }
 }
 
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({required this.label, required this.status});
+class _DayNawafilCard extends ConsumerWidget {
+  const _DayNawafilCard({required this.day, required this.today});
 
-  final String label;
-  final PrayerStatus? status;
+  final DateTime day;
+  final DateTime today;
 
   @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final icon = status == PrayerStatus.completed
-        ? Icon(Icons.check_circle, color: scheme.primary)
-        : status == PrayerStatus.missed
-        ? Icon(Icons.nightlight_round, color: scheme.error)
-        : Icon(Icons.circle_outlined, color: scheme.outline);
-    final chipLabel = status == PrayerStatus.completed
-        ? 'Prayed'
-        : status == PrayerStatus.missed
-        ? 'Missed'
-        : 'Not recorded';
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final enabled =
+        ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ?? false;
+    final map = ref.watch(nawafilMapForDateProvider(day));
+    if (!enabled && map.isEmpty) return const SizedBox.shrink();
+    final done = kNawafilDefs
+        .where((d) => map[d.name]?.status == PrayerStatus.completed)
+        .length;
+    final at = day == today ? null : DateTime(day.year, day.month, day.day, 12);
+    return JzCard(
+      margin: const EdgeInsets.only(bottom: 14),
+      child: Column(
         children: [
-          SizedBox(width: 30, child: icon),
-          Expanded(
-            child: Text(
-              label,
-              style: textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
+            child: Row(
+              children: [
+                Icon(Icons.front_hand_outlined, color: c.primary),
+                const SizedBox(width: 10),
+                Expanded(child: Text('Nawafil', style: t.titleMedium)),
+                JzChip('$done / ${kNawafilDefs.length}'),
+              ],
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(AppTokens.radiusChip),
+          Divider(height: 1, color: c.outlineVariant),
+          for (var i = 0; i < kNawafilDefs.length; i++)
+            Builder(
+              builder: (context) {
+                final def = kNawafilDefs[i];
+                final isDone = map[def.name]?.status == PrayerStatus.completed;
+                return JzPrayerRow(
+                  name: def.label,
+                  checked: isDone,
+                  showDivider: i < kNawafilDefs.length - 1,
+                  onToggle: () => togglePrayer(
+                    context,
+                    ref,
+                    name: def.name,
+                    label: def.label,
+                    type: PrayerType.nawafil,
+                    currentlyDone: isDone,
+                    at: at,
+                  ),
+                );
+              },
             ),
-            child: Text(
-              chipLabel,
-              style: textTheme.labelSmall?.copyWith(
-                color: status == PrayerStatus.completed
-                    ? scheme.primary
-                    : status == PrayerStatus.missed
-                    ? scheme.error
-                    : scheme.onSurfaceVariant,
+        ],
+      ),
+    );
+  }
+}
+
+class _DayQazaCard extends ConsumerWidget {
+  const _DayQazaCard({required this.day});
+
+  final DateTime day;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final n = ref
+        .watch(qazaLogsForDateProvider(day))
+        .where((l) => l.status == PrayerStatus.completed)
+        .length;
+    return JzCard(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          Icon(Icons.history_edu_outlined, color: c.primary),
+          const SizedBox(width: 12),
+          Expanded(child: Text('Qaza', style: t.titleSmall)),
+          Text('$n completed', style: t.labelMedium),
+        ],
+      ),
+    );
+  }
+}
+
+class _MonthSummary extends ConsumerWidget {
+  const _MonthSummary({required this.month, required this.today});
+
+  final DateTime month;
+  final DateTime today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context).textTheme;
+    final logs = ref.watch(userFardLogsProvider).valueOrNull ?? const [];
+    final full = ref.watch(fullFardDayKeysForMonthProvider(month));
+    final prayed = logs.where((l) {
+      final d = l.dateTime.toLocal();
+      return d.year == month.year &&
+          d.month == month.month &&
+          l.status == PrayerStatus.completed &&
+          kFardPrayerDefs.any((f) => f.name == l.prayerName);
+    }).length;
+    final isCurrent = month.year == today.year && month.month == today.month;
+    final daysSoFar = isCurrent
+        ? today.day
+        : DateTime(month.year, month.month + 1, 0).day;
+    final possible = daysSoFar * kFardPrayerDefs.length;
+    final pct = possible == 0 ? 0 : (prayed * 100 / possible).round();
+    return JzCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '${DateFormat('MMMM').format(month)} summary',
+                  style: t.titleMedium,
+                ),
               ),
-            ),
+              Text('$prayed / $possible', style: t.titleSmall),
+            ],
+          ),
+          const SizedBox(height: 10),
+          JzBar(value: possible == 0 ? 0 : prayed / possible, height: 8),
+          const SizedBox(height: 8),
+          Text(
+            '$pct% prayed · ${full.length} complete '
+            '${full.length == 1 ? 'day' : 'days'}',
+            style: t.bodySmall,
           ),
         ],
       ),

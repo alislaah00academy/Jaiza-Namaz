@@ -145,120 +145,128 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: AuthMaxWidth(
+              padding: EdgeInsets.zero,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   JaizaAuthHeader(onBack: () => _back(context)),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Create Your Account',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Start tracking your Salah with Jaiza.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          AuthTextField(
-                            controller: _name,
-                            label: 'Full name',
-                            textInputAction: TextInputAction.next,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter your name';
-                              }
-                              return null;
-                            },
-                          ),
-                          if (_isOrganization) ...[
-                            const SizedBox(height: 16),
-                            AuthTextField(
-                              controller: _institutionName,
-                              label: 'Institute name',
-                              hint: 'e.g. Al Falah Madarsa',
-                              textInputAction: TextInputAction.next,
-                              validator: (v) {
-                                if (v == null || v.trim().isEmpty) {
-                                  return 'Enter your institute name';
-                                }
-                                return null;
-                              },
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 12),
+                        Text(
+                          'Create Your Account',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Start tracking your Salah with Jaiza.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 28),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                AuthTextField(
+                                  controller: _name,
+                                  label: 'Full name',
+                                  textInputAction: TextInputAction.next,
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty) {
+                                      return 'Enter your name';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                if (_isOrganization) ...[
+                                  const SizedBox(height: 16),
+                                  AuthTextField(
+                                    controller: _institutionName,
+                                    label: 'Institute name',
+                                    hint: 'e.g. Al Falah Madarsa',
+                                    textInputAction: TextInputAction.next,
+                                    validator: (v) {
+                                      if (v == null || v.trim().isEmpty) {
+                                        return 'Enter your institute name';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                                const SizedBox(height: 16),
+                                AuthTextField(
+                                  controller: _email,
+                                  label: 'Email',
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  autocorrect: false,
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty) {
+                                      return 'Enter your email';
+                                    }
+                                    if (!v.contains('@')) {
+                                      return 'Enter a valid email';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                AuthTextField(
+                                  controller: _password,
+                                  label: 'Password',
+                                  obscureText: true,
+                                  textInputAction: TextInputAction.next,
+                                  autocorrect: false,
+                                  validator: (v) {
+                                    if (v == null || v.length < 6) {
+                                      return 'Use at least 6 characters';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 16),
+                                AuthTextField(
+                                  controller: _confirm,
+                                  label: 'Confirm password',
+                                  obscureText: true,
+                                  textInputAction: TextInputAction.done,
+                                  autocorrect: false,
+                                  validator: (v) {
+                                    if (v != _password.text) {
+                                      return 'Passwords do not match';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed: _loading ? null : _submit,
+                                  child: _loading
+                                      ? SizedBox(
+                                          height: 22,
+                                          width: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: onPrimary,
+                                          ),
+                                        )
+                                      : const Text('Sign up'),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
                             ),
-                          ],
-                          const SizedBox(height: 16),
-                          AuthTextField(
-                            controller: _email,
-                            label: 'Email',
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            autocorrect: false,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter your email';
-                              }
-                              if (!v.contains('@')) {
-                                return 'Enter a valid email';
-                              }
-                              return null;
-                            },
                           ),
-                          const SizedBox(height: 16),
-                          AuthTextField(
-                            controller: _password,
-                            label: 'Password',
-                            obscureText: true,
-                            textInputAction: TextInputAction.next,
-                            autocorrect: false,
-                            validator: (v) {
-                              if (v == null || v.length < 6) {
-                                return 'Use at least 6 characters';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          AuthTextField(
-                            controller: _confirm,
-                            label: 'Confirm password',
-                            obscureText: true,
-                            textInputAction: TextInputAction.done,
-                            autocorrect: false,
-                            validator: (v) {
-                              if (v != _password.text) {
-                                return 'Passwords do not match';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          FilledButton(
-                            onPressed: _loading ? null : _submit,
-                            child: _loading
-                                ? SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: onPrimary,
-                                    ),
-                                  )
-                                : const Text('Sign up'),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

@@ -9,6 +9,7 @@ import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app.dart';
+import 'core/local/local_prefs.dart';
 import 'core/widgets/home_widget_bridge.dart';
 import 'data/models/prayer_log.dart';
 import 'features/onboarding/data/onboarding_repository.dart';
@@ -81,6 +82,7 @@ Future<void> main() async {
       builder: (context) => ProviderScope(
         overrides: [
           onboardingRepositoryProvider.overrideWithValue(onboardingRepo),
+          sharedPrefsProvider.overrideWithValue(prefs),
         ],
         child: const JaizaNamazApp(),
       ),

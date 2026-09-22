@@ -25,9 +25,12 @@ class PrayerRepository {
     required PrayerType type,
     required PrayerStatus status,
     String? ownerUid,
+
+    /// Day to record for; defaults to now. Lets Records edit past days.
+    DateTime? at,
   }) async {
     try {
-      final now = DateTime.now();
+      final now = at ?? DateTime.now();
       final dateKey = AppDateUtils.localDateKey(now);
       final id = PrayerLog.deterministicId(
         userId: userId,

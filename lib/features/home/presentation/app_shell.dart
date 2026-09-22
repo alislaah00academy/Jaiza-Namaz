@@ -10,7 +10,7 @@ import '../../../core/widgets/home_widget_syncer.dart';
 import '../../../data/models/app_user.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
-import 'quick_mark_sheet.dart';
+import '../../mosques/data/mosque_data.dart';
 
 /// Shared scaffold for authenticated app section: drawer + dynamic title (phone),
 /// or [NavigationRail] + constrained body (wide).
@@ -21,16 +21,31 @@ class AppShell extends ConsumerWidget {
   final String location;
 
   static String titleForPath(String path) {
-    if (path.contains('/home')) return 'Home';
+    if (path.contains('/qaza/estimate')) return 'My estimate';
+    if (path.contains('/qaza/plan')) return 'Add past Qaza';
+    if (path.contains('/qaza/prayer/')) {
+      final name = path.split('/').last;
+      return name.isEmpty
+          ? 'Qaza'
+          : 'Qaza ${name[0].toUpperCase()}${name.substring(1)}';
+    }
+    if (path.contains('/mosques/register')) return 'Register a mosque';
+    if (path.startsWith('/app/mosques/')) {
+      return mosqueById(path.split('/').last)?.name ?? 'Mosque';
+    }
+    if (path.contains('/mosques')) return 'Mosques';
+    if (path.contains('/history')) return 'Records';
+    if (path.contains('/more')) return 'More';
+    if (path.contains('/home')) return 'Today';
     if (path.contains('/fard')) return 'Faraiz';
     if (path.contains('/nawafil')) return 'Nawafil';
     if (path.contains('/qaza')) return 'Qaza';
     if (path.contains('/benefits')) return 'Fazail of Prayers';
     if (path.contains('/academy-intro')) return 'Al Islaah Academy';
-    if (path.contains('/about')) return 'About Us';
+    if (path.contains('/about')) return 'About Jaiza';
     if (path.contains('/contact')) return 'Contact';
     if (path.contains('/donation')) return 'Donation';
-    if (path.contains('/widget-settings')) return 'Widgets & Notifications';
+    if (path.contains('/widget-settings')) return 'Notifications & widgets';
     if (path.contains('/profile')) return 'Profile';
     if (path.contains('/change-password')) return 'Change password';
     if (path.contains('/coming-soon')) return AppStrings.comingSoonTitle;
@@ -54,8 +69,9 @@ class AppShell extends ConsumerWidget {
       return null;
     }
     if (location.contains('/home')) return 0;
-    if (location.contains('/profile')) return 1;
-    if (location.contains('/change-password')) return 2;
+    if (location.contains('/mosques')) return 1;
+    if (location.contains('/history')) return 2;
+    if (location.contains('/more')) return 3;
     return null;
   }
 
@@ -102,10 +118,13 @@ class AppShell extends ConsumerWidget {
         context.go('/app/home');
         break;
       case 1:
-        context.go('/app/profile');
+        context.go('/app/mosques');
         break;
       case 2:
-        context.go('/app/change-password');
+        context.go('/app/history');
+        break;
+      case 3:
+        context.go('/app/more');
         break;
     }
   }
@@ -153,19 +172,24 @@ class AppShell extends ConsumerWidget {
     }
     return const [
       NavigationRailDestination(
-        icon: Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home),
-        label: Text('Home'),
+        icon: Icon(Icons.calendar_today_outlined),
+        selectedIcon: Icon(Icons.calendar_today),
+        label: Text('Today'),
       ),
       NavigationRailDestination(
-        icon: Icon(Icons.person_outline),
-        selectedIcon: Icon(Icons.person),
-        label: Text('Profile'),
+        icon: Icon(Icons.mosque_outlined),
+        selectedIcon: Icon(Icons.mosque),
+        label: Text('Mosques'),
       ),
       NavigationRailDestination(
-        icon: Icon(Icons.lock_reset_outlined),
-        selectedIcon: Icon(Icons.lock_reset),
-        label: Text('Change password'),
+        icon: Icon(Icons.history_outlined),
+        selectedIcon: Icon(Icons.history),
+        label: Text('Records'),
+      ),
+      NavigationRailDestination(
+        icon: Icon(Icons.menu_rounded),
+        selectedIcon: Icon(Icons.menu_rounded),
+        label: Text('More'),
       ),
     ];
   }
@@ -243,12 +267,23 @@ class AppShell extends ConsumerWidget {
             Expanded(
               child: Scaffold(
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                appBar: _buildAppBar(
-                  context,
-                  title: title,
-                  useRail: true,
-                  appUser: appUser,
-                ),
+                // Individual tab roots and the mosque search draw their own
+                // headers, same as on phones.
+                appBar:
+                    isIndividual &&
+                        (_IndividualBottomNavScaffold._rootPaths.contains(
+                              location,
+                            ) ||
+                            _IndividualBottomNavScaffold._selfHeaded.contains(
+                              location,
+                            ))
+                    ? null
+                    : _buildAppBar(
+                        context,
+                        title: title,
+                        useRail: true,
+                        appUser: appUser,
+                      ),
                 body: MaxWidthBody(
                   child: Stack(
                     fit: StackFit.expand,
@@ -481,12 +516,9 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-/// Individual phone layout: bottom nav (Home/History/quick-mark/Reminders/
-/// Profile) instead of the drawer+AppBar pattern used by Parent/Org and
-/// wide screens. Other Individual screens reached via the home grid (Fard,
-/// Nawafil, Qaza, Fazail, About, Contact, Donation, Widgets & Notifications,
-/// Change password) still get a plain back-button AppBar — only the four
-/// nav-root tabs are immersive (no AppBar), matching the reference design.
+/// Individual phone layout: the four-tab bottom bar from the redesign
+/// (Today · Mosques · Records · More). The tab roots draw their own titles;
+/// every other Individual screen gets a centred back-button AppBar.
 class _IndividualBottomNavScaffold extends ConsumerWidget {
   const _IndividualBottomNavScaffold({
     required this.location,
@@ -502,48 +534,39 @@ class _IndividualBottomNavScaffold extends ConsumerWidget {
 
   static const _rootPaths = <String>{
     '/app/home',
+    '/app/mosques',
     '/app/history',
-    '/app/reminders',
-    '/app/profile',
+    '/app/more',
   };
 
+  /// Screens that draw their own top bar (search field in place of a title).
+  static const _selfHeaded = <String>{'/app/mosques/search'};
+
   int? get _selectedIndex {
-    if (location.contains('/home')) return 0;
-    if (location.contains('/history')) return 1;
-    if (location.contains('/reminders')) return 3;
-    if (location.contains('/profile')) return 4;
+    if (location.startsWith('/app/home')) return 0;
+    if (location.startsWith('/app/mosques')) return 1;
+    if (location.startsWith('/app/history')) return 2;
+    if (location.startsWith('/app/more')) return 3;
     return null;
   }
 
-  void _onTap(BuildContext context, WidgetRef ref, int index) {
-    switch (index) {
-      case 0:
-        context.go('/app/home');
-        break;
-      case 1:
-        context.go('/app/history');
-        break;
-      case 2:
-        showQuickMarkSheet(context, ref);
-        break;
-      case 3:
-        context.go('/app/reminders');
-        break;
-      case 4:
-        context.go('/app/profile');
-        break;
-    }
-  }
+  static const _tabs = <(IconData, IconData, String, String)>[
+    (Icons.calendar_today_outlined, Icons.calendar_today, 'Today', '/app/home'),
+    (Icons.mosque_outlined, Icons.mosque, 'Mosques', '/app/mosques'),
+    (Icons.history_outlined, Icons.history, 'Records', '/app/history'),
+    (Icons.menu_rounded, Icons.menu_rounded, 'More', '/app/more'),
+  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final isRoot = _rootPaths.contains(location);
+    final noAppBar = isRoot || _selfHeaded.contains(location);
     final selected = _selectedIndex;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      appBar: isRoot
+      appBar: noAppBar
           ? null
           : AppBar(
               title: Text(title),
@@ -562,55 +585,44 @@ class _IndividualBottomNavScaffold extends ConsumerWidget {
         fit: StackFit.expand,
         children: [
           const HomeWidgetSyncer(),
-          SafeArea(bottom: false, child: child),
+          SafeArea(bottom: false, top: noAppBar, child: child),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showQuickMarkSheet(context, ref),
-        shape: const CircleBorder(),
-        backgroundColor: scheme.tertiary,
-        foregroundColor: scheme.onTertiary,
-        child: const Icon(Icons.menu_book_outlined),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _BottomNavIcon(
-              icon: Icons.home_outlined,
-              selectedIcon: Icons.home,
-              label: 'Home',
-              selected: selected == 0,
-              onTap: () => _onTap(context, ref, 0),
-            ),
-            _BottomNavIcon(
-              icon: Icons.history_outlined,
-              selectedIcon: Icons.history,
-              label: 'History',
-              selected: selected == 1,
-              onTap: () => _onTap(context, ref, 1),
-            ),
-            const SizedBox(width: 48),
-            _BottomNavIcon(
-              icon: Icons.notifications_outlined,
-              selectedIcon: Icons.notifications,
-              label: 'Reminders',
-              selected: selected == 3,
-              onTap: () => _onTap(context, ref, 3),
-            ),
-            _BottomNavIcon(
-              icon: Icons.person_outline,
-              selectedIcon: Icons.person,
-              label: 'Profile',
-              selected: selected == 4,
-              onTap: () => _onTap(context, ref, 4),
-            ),
-          ],
-        ),
-      ),
+      bottomNavigationBar: isRoot
+          ? DecoratedBox(
+              decoration: BoxDecoration(
+                color: scheme.surface,
+                border: Border(top: BorderSide(color: scheme.outlineVariant)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.06),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                top: false,
+                child: SizedBox(
+                  height: 62,
+                  child: Row(
+                    children: [
+                      for (var i = 0; i < _tabs.length; i++)
+                        Expanded(
+                          child: _BottomNavIcon(
+                            icon: _tabs[i].$1,
+                            selectedIcon: _tabs[i].$2,
+                            label: _tabs[i].$3,
+                            selected: selected == i,
+                            onTap: () => context.go(_tabs[i].$4),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          : null,
     );
   }
 }
@@ -636,22 +648,20 @@ class _BottomNavIcon extends StatelessWidget {
     final color = selected ? scheme.primary : scheme.onSurfaceVariant;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(selected ? selectedIcon : icon, color: color, size: 24),
-            const SizedBox(height: 2),
-            Text(
-              label,
-              style: Theme.of(
-                context,
-              ).textTheme.labelSmall?.copyWith(color: color),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(selected ? selectedIcon : icon, color: color, size: 24),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w500,
+              color: color,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -18,6 +18,7 @@ class WelcomeScreen extends StatelessWidget {
       body: JaizaBackground(
         child: SafeArea(
           child: AuthMaxWidth(
+            padding: EdgeInsets.zero,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
