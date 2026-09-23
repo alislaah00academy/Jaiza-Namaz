@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,6 +19,7 @@ abstract final class LocalKeys {
   static const qazaIntroDone = 'jz_qaza_intro_done_v1';
   static const qazaRemindDaily = 'jz_qaza_remind_daily_v1';
   static const trackingSince = 'jz_tracking_since_v1';
+  static const themeMode = 'jz_theme_mode_v1';
 }
 
 /// A persisted nullable string (e.g. the primary mosque id).
@@ -119,6 +121,35 @@ final qazaIntroDoneProvider = StateNotifierProvider<BoolPref, bool>(
 final qazaRemindDailyProvider = StateNotifierProvider<BoolPref, bool>(
   (ref) =>
       BoolPref(ref.watch(sharedPrefsProvider), LocalKeys.qazaRemindDaily, true),
+);
+
+/// Light / dark / system — defaults to following the device, overridable
+/// from Profile so light and dark can be checked without changing OS
+/// settings.
+class ThemeModeNotifier extends StateNotifier<ThemeMode> {
+  ThemeModeNotifier(this._prefs) : super(_read(_prefs));
+
+  final SharedPreferences _prefs;
+
+  static ThemeMode _read(SharedPreferences prefs) {
+    switch (prefs.getString(LocalKeys.themeMode)) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  Future<void> set(ThemeMode mode) async {
+    state = mode;
+    await _prefs.setString(LocalKeys.themeMode, mode.name);
+  }
+}
+
+final themeModeProvider = StateNotifierProvider<ThemeModeNotifier, ThemeMode>(
+  (ref) => ThemeModeNotifier(ref.watch(sharedPrefsProvider)),
 );
 
 /// First day this install started counting missed prayers — the fallback

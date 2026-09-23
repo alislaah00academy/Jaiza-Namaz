@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/feedback/app_snackbar.dart';
+import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
@@ -184,6 +185,32 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     )
                   : const Text('Save'),
+            ),
+            const SizedBox(height: 24),
+            JzCard(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Appearance', style: t.titleMedium),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Switch between light and dark to check both — this '
+                    'overrides your device setting.',
+                    style: t.bodySmall,
+                  ),
+                  const SizedBox(height: 12),
+                  JzSegmented<ThemeMode>(
+                    options: const {
+                      ThemeMode.light: 'Light',
+                      ThemeMode.dark: 'Dark',
+                      ThemeMode.system: 'System',
+                    },
+                    selected: ref.watch(themeModeProvider),
+                    onChanged: (m) => ref.read(themeModeProvider.notifier).set(m),
+                  ),
+                ],
+              ),
             ),
             // Individuals reach these from More; Parent/Organization keep
             // them here.

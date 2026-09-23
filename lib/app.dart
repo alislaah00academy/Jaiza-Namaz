@@ -4,6 +4,7 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/local/local_prefs.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/date_utils.dart';
 import 'core/widgets/home_widget_bridge.dart';
@@ -62,7 +63,7 @@ class _JaizaNamazAppState extends ConsumerState<JaizaNamazApp>
       title: 'Jaiza',
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
+      themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
       locale: DevicePreview.locale(context),
