@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/feedback/app_snackbar.dart';
+import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../../nawafil/presentation/nawafil_screen.dart';
@@ -117,6 +118,36 @@ class MoreScreen extends ConsumerWidget {
                   onTap: () => _showNawafilSheet(context, ref),
                 ),
               ]),
+              const SizedBox(height: 20),
+              JzCard(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        icon(Icons.dark_mode_outlined),
+                        const SizedBox(width: 14),
+                        Text(
+                          'Appearance',
+                          style: Theme.of(context).textTheme.bodyLarge,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    JzSegmented<ThemeMode>(
+                      options: const {
+                        ThemeMode.light: 'Light',
+                        ThemeMode.dark: 'Dark',
+                        ThemeMode.system: 'Auto',
+                      },
+                      selected: ref.watch(themeModeProvider),
+                      onChanged: (m) =>
+                          ref.read(themeModeProvider.notifier).set(m),
+                    ),
+                  ],
+                ),
+              ),
               const SizedBox(height: 20),
               const JzSectionLabel('About Jaiza'),
               group([
