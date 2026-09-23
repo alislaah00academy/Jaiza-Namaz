@@ -67,12 +67,7 @@ class AppShell extends ConsumerWidget {
   }
 
   static int? _railIndexForLocation(String location, UserRole? role) {
-    if (role == UserRole.parent) {
-      if (location.contains('/parent')) return 0;
-      if (location.contains('/profile')) return 1;
-      if (location.contains('/change-password')) return 2;
-      return null;
-    }
+    // Parent is remapped to individual before reaching here (see build()).
     if (role == UserRole.organization) {
       if (location.contains('/home')) return 0;
       if (location.contains('/org')) return 1;
@@ -98,20 +93,7 @@ class AppShell extends ConsumerWidget {
     UserRole? role,
     int index,
   ) {
-    if (role == UserRole.parent) {
-      switch (index) {
-        case 0:
-          context.go('/app/parent');
-          break;
-        case 1:
-          context.go('/app/profile');
-          break;
-        case 2:
-          context.go('/app/change-password');
-          break;
-      }
-      return;
-    }
+    // Parent is remapped to individual before reaching here (see build()).
     if (role == UserRole.organization) {
       switch (index) {
         case 0:
@@ -151,25 +133,7 @@ class AppShell extends ConsumerWidget {
   static List<NavigationRailDestination> _railDestinationsForRole(
     UserRole? role,
   ) {
-    if (role == UserRole.parent) {
-      return const [
-        NavigationRailDestination(
-          icon: Icon(Icons.family_restroom_outlined),
-          selectedIcon: Icon(Icons.family_restroom),
-          label: Text('Children'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: Text('Profile'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.lock_reset_outlined),
-          selectedIcon: Icon(Icons.lock_reset),
-          label: Text('Change password'),
-        ),
-      ];
-    }
+    // Parent is remapped to individual before reaching here (see build()).
     if (role == UserRole.organization) {
       return const [
         NavigationRailDestination(
@@ -361,11 +325,7 @@ class AppShell extends ConsumerWidget {
     );
   }
 
-  static const _drawerRootPaths = <String>{
-    '/app/home',
-    '/app/parent',
-    '/app/org',
-  };
+  static const _drawerRootPaths = <String>{'/app/home', '/app/org'};
 
   PreferredSizeWidget _buildAppBar(
     BuildContext context, {
@@ -484,16 +444,7 @@ class AppShell extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 12),
-            if (role == UserRole.parent)
-              navTile(
-                icon: Icons.family_restroom_outlined,
-                label: 'Children',
-                onTap: () {
-                  Navigator.pop(context);
-                  context.go('/app/parent');
-                },
-              )
-            else if (role == UserRole.organization)
+            if (role == UserRole.organization)
               navTile(
                 icon: Icons.school_outlined,
                 label: 'Classes',
