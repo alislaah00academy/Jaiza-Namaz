@@ -12,7 +12,9 @@ import '../../../features/settings/data/prayer_settings.dart';
 import '../../../providers/providers.dart';
 import '../../../services/location_service.dart';
 import '../../../services/notifications_service.dart';
+import '../../../data/models/user_role.dart';
 import '../../mosques/data/mosque_data.dart';
+import '../../organization/data/org_extras.dart';
 
 /// Notifications & widgets: per-prayer reminders, Jama'at alerts, home
 /// widgets, location, and prayer-time calculation.
@@ -147,6 +149,9 @@ class _WidgetsNotificationsScreenState
 
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
+    final isTeacher =
+        ref.watch(appUserStreamProvider).valueOrNull?.orgMemberRole ==
+        OrgMemberRole.teacher;
 
     return ListView(
       padding: const EdgeInsets.all(20),
@@ -154,6 +159,10 @@ class _WidgetsNotificationsScreenState
         if (_saving) ...[
           const LinearProgressIndicator(),
           const SizedBox(height: 12),
+        ],
+        if (isTeacher) ...[
+          const _ClassRemindersCard(),
+          const SizedBox(height: 14),
         ],
         _prayerReminders(settings, t),
         const SizedBox(height: 14),
@@ -457,6 +466,78 @@ class _JamaatAlertsCard extends ConsumerWidget {
                         .toggle(m.id, v),
                   ),
                 ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _ClassRemindersCard extends ConsumerWidget {
+  const _ClassRemindersCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context).textTheme;
+    final on = ref.watch(classRemindersOnProvider);
+    final minutes = ref.watch(classReminderMinutesProvider);
+    final muted = ref.watch(mutedClassesProvider);
+    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final orgId = appUser?.orgId;
+    final classes =
+        ref.watch(classesForTeacherProvider).valueOrNull ?? const [];
+
+    return JzCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('Class reminders', style: t.titleMedium)),
+              const JzChip('New', gold: true),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'A nudge when a prayer window is closing and your class is still '
+            'unmarked.',
+            style: t.bodySmall,
+          ),
+          const SizedBox(height: 10),
+          JzSwitchRow(
+            title: 'Unmarked class alerts',
+            value: on,
+            onChanged: (v) =>
+                ref.read(classRemindersOnProvider.notifier).set(v),
+          ),
+          if (on) ...[
+            const JzDivider(),
+            Row(
+              children: [
+                Expanded(child: Text('How early', style: t.bodyLarge)),
+                PopupMenuButton<int>(
+                  initialValue: minutes,
+                  onSelected: (v) =>
+                      ref.read(classReminderMinutesProvider.notifier).set(v),
+                  itemBuilder: (_) => [
+                    for (final m in const [10, 15, 20, 30])
+                      PopupMenuItem(value: m, child: Text('$m min')),
+                  ],
+                  child: JzChip('$minutes min', gold: true),
+                ),
+              ],
+            ),
+            if (orgId != null && classes.isNotEmpty)
+              for (final cl in classes) ...[
+                const JzDivider(),
+                JzSwitchRow(
+                  title: cl.name,
+                  value: !muted.contains(cl.id),
+                  onChanged: (v) =>
+                      ref.read(mutedClassesProvider.notifier).toggle(cl.id, !v),
+                ),
+              ],
           ],
         ],
       ),

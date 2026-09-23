@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
+import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../../nawafil/presentation/nawafil_screen.dart';
 import '../../parent/presentation/family_widgets.dart';
@@ -28,6 +29,11 @@ class MoreScreen extends ConsumerWidget {
     final nawafilOn = user?.nawafilEnabled ?? false;
     final isParent = ref.watch(isParentProvider);
     final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final isOrg = user?.role == UserRole.organization;
+    final isTeacher = user?.orgMemberRole == OrgMemberRole.teacher;
+    final myClasses = isTeacher
+        ? ref.watch(classesForTeacherProvider).valueOrNull ?? const []
+        : const [];
 
     Widget icon(IconData i, [Color? color]) =>
         Icon(i, color: color ?? c.primary);
@@ -53,6 +59,32 @@ class MoreScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (isOrg) ...[
+                JzSectionLabel(isTeacher ? 'Madrasa' : 'Organization'),
+                group([
+                  JzListRow(
+                    leading: icon(Icons.school_outlined),
+                    title:
+                        ref.watch(myOrgByIdProvider).valueOrNull?.name ??
+                        'Organization',
+                    subtitle: 'Teachers, classes and reports',
+                    trailing: const JzChevron(),
+                    showDivider: isTeacher,
+                    onTap: () => context.go('/app/org'),
+                  ),
+                  if (isTeacher)
+                    JzListRow(
+                      leading: icon(Icons.class_outlined),
+                      title: 'My classes',
+                      subtitle: myClasses.isEmpty
+                          ? 'No classes yet'
+                          : myClasses.map((c) => c.name).join(' · '),
+                      trailing: const JzChevron(),
+                      onTap: () => context.go('/app/org'),
+                    ),
+                ]),
+                const SizedBox(height: 20),
+              ],
               if (isParent) ...[
                 const JzSectionLabel('Family'),
                 group([

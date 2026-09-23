@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/role_home_route.dart';
 import '../../../core/widgets/home_widget_syncer.dart';
 import '../../../data/models/app_user.dart';
+import '../../../data/models/organization.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../../mosques/data/mosque_data.dart';
@@ -52,8 +53,15 @@ class AppShell extends ConsumerWidget {
     if (path.contains('/profile')) return 'Profile';
     if (path.contains('/change-password')) return 'Change password';
     if (path.contains('/coming-soon')) return AppStrings.comingSoonTitle;
-    if (path.contains('/org/admin')) return 'Organization';
-    if (path.contains('/org/teacher')) return 'My Classes';
+    if (path.contains('/org/admin/teacher/')) return 'Teacher';
+    if (path.contains('/org/teacher/class/') && path.contains('/student/')) {
+      return 'Student';
+    }
+    if (path.contains('/org/teacher/class/') &&
+        path.contains('/add-students')) {
+      return 'Add students';
+    }
+    if (path.contains('/org/teacher/class/')) return 'Class';
     if (path.contains('/parent')) return 'Children';
     return AppStrings.appName;
   }
@@ -66,9 +74,11 @@ class AppShell extends ConsumerWidget {
       return null;
     }
     if (role == UserRole.organization) {
-      if (location.contains('/org')) return 0;
-      if (location.contains('/profile')) return 1;
-      if (location.contains('/change-password')) return 2;
+      if (location.contains('/home')) return 0;
+      if (location.contains('/org')) return 1;
+      if (location.contains('/mosques')) return 2;
+      if (location.contains('/history')) return 3;
+      if (location.contains('/more')) return 4;
       return null;
     }
     if (location.contains('/home')) return 0;
@@ -105,13 +115,19 @@ class AppShell extends ConsumerWidget {
     if (role == UserRole.organization) {
       switch (index) {
         case 0:
-          context.go('/app/org/admin');
+          context.go('/app/home');
           break;
         case 1:
-          context.go('/app/profile');
+          context.go('/app/org');
           break;
         case 2:
-          context.go('/app/change-password');
+          context.go('/app/mosques');
+          break;
+        case 3:
+          context.go('/app/history');
+          break;
+        case 4:
+          context.go('/app/more');
           break;
       }
       return;
@@ -157,19 +173,29 @@ class AppShell extends ConsumerWidget {
     if (role == UserRole.organization) {
       return const [
         NavigationRailDestination(
+          icon: Icon(Icons.calendar_today_outlined),
+          selectedIcon: Icon(Icons.calendar_today),
+          label: Text('Today'),
+        ),
+        NavigationRailDestination(
           icon: Icon(Icons.school_outlined),
           selectedIcon: Icon(Icons.school),
-          label: Text('Organization'),
+          label: Text('Classes'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: Text('Profile'),
+          icon: Icon(Icons.mosque_outlined),
+          selectedIcon: Icon(Icons.mosque),
+          label: Text('Mosques'),
         ),
         NavigationRailDestination(
-          icon: Icon(Icons.lock_reset_outlined),
-          selectedIcon: Icon(Icons.lock_reset),
-          label: Text('Change password'),
+          icon: Icon(Icons.history_outlined),
+          selectedIcon: Icon(Icons.history),
+          label: Text('Records'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.menu_rounded),
+          selectedIcon: Icon(Icons.menu_rounded),
+          label: Text('More'),
         ),
       ];
     }
@@ -208,6 +234,29 @@ class AppShell extends ConsumerWidget {
         if (k.id == id) title = '${k.name}’s Qaza';
       }
     }
+    if (location.startsWith('/app/org/admin/teacher/')) {
+      final uid = location.split('/').last;
+      final org = ref.watch(myOrgProvider).valueOrNull;
+      final teachers = org == null
+          ? const <TeacherMembership>[]
+          : ref.watch(allTeachersForOrgProvider(org.id)).valueOrNull ??
+                const [];
+      for (final tt in teachers) {
+        if (tt.uid == uid) title = tt.name;
+      }
+    }
+    if (location.startsWith('/app/org/teacher/class/')) {
+      // Reachable only by the owning teacher (router-guarded), so this is
+      // always among their own classes.
+      final classId = location.split('/')[4];
+      final classes =
+          ref.watch(classesForTeacherProvider).valueOrNull ?? const [];
+      for (final cl in classes) {
+        if (cl.id == classId) {
+          title = location.endsWith('/report') ? '${cl.name} report' : cl.name;
+        }
+      }
+    }
     // Parents use the same Today · Mosques · Records · More shell as
     // individuals; Today switches between the parent and each child.
     final role = appUser?.role == UserRole.parent
@@ -219,11 +268,15 @@ class AppShell extends ConsumerWidget {
           constraints.maxWidth,
         );
         final isIndividual = role == UserRole.individual || role == null;
-        if (!useRail && isIndividual) {
-          return _IndividualBottomNavScaffold(
+        // Organizations (admin or teacher) get the same shell plus a fifth
+        // "Classes" tab — same note as above ("the same shell").
+        final isOrg = role == UserRole.organization;
+        if (!useRail && (isIndividual || isOrg)) {
+          return _BottomNavScaffold(
             location: location,
             title: title,
             appUser: appUser,
+            showClasses: isOrg,
             child: child,
           );
         }
@@ -281,16 +334,12 @@ class AppShell extends ConsumerWidget {
             Expanded(
               child: Scaffold(
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                // Individual tab roots and the mosque search draw their own
-                // headers, same as on phones.
+                // Individual/org tab roots and the mosque search draw their
+                // own headers, same as on phones.
                 appBar:
-                    isIndividual &&
-                        (_IndividualBottomNavScaffold._rootPaths.contains(
-                              location,
-                            ) ||
-                            _IndividualBottomNavScaffold._selfHeaded.contains(
-                              location,
-                            ))
+                    (isIndividual || isOrg) &&
+                        (_tabRootPaths(isOrg).contains(location) ||
+                            _selfHeadedPaths.contains(location))
                     ? null
                     : _buildAppBar(
                         context,
@@ -315,8 +364,7 @@ class AppShell extends ConsumerWidget {
   static const _drawerRootPaths = <String>{
     '/app/home',
     '/app/parent',
-    '/app/org/admin',
-    '/app/org/teacher',
+    '/app/org',
   };
 
   PreferredSizeWidget _buildAppBar(
@@ -448,18 +496,10 @@ class AppShell extends ConsumerWidget {
             else if (role == UserRole.organization)
               navTile(
                 icon: Icons.school_outlined,
-                label: 'Organization',
+                label: 'Classes',
                 onTap: () {
                   Navigator.pop(context);
-                  context.go(
-                    ref
-                                .read(appUserStreamProvider)
-                                .valueOrNull
-                                ?.orgMemberRole ==
-                            OrgMemberRole.teacher
-                        ? '/app/org/teacher'
-                        : '/app/org/admin',
-                  );
+                  context.go('/app/org');
                 },
               )
             else ...[
@@ -530,53 +570,57 @@ class AppShell extends ConsumerWidget {
   }
 }
 
-/// Individual phone layout: the four-tab bottom bar from the redesign
-/// (Today · Mosques · Records · More). The tab roots draw their own titles;
-/// every other Individual screen gets a centred back-button AppBar.
-class _IndividualBottomNavScaffold extends ConsumerWidget {
-  const _IndividualBottomNavScaffold({
+/// Root tab paths for the phone/rail shell. Organizations (admin or
+/// teacher) get a fifth "Classes" tab inserted after Today; everyone else
+/// gets the plain four.
+Set<String> _tabRootPaths(bool showClasses) => {
+  '/app/home',
+  if (showClasses) '/app/org',
+  '/app/mosques',
+  '/app/history',
+  '/app/more',
+};
+
+/// Screens that draw their own top bar (search field in place of a title).
+const _selfHeadedPaths = <String>{'/app/mosques/search'};
+
+List<(IconData, IconData, String, String)> _tabsFor(bool showClasses) => [
+  (Icons.calendar_today_outlined, Icons.calendar_today, 'Today', '/app/home'),
+  if (showClasses) (Icons.school_outlined, Icons.school, 'Classes', '/app/org'),
+  (Icons.mosque_outlined, Icons.mosque, 'Mosques', '/app/mosques'),
+  (Icons.history_outlined, Icons.history, 'Records', '/app/history'),
+  (Icons.menu_rounded, Icons.menu_rounded, 'More', '/app/more'),
+];
+
+/// Phone layout: the bottom bar from the redesign (Today · Mosques ·
+/// Records · More, plus Classes for Organization accounts). The tab roots
+/// draw their own titles; every other screen gets a centred back-button
+/// AppBar.
+class _BottomNavScaffold extends ConsumerWidget {
+  const _BottomNavScaffold({
     required this.location,
     required this.title,
     required this.appUser,
+    required this.showClasses,
     required this.child,
   });
 
   final String location;
   final String title;
   final AppUser? appUser;
+  final bool showClasses;
   final Widget child;
-
-  static const _rootPaths = <String>{
-    '/app/home',
-    '/app/mosques',
-    '/app/history',
-    '/app/more',
-  };
-
-  /// Screens that draw their own top bar (search field in place of a title).
-  static const _selfHeaded = <String>{'/app/mosques/search'};
-
-  int? get _selectedIndex {
-    if (location.startsWith('/app/home')) return 0;
-    if (location.startsWith('/app/mosques')) return 1;
-    if (location.startsWith('/app/history')) return 2;
-    if (location.startsWith('/app/more')) return 3;
-    return null;
-  }
-
-  static const _tabs = <(IconData, IconData, String, String)>[
-    (Icons.calendar_today_outlined, Icons.calendar_today, 'Today', '/app/home'),
-    (Icons.mosque_outlined, Icons.mosque, 'Mosques', '/app/mosques'),
-    (Icons.history_outlined, Icons.history, 'Records', '/app/history'),
-    (Icons.menu_rounded, Icons.menu_rounded, 'More', '/app/more'),
-  ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final isRoot = _rootPaths.contains(location);
-    final noAppBar = isRoot || _selfHeaded.contains(location);
-    final selected = _selectedIndex;
+    final tabs = _tabsFor(showClasses);
+    final isRoot = _tabRootPaths(showClasses).contains(location);
+    final noAppBar = isRoot || _selfHeadedPaths.contains(location);
+    int? selected;
+    for (var i = 0; i < tabs.length; i++) {
+      if (location.startsWith(tabs[i].$4)) selected = i;
+    }
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -621,14 +665,14 @@ class _IndividualBottomNavScaffold extends ConsumerWidget {
                   height: 62,
                   child: Row(
                     children: [
-                      for (var i = 0; i < _tabs.length; i++)
+                      for (var i = 0; i < tabs.length; i++)
                         Expanded(
                           child: _BottomNavIcon(
-                            icon: _tabs[i].$1,
-                            selectedIcon: _tabs[i].$2,
-                            label: _tabs[i].$3,
+                            icon: tabs[i].$1,
+                            selectedIcon: tabs[i].$2,
+                            label: tabs[i].$3,
                             selected: selected == i,
-                            onTap: () => context.go(_tabs[i].$4),
+                            onTap: () => context.go(tabs[i].$4),
                           ),
                         ),
                     ],

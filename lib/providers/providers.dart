@@ -350,6 +350,14 @@ final myOrgProvider = StreamProvider<Organization?>((ref) {
   return ref.watch(organizationRepositoryProvider).watchOrgForAdmin(uid);
 });
 
+/// The signed-in user's org by their own `orgId` — works for admin and
+/// teacher alike (unlike [myOrgProvider], which only resolves for admins).
+final myOrgByIdProvider = StreamProvider<Organization?>((ref) {
+  final orgId = ref.watch(appUserStreamProvider).valueOrNull?.orgId;
+  if (orgId == null) return const Stream<Organization?>.empty();
+  return ref.watch(organizationRepositoryProvider).watchOrganization(orgId);
+});
+
 /// The org this uid teaches under, if any (resolved via AppUser.orgId).
 final myTeacherMembershipProvider = StreamProvider<TeacherMembership?>((ref) {
   final user = ref.watch(appUserStreamProvider).valueOrNull;

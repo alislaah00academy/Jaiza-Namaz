@@ -32,11 +32,12 @@ import '../features/mosques/presentation/mosques_screen.dart';
 import '../features/mosques/presentation/register_mosque_screen.dart';
 import '../features/nawafil/presentation/nawafil_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
-import '../features/organization/presentation/class_roster_screen.dart';
-import '../features/organization/presentation/org_admin_dashboard_screen.dart';
-import '../features/organization/presentation/org_admin_drilldown_screen.dart';
-import '../features/organization/presentation/org_teacher_dashboard_screen.dart';
-import '../features/organization/presentation/student_history_screen.dart';
+import '../features/organization/presentation/add_students_screen.dart';
+import '../features/organization/presentation/admin_teacher_screen.dart';
+import '../features/organization/presentation/class_mark_screen.dart';
+import '../features/organization/presentation/class_report_screen.dart';
+import '../features/organization/presentation/org_classes_tab.dart';
+import '../features/organization/presentation/student_detail_screen.dart';
 import '../features/parent/presentation/child_qaza_screen.dart';
 import '../features/parent/presentation/family_reminders_screen.dart';
 import '../features/parent/presentation/family_screen.dart';
@@ -131,11 +132,14 @@ String? _redirect(BuildContext context, GoRouterState state, Ref ref) {
   if (loc.startsWith('/app/family') && appUser?.role != UserRole.parent) {
     return homeRouteForAppUser(appUser);
   }
-  if (loc.startsWith('/app/org/admin') &&
+  if (loc.startsWith('/app/org') && appUser?.role != UserRole.organization) {
+    return homeRouteForAppUser(appUser);
+  }
+  if (loc.startsWith('/app/org/admin/teacher/') &&
       appUser?.orgMemberRole != OrgMemberRole.admin) {
     return homeRouteForAppUser(appUser);
   }
-  if (loc.startsWith('/app/org/teacher') &&
+  if (loc.startsWith('/app/org/teacher/') &&
       appUser?.orgMemberRole != OrgMemberRole.teacher) {
     return homeRouteForAppUser(appUser);
   }
@@ -330,39 +334,45 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               ),
               GoRoute(
                 path: 'family/qaza/:childId',
-                builder: (context, state) => ChildQazaScreen(
-                  childId: state.pathParameters['childId']!,
-                ),
+                builder: (context, state) =>
+                    ChildQazaScreen(childId: state.pathParameters['childId']!),
               ),
               GoRoute(
                 path: 'family/reminders',
                 builder: (context, state) => const FamilyRemindersScreen(),
               ),
               GoRoute(
-                path: 'org/admin',
-                builder: (context, state) => const OrgAdminDashboardScreen(),
+                path: 'org',
+                builder: (context, state) => const OrgClassesTab(),
               ),
               GoRoute(
                 path: 'org/admin/teacher/:teacherUid',
-                builder: (context, state) => OrgAdminDrilldownScreen(
+                builder: (context, state) => AdminTeacherScreen(
                   teacherUid: state.pathParameters['teacherUid']!,
                 ),
               ),
               GoRoute(
-                path: 'org/teacher',
-                builder: (context, state) => const OrgTeacherDashboardScreen(),
+                path: 'org/teacher/class/:classId',
+                builder: (context, state) =>
+                    ClassMarkScreen(classId: state.pathParameters['classId']!),
               ),
               GoRoute(
-                path: 'org/teacher/class/:classId',
-                builder: (context, state) => ClassRosterScreen(
+                path: 'org/teacher/class/:classId/add-students',
+                builder: (context, state) => AddStudentsScreen(
                   classId: state.pathParameters['classId']!,
                 ),
               ),
               GoRoute(
                 path: 'org/teacher/class/:classId/student/:studentId',
-                builder: (context, state) => StudentHistoryScreen(
+                builder: (context, state) => StudentDetailScreen(
                   classId: state.pathParameters['classId']!,
                   studentId: state.pathParameters['studentId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'org/teacher/class/:classId/report',
+                builder: (context, state) => ClassReportScreen(
+                  classId: state.pathParameters['classId']!,
                 ),
               ),
             ],
