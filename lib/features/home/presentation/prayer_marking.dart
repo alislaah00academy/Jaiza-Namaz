@@ -17,9 +17,13 @@ Future<void> togglePrayer(
   required PrayerType type,
   required bool currentlyDone,
   DateTime? at,
+
+  /// Whose prayer this is — a child's id when a parent marks for them.
+  String? personId,
 }) async {
-  final uid = ref.read(currentUserProvider)?.uid;
-  if (uid == null) return;
+  final me = ref.read(currentUserProvider)?.uid;
+  if (me == null) return;
+  final uid = personId ?? me;
   if (currentlyDone) {
     final ok = await showDialog<bool>(
       context: context,
@@ -49,6 +53,7 @@ Future<void> togglePrayer(
           type: type,
           status: currentlyDone ? PrayerStatus.missed : PrayerStatus.completed,
           at: at,
+          ownerUid: uid == me ? null : me,
         );
     if (context.mounted && !currentlyDone && type == PrayerType.fard) {
       AppSnackBar.success(context, AppStrings.namazMarkedSuccess);
@@ -68,9 +73,11 @@ Future<void> addMissedToQaza(
   required PrayerName name,
   required String label,
   DateTime? at,
+  String? personId,
 }) async {
-  final uid = ref.read(currentUserProvider)?.uid;
-  if (uid == null) return;
+  final me = ref.read(currentUserProvider)?.uid;
+  if (me == null) return;
+  final uid = personId ?? me;
   try {
     await ref
         .read(prayerRepositoryProvider)
@@ -80,9 +87,10 @@ Future<void> addMissedToQaza(
           type: PrayerType.fard,
           status: PrayerStatus.missed,
           at: at,
+          ownerUid: uid == me ? null : me,
         );
     if (context.mounted) {
-      AppSnackBar.success(context, '$label added to your Qaza list.');
+      AppSnackBar.success(context, uid == me ? '$label added to your Qaza list.' : '$label added to the Qaza list.');
     }
   } catch (_) {
     if (context.mounted) {

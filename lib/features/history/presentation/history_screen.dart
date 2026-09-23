@@ -10,6 +10,8 @@ import '../../../providers/providers.dart';
 import '../../../services/location_service.dart';
 import '../../../services/prayer_times_service.dart';
 import '../../home/presentation/prayer_marking.dart';
+import '../../parent/data/family_data.dart';
+import '../../parent/presentation/family_widgets.dart';
 
 /// Prayer schedule for any local day (same location rules as Today, using
 /// the last cached GPS fix instead of asking for a new one).
@@ -36,6 +38,7 @@ final _scheduleForDayProvider = FutureProvider.autoDispose
     });
 
 /// Records — one calendar for every prayer type; past days are editable.
+/// For a Parent, the chip row switches whose records are shown.
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -76,16 +79,30 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
+    final isParent = ref.watch(isParentProvider);
+    final me = ref.watch(currentUserProvider)?.uid;
+    final childId = isParent ? ref.watch(selectedChildIdProvider) : null;
+    final uid = childId ?? me;
     final canGoForward = DateTime(
       _month.year,
       _month.month + 1,
     ).isBefore(DateTime(_today.year, _today.month + 1));
+
+    if (uid == null) return const SizedBox.shrink();
+
+    final fardLogs = ref.watch(personFardLogsProvider(uid)).valueOrNull ?? const [];
+    final nawafilLogs =
+        ref.watch(personNawafilLogsProvider(uid)).valueOrNull ?? const [];
+    final qazaLogs = ref.watch(personQazaLogsProvider(uid)).valueOrNull ?? const [];
+    final full = fullFardDayKeysForMonth(fardLogs, _month);
+
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
         const JzPageTitle('Records'),
+        if (isParent) const PersonChipRow(),
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -116,18 +133,37 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       month: _month,
                       selected: _selected,
                       today: _today,
+                      fullDays: full,
                       onSelect: (d) => setState(() => _selected = d),
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 14),
-              _DayFardCard(day: _selected, today: _today),
+              _DayFardCard(
+                day: _selected,
+                today: _today,
+                personId: childId,
+                logs: fardLogs,
+              ),
               const SizedBox(height: 14),
-              _DayNawafilCard(day: _selected, today: _today),
-              _DayQazaCard(day: _selected),
+              _DayNawafilCard(
+                day: _selected,
+                today: _today,
+                personId: childId,
+                logs: nawafilLogs,
+                trackingOn: childId != null ||
+                    (ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ??
+                        false),
+              ),
+              _DayQazaCard(day: _selected, logs: qazaLogs),
               const SizedBox(height: 14),
-              _MonthSummary(month: _month, today: _today),
+              _MonthSummary(
+                month: _month,
+                today: _today,
+                logs: fardLogs,
+                fullDays: full,
+              ),
             ],
           ),
         ),
@@ -136,23 +172,24 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 }
 
-class _MonthGrid extends ConsumerWidget {
+class _MonthGrid extends StatelessWidget {
   const _MonthGrid({
     required this.month,
     required this.selected,
     required this.today,
+    required this.fullDays,
     required this.onSelect,
   });
 
   final DateTime month;
   final DateTime selected;
   final DateTime today;
+  final Set<String> fullDays;
   final ValueChanged<DateTime> onSelect;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
-    final full = ref.watch(fullFardDayKeysForMonthProvider(month));
     final days = DateTime(month.year, month.month + 1, 0).day;
     final lead = DateTime(month.year, month.month, 1).weekday - 1; // Mon=0
     const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -176,7 +213,7 @@ class _MonthGrid extends ConsumerWidget {
             final isSel = date == selected;
             final isToday = date == today;
             final future = date.isAfter(today);
-            final dot = full.contains(AppDateUtils.localDateKey(date));
+            final dot = fullDays.contains(AppDateUtils.localDateKey(date));
             return InkWell(
               customBorder: const CircleBorder(),
               onTap: future ? null : () => onSelect(date),
@@ -238,15 +275,22 @@ class _MonthGrid extends ConsumerWidget {
 }
 
 class _DayFardCard extends ConsumerWidget {
-  const _DayFardCard({required this.day, required this.today});
+  const _DayFardCard({
+    required this.day,
+    required this.today,
+    required this.logs,
+    this.personId,
+  });
 
   final DateTime day;
   final DateTime today;
+  final List<PrayerLog> logs;
+  final String? personId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
-    final map = ref.watch(fardMapForDateProvider(day));
+    final map = logsOnDay(logs, day);
     final schedule = ref.watch(_scheduleForDayProvider(day)).valueOrNull;
     final now = DateTime.now();
     final done = kFardPrayerDefs
@@ -299,7 +343,9 @@ class _DayFardCard extends ConsumerWidget {
                       ? null
                       : log?.status == PrayerStatus.missed
                       ? Text(
-                          'Missed · in your Qaza list',
+                          personId == null
+                              ? 'Missed · in your Qaza list'
+                              : 'Missed · in the Qaza list',
                           style: t.labelSmall?.copyWith(
                             color: Theme.of(context).colorScheme.error,
                             fontWeight: FontWeight.w600,
@@ -312,6 +358,7 @@ class _DayFardCard extends ConsumerWidget {
                             name: def.name,
                             label: def.label,
                             at: at,
+                            personId: personId,
                           ),
                         ),
                   showDivider: i < kFardPrayerDefs.length - 1,
@@ -323,6 +370,7 @@ class _DayFardCard extends ConsumerWidget {
                     type: PrayerType.fard,
                     currentlyDone: isDone,
                     at: at,
+                    personId: personId,
                   ),
                 );
               },
@@ -334,19 +382,26 @@ class _DayFardCard extends ConsumerWidget {
 }
 
 class _DayNawafilCard extends ConsumerWidget {
-  const _DayNawafilCard({required this.day, required this.today});
+  const _DayNawafilCard({
+    required this.day,
+    required this.today,
+    required this.logs,
+    required this.trackingOn,
+    this.personId,
+  });
 
   final DateTime day;
   final DateTime today;
+  final List<PrayerLog> logs;
+  final bool trackingOn;
+  final String? personId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final enabled =
-        ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ?? false;
-    final map = ref.watch(nawafilMapForDateProvider(day));
-    if (!enabled && map.isEmpty) return const SizedBox.shrink();
+    final map = logsOnDay(logs, day);
+    if (!trackingOn && map.isEmpty) return const SizedBox.shrink();
     final done = kNawafilDefs
         .where((d) => map[d.name]?.status == PrayerStatus.completed)
         .length;
@@ -384,6 +439,7 @@ class _DayNawafilCard extends ConsumerWidget {
                     type: PrayerType.nawafil,
                     currentlyDone: isDone,
                     at: at,
+                    personId: personId,
                   ),
                 );
               },
@@ -394,18 +450,23 @@ class _DayNawafilCard extends ConsumerWidget {
   }
 }
 
-class _DayQazaCard extends ConsumerWidget {
-  const _DayQazaCard({required this.day});
+class _DayQazaCard extends StatelessWidget {
+  const _DayQazaCard({required this.day, required this.logs});
 
   final DateTime day;
+  final List<PrayerLog> logs;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final n = ref
-        .watch(qazaLogsForDateProvider(day))
-        .where((l) => l.status == PrayerStatus.completed)
+    final key = AppDateUtils.localDateKey(day);
+    final n = logs
+        .where(
+          (l) =>
+              AppDateUtils.localDateKey(l.dateTime) == key &&
+              l.status == PrayerStatus.completed,
+        )
         .length;
     return JzCard(
       padding: const EdgeInsets.all(16),
@@ -421,17 +482,22 @@ class _DayQazaCard extends ConsumerWidget {
   }
 }
 
-class _MonthSummary extends ConsumerWidget {
-  const _MonthSummary({required this.month, required this.today});
+class _MonthSummary extends StatelessWidget {
+  const _MonthSummary({
+    required this.month,
+    required this.today,
+    required this.logs,
+    required this.fullDays,
+  });
 
   final DateTime month;
   final DateTime today;
+  final List<PrayerLog> logs;
+  final Set<String> fullDays;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final logs = ref.watch(userFardLogsProvider).valueOrNull ?? const [];
-    final full = ref.watch(fullFardDayKeysForMonthProvider(month));
     final prayed = logs.where((l) {
       final d = l.dateTime.toLocal();
       return d.year == month.year &&
@@ -465,8 +531,8 @@ class _MonthSummary extends ConsumerWidget {
           JzBar(value: possible == 0 ? 0 : prayed / possible, height: 8),
           const SizedBox(height: 8),
           Text(
-            '$pct% prayed · ${full.length} complete '
-            '${full.length == 1 ? 'day' : 'days'}',
+            '$pct% prayed · ${fullDays.length} complete '
+            '${fullDays.length == 1 ? 'day' : 'days'}',
             style: t.bodySmall,
           ),
         ],

@@ -37,9 +37,9 @@ import '../features/organization/presentation/org_admin_dashboard_screen.dart';
 import '../features/organization/presentation/org_admin_drilldown_screen.dart';
 import '../features/organization/presentation/org_teacher_dashboard_screen.dart';
 import '../features/organization/presentation/student_history_screen.dart';
-import '../features/parent/presentation/child_attendance_screen.dart';
-import '../features/parent/presentation/child_history_screen.dart';
-import '../features/parent/presentation/parent_dashboard_screen.dart';
+import '../features/parent/presentation/child_qaza_screen.dart';
+import '../features/parent/presentation/family_reminders_screen.dart';
+import '../features/parent/presentation/family_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/reminders/presentation/reminders_screen.dart';
 import '../features/role_selection/presentation/role_selection_screen.dart';
@@ -128,7 +128,7 @@ String? _redirect(BuildContext context, GoRouterState state, Ref ref) {
   // their own role, but nothing stops a manual `context.go()`/deep link to
   // a mismatched dashboard. Bounce back to the correct one instead of
   // rendering an empty/"not found" screen for the wrong role.
-  if (loc.startsWith('/app/parent') && appUser?.role != UserRole.parent) {
+  if (loc.startsWith('/app/family') && appUser?.role != UserRole.parent) {
     return homeRouteForAppUser(appUser);
   }
   if (loc.startsWith('/app/org/admin') &&
@@ -325,20 +325,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 },
               ),
               GoRoute(
-                path: 'parent',
-                builder: (context, state) => const ParentDashboardScreen(),
+                path: 'family',
+                builder: (context, state) => const FamilyScreen(),
               ),
               GoRoute(
-                path: 'parent/child/:childId',
-                builder: (context, state) => ChildAttendanceScreen(
+                path: 'family/qaza/:childId',
+                builder: (context, state) => ChildQazaScreen(
                   childId: state.pathParameters['childId']!,
                 ),
               ),
               GoRoute(
-                path: 'parent/child/:childId/history',
-                builder: (context, state) => ChildHistoryScreen(
-                  childId: state.pathParameters['childId']!,
-                ),
+                path: 'family/reminders',
+                builder: (context, state) => const FamilyRemindersScreen(),
               ),
               GoRoute(
                 path: 'org/admin',

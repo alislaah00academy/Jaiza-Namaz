@@ -21,6 +21,9 @@ class AppShell extends ConsumerWidget {
   final String location;
 
   static String titleForPath(String path) {
+    if (path.contains('/family/reminders')) return 'Family reminders';
+    if (path.contains('/family/qaza/')) return 'Qaza';
+    if (path.contains('/family')) return 'Family';
     if (path.contains('/qaza/estimate')) return 'My estimate';
     if (path.contains('/qaza/plan')) return 'Add past Qaza';
     if (path.contains('/qaza/prayer/')) {
@@ -196,9 +199,20 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final title = titleForPath(location);
     final appUser = ref.watch(appUserStreamProvider).valueOrNull;
-    final role = appUser?.role;
+    var title = titleForPath(location);
+    if (location.startsWith('/app/family/qaza/')) {
+      final id = location.split('/').last;
+      final kids = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+      for (final k in kids) {
+        if (k.id == id) title = '${k.name}’s Qaza';
+      }
+    }
+    // Parents use the same Today · Mosques · Records · More shell as
+    // individuals; Today switches between the parent and each child.
+    final role = appUser?.role == UserRole.parent
+        ? UserRole.individual
+        : appUser?.role;
     return LayoutBuilder(
       builder: (context, constraints) {
         final useRail = AppBreakpoints.useNavigationRailForWidth(

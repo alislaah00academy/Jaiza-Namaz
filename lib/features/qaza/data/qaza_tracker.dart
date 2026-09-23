@@ -4,6 +4,7 @@ import '../../../core/local/local_prefs.dart';
 import '../../../core/utils/date_utils.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
+import '../../../services/prayer_times_service.dart';
 import 'qaza_plan.dart';
 
 /// One prayer's Qaza picture: prayers Jaiza counted as missed (with dates),
@@ -96,13 +97,32 @@ final qazaTrackingSinceProvider = Provider<DateTime>(
 );
 
 final qazaOverviewProvider = Provider<QazaOverview>((ref) {
-  final since = ref.watch(qazaTrackingSinceProvider);
   final user = ref.watch(appUserStreamProvider).valueOrNull;
   final plan = user?.qazaPlanParsed ?? QazaPlanParsed.defaults();
-  final fardLogs = ref.watch(userFardLogsProvider).valueOrNull ?? const [];
-  final qazaLogs = ref.watch(userQazaLogsProvider).valueOrNull ?? const [];
-  final schedule = ref.watch(currentPrayerCardProvider).valueOrNull?.today;
+  return buildQazaOverview(
+    since: ref.watch(qazaTrackingSinceProvider),
+    fardLogs: ref.watch(userFardLogsProvider).valueOrNull ?? const [],
+    qazaLogs: ref.watch(userQazaLogsProvider).valueOrNull ?? const [],
+    schedule: ref.watch(currentPrayerCardProvider).valueOrNull?.today,
+    estimates: {
+      if (plan.setupComplete)
+        for (final p in kQazaPrayerNames) p: plan.backlogFor(p).totalDays,
+    },
+    dailyGoal: user?.qazaDailyTarget ?? 1,
+  );
+});
 
+/// Builds a [QazaOverview] from raw logs — shared by the signed-in user and
+/// the children a parent tracks. A Fard prayer is missed once its window
+/// ended with no "completed" log on or after [since].
+QazaOverview buildQazaOverview({
+  required DateTime since,
+  required List<PrayerLog> fardLogs,
+  required List<PrayerLog> qazaLogs,
+  required DailyPrayerSchedule? schedule,
+  Map<PrayerName, int> estimates = const {},
+  int dailyGoal = 1,
+}) {
   final prayedKeys = <String>{
     for (final l in fardLogs)
       if (l.status == PrayerStatus.completed)
@@ -142,7 +162,7 @@ final qazaOverviewProvider = Provider<QazaOverview>((ref) {
     byPrayer[p] = QazaPrayerSummary(
       prayer: p,
       trackedMissed: missed[p]!,
-      estimate: plan.setupComplete ? plan.backlogFor(p).totalDays : 0,
+      estimate: estimates[p] ?? 0,
       completedDates: done,
     );
   }
@@ -150,7 +170,7 @@ final qazaOverviewProvider = Provider<QazaOverview>((ref) {
   return QazaOverview(
     since: start,
     byPrayer: byPrayer,
-    hasEstimate: plan.setupComplete,
-    dailyGoal: user?.qazaDailyTarget ?? 1,
+    hasEstimate: estimates.isNotEmpty,
+    dailyGoal: dailyGoal,
   );
-});
+}

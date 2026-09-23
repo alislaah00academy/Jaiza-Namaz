@@ -6,6 +6,7 @@ import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../../nawafil/presentation/nawafil_screen.dart';
+import '../../parent/presentation/family_widgets.dart';
 import '../../qaza/data/qaza_tracker.dart';
 
 /// More tab — everything that is not daily: account, app settings, content,
@@ -24,6 +25,8 @@ class MoreScreen extends ConsumerWidget {
     final user = ref.watch(appUserStreamProvider).valueOrNull;
     final qaza = ref.watch(qazaOverviewProvider);
     final nawafilOn = user?.nawafilEnabled ?? false;
+    final isParent = ref.watch(isParentProvider);
+    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
 
     Widget icon(IconData i, [Color? color]) =>
         Icon(i, color: color ?? c.primary);
@@ -49,6 +52,29 @@ class MoreScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (isParent) ...[
+                const JzSectionLabel('Family'),
+                group([
+                  JzListRow(
+                    leading: icon(Icons.family_restroom_outlined),
+                    title: 'Family',
+                    subtitle: children.isEmpty
+                        ? 'Add your children'
+                        : 'Children, progress and their reminders',
+                    trailing: const JzChevron(),
+                    showDivider: true,
+                    onTap: () => context.push('/app/family'),
+                  ),
+                  JzListRow(
+                    leading: icon(Icons.notifications_active_outlined),
+                    title: 'Family reminders',
+                    subtitle: 'Nudges when a prayer isn’t marked',
+                    trailing: const JzChevron(),
+                    onTap: () => context.push('/app/family/reminders'),
+                  ),
+                ]),
+                const SizedBox(height: 20),
+              ],
               const JzSectionLabel('Account'),
               group([
                 JzListRow(
@@ -70,7 +96,9 @@ class MoreScreen extends ConsumerWidget {
                 JzListRow(
                   leading: icon(Icons.notifications_none_rounded),
                   title: 'Notifications & widgets',
-                  subtitle: 'Reminders, Jama’at alerts, location',
+                  subtitle: isParent
+                      ? 'Your prayers, Jama’at, widgets'
+                      : 'Reminders, Jama’at alerts, location',
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/widget-settings'),
                 ),

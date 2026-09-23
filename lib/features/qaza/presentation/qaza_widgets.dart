@@ -25,10 +25,12 @@ IconData prayerIcon(PrayerName p) => switch (p) {
 Future<void> markQazaDone(
   BuildContext context,
   WidgetRef ref,
-  PrayerName prayer,
-) async {
-  final uid = ref.read(currentUserProvider)?.uid;
-  if (uid == null) return;
+  PrayerName prayer, {
+  String? personId,
+}) async {
+  final me = ref.read(currentUserProvider)?.uid;
+  if (me == null) return;
+  final uid = personId ?? me;
   try {
     await ref
         .read(prayerRepositoryProvider)
@@ -37,6 +39,7 @@ Future<void> markQazaDone(
           prayerName: prayer,
           type: PrayerType.qaza,
           status: PrayerStatus.completed,
+          ownerUid: uid == me ? null : me,
         );
     if (context.mounted) {
       AppSnackBar.success(
@@ -120,9 +123,16 @@ Future<void> showQazaHowItWorks(BuildContext context) {
 /// Total card: Total Qaza, Tracked by Jaiza, and either the user's estimate
 /// or an "Add an estimate" row.
 class QazaTotalCard extends StatelessWidget {
-  const QazaTotalCard({super.key, required this.overview});
+  const QazaTotalCard({
+    super.key,
+    required this.overview,
+    this.allowEstimate = true,
+  });
 
   final QazaOverview overview;
+
+  /// Children have no estimate backend, so their card omits that row.
+  final bool allowEstimate;
 
   @override
   Widget build(BuildContext context) {
@@ -161,8 +171,10 @@ class QazaTotalCard extends StatelessWidget {
             'Missed since $sinceLabel',
             jzCount(overview.trackedTotal),
           ),
-          const JzDivider(),
-          if (overview.hasEstimate)
+          if (allowEstimate) const JzDivider(),
+          if (!allowEstimate)
+            const SizedBox.shrink()
+          else if (overview.hasEstimate)
             InkWell(
               onTap: () => context.push('/app/qaza/estimate'),
               child: line(
@@ -225,21 +237,28 @@ String _month(int m) => const [
 
 /// Per-prayer card with progress and the "Mark Qaza done" action.
 class QazaPrayerCard extends ConsumerWidget {
-  const QazaPrayerCard({super.key, required this.summary});
+  const QazaPrayerCard({super.key, required this.summary, this.personId});
 
   final QazaPrayerSummary summary;
+
+  /// A child's id when shown on a child's Qaza; null for the user.
+  final String? personId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final p = summary.prayer;
-    final doneToday = ref.watch(qazaTodayCountForProvider(p)) > 0;
-    void open() => context.push('/app/qaza/prayer/${p.name}');
+    final doneToday = personId == null
+        ? ref.watch(qazaTodayCountForProvider(p)) > 0
+        : summary.completedDates.any((d) => _isToday(d));
+    void open() => personId == null
+        ? context.push('/app/qaza/prayer/${p.name}')
+        : markQazaDone(context, ref, p, personId: personId);
     return JzCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      onTap: open,
+      onTap: personId == null ? open : null,
       child: Column(
         children: [
           Row(
@@ -290,7 +309,7 @@ class QazaPrayerCard extends ConsumerWidget {
                   ),
                   onPressed: summary.remaining == 0 || doneToday
                       ? null
-                      : () => markQazaDone(context, ref, p),
+                      : () => markQazaDone(context, ref, p, personId: personId),
                   icon: Icon(
                     doneToday
                         ? Icons.check_circle_rounded
@@ -315,4 +334,9 @@ class QazaPrayerCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+bool _isToday(DateTime d) {
+  final n = DateTime.now();
+  return d.year == n.year && d.month == n.month && d.day == n.day;
 }
