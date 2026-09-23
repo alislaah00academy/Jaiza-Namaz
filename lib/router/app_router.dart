@@ -24,6 +24,12 @@ import '../features/history/presentation/history_screen.dart';
 import '../features/home/presentation/app_shell.dart';
 import '../features/home/presentation/home_hub_screen.dart';
 import '../features/misc/presentation/coming_soon_screen.dart';
+import '../features/more/presentation/more_screen.dart';
+import '../features/mosques/presentation/link_mosque_screen.dart';
+import '../features/mosques/presentation/mosque_detail_screen.dart';
+import '../features/mosques/presentation/mosque_search_screen.dart';
+import '../features/mosques/presentation/mosques_screen.dart';
+import '../features/mosques/presentation/register_mosque_screen.dart';
 import '../features/nawafil/presentation/nawafil_screen.dart';
 import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/organization/presentation/class_roster_screen.dart';
@@ -31,14 +37,18 @@ import '../features/organization/presentation/org_admin_dashboard_screen.dart';
 import '../features/organization/presentation/org_admin_drilldown_screen.dart';
 import '../features/organization/presentation/org_teacher_dashboard_screen.dart';
 import '../features/organization/presentation/student_history_screen.dart';
-import '../features/parent/presentation/child_attendance_screen.dart';
-import '../features/parent/presentation/child_history_screen.dart';
-import '../features/parent/presentation/parent_dashboard_screen.dart';
+import '../features/parent/presentation/child_qaza_screen.dart';
+import '../features/parent/presentation/family_reminders_screen.dart';
+import '../features/parent/presentation/family_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/reminders/presentation/reminders_screen.dart';
 import '../features/role_selection/presentation/role_selection_screen.dart';
 import '../features/settings/presentation/widgets_notifications_screen.dart';
+import '../features/qaza/presentation/qaza_estimate_screen.dart';
+import '../features/qaza/presentation/qaza_plan_ready_screen.dart';
+import '../features/qaza/presentation/qaza_prayer_screen.dart';
 import '../features/qaza/presentation/qaza_screen.dart';
+import '../data/models/prayer_log.dart';
 import '../features/splash/presentation/splash_screen.dart';
 import 'go_router_refresh.dart';
 import '../providers/providers.dart';
@@ -55,6 +65,7 @@ const _knownTopLevel = <String>{
   '/verify-email',
   '/reset-password',
   '/select-role',
+  '/link-mosque',
 };
 
 String? _redirect(BuildContext context, GoRouterState state, Ref ref) {
@@ -117,7 +128,7 @@ String? _redirect(BuildContext context, GoRouterState state, Ref ref) {
   // their own role, but nothing stops a manual `context.go()`/deep link to
   // a mismatched dashboard. Bounce back to the correct one instead of
   // rendering an empty/"not found" screen for the wrong role.
-  if (loc.startsWith('/app/parent') && appUser?.role != UserRole.parent) {
+  if (loc.startsWith('/app/family') && appUser?.role != UserRole.parent) {
     return homeRouteForAppUser(appUser);
   }
   if (loc.startsWith('/app/org/admin') &&
@@ -200,6 +211,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const RoleSelectionScreen(),
       ),
       GoRoute(
+        path: '/link-mosque',
+        builder: (context, state) => const LinkMosqueScreen(),
+      ),
+      GoRoute(
         path: '/app',
         redirect: (context, state) =>
             state.uri.path == '/app' ? '/app/home' : null,
@@ -223,6 +238,44 @@ final goRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'qaza',
                 builder: (context, state) => const QazaScreen(),
+              ),
+              GoRoute(
+                path: 'qaza/estimate',
+                builder: (context, state) => const QazaEstimateScreen(),
+              ),
+              GoRoute(
+                path: 'qaza/plan',
+                builder: (context, state) => const QazaPlanReadyScreen(),
+              ),
+              GoRoute(
+                path: 'qaza/prayer/:name',
+                builder: (context, state) => QazaPrayerScreen(
+                  prayer:
+                      PrayerNameX.fromFirestore(state.pathParameters['name']) ??
+                      PrayerName.fajr,
+                ),
+              ),
+              GoRoute(
+                path: 'mosques',
+                builder: (context, state) => const MosquesScreen(),
+              ),
+              GoRoute(
+                path: 'mosques/search',
+                builder: (context, state) => const MosqueSearchScreen(),
+              ),
+              GoRoute(
+                path: 'mosques/register',
+                builder: (context, state) => const RegisterMosqueScreen(),
+              ),
+              GoRoute(
+                path: 'mosques/:mosqueId',
+                builder: (context, state) => MosqueDetailScreen(
+                  mosqueId: state.pathParameters['mosqueId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'more',
+                builder: (context, state) => const MoreScreen(),
               ),
               GoRoute(
                 path: 'benefits',
@@ -272,20 +325,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                 },
               ),
               GoRoute(
-                path: 'parent',
-                builder: (context, state) => const ParentDashboardScreen(),
+                path: 'family',
+                builder: (context, state) => const FamilyScreen(),
               ),
               GoRoute(
-                path: 'parent/child/:childId',
-                builder: (context, state) => ChildAttendanceScreen(
+                path: 'family/qaza/:childId',
+                builder: (context, state) => ChildQazaScreen(
                   childId: state.pathParameters['childId']!,
                 ),
               ),
               GoRoute(
-                path: 'parent/child/:childId/history',
-                builder: (context, state) => ChildHistoryScreen(
-                  childId: state.pathParameters['childId']!,
-                ),
+                path: 'family/reminders',
+                builder: (context, state) => const FamilyRemindersScreen(),
               ),
               GoRoute(
                 path: 'org/admin',

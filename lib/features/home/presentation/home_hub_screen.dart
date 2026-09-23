@@ -6,169 +6,40 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/animations/jaiza_motion.dart';
-import '../../../core/layout/app_breakpoints.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../core/constants/prayer_catalog.dart';
+import '../../../core/l10n/app_strings.dart';
 import '../../../core/utils/jaiza_dates.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
+import '../../../core/widgets/jz_ui.dart';
+import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../../../services/prayer_times_service.dart';
+import '../../../data/models/child_profile.dart';
+import '../../mosques/data/mosque_data.dart';
+import '../../parent/data/family_data.dart';
+import '../../parent/presentation/family_widgets.dart';
+import '../../qaza/data/qaza_tracker.dart';
+import 'prayer_marking.dart';
 
-class _HubTile {
-  const _HubTile({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.path,
-  });
+String _hm(DateTime t) => DateFormat('h:mm a').format(t.toLocal());
+String _hhm(DateTime t) => DateFormat('hh:mm a').format(t.toLocal());
 
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final String path;
-}
-
-/// Individual home: today's date + current prayer card, and the main
-/// feature grid. Streak/badge UI was removed from here per product
-/// decision — the underlying streak computation keeps running unchanged.
-class HomeHubScreen extends ConsumerWidget {
+/// Today — the landing screen. The primary mosque's Jama'at time is the
+/// hero, and the five Fard prayers are ticked straight from the list.
+class HomeHubScreen extends ConsumerStatefulWidget {
   const HomeHubScreen({super.key});
 
-  static const _tiles = [
-    _HubTile(
-      title: 'Obligatory Prayers',
-      subtitle: 'Faraiz',
-      icon: Icons.mosque_outlined,
-      path: '/app/fard',
-    ),
-    _HubTile(
-      title: 'Nawafil Prayers',
-      subtitle: 'Optional prayers',
-      icon: Icons.front_hand_outlined,
-      path: '/app/nawafil',
-    ),
-    _HubTile(
-      title: 'Qaza Prayers',
-      subtitle: 'Missed prayers',
-      icon: Icons.history_edu_outlined,
-      path: '/app/qaza',
-    ),
-    _HubTile(
-      title: 'Fazail of prayers',
-      subtitle: 'Virtues & rewards',
-      icon: Icons.menu_book_outlined,
-      path: '/app/benefits',
-    ),
-    _HubTile(
-      title: 'About Us',
-      subtitle: 'Al Islaah Academy',
-      icon: Icons.info_outline,
-      path: '/app/about',
-    ),
-    _HubTile(
-      title: 'Contact Us',
-      subtitle: 'Reach out to us',
-      icon: Icons.call_outlined,
-      path: '/app/contact',
-    ),
-    _HubTile(
-      title: 'Donation',
-      subtitle: 'Support the project',
-      icon: Icons.volunteer_activism_outlined,
-      path: '/app/donation',
-    ),
-  ];
-
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final gridColumns = AppBreakpoints.hubGridCrossAxisCount(
-          constraints.maxWidth,
-        );
-        return CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                // Below ~360 logical px there isn't room for the card and
-                // the wordmark side by side without squeezing the card's
-                // Start/End row — stack them instead of overflowing.
-                child: constraints.maxWidth < 360
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const _PrayerStatusCard(),
-                          const SizedBox(height: 12),
-                          const Center(
-                            child: JaizaWordmark(compact: true, maxSize: 110),
-                          ),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Expanded(flex: 3, child: _PrayerStatusCard()),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 12),
-                              child: Center(
-                                child: JaizaWordmark(
-                                  compact: true,
-                                  maxSize: 130,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: SliverGrid(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: gridColumns,
-                  mainAxisSpacing: 14,
-                  crossAxisSpacing: 14,
-                  childAspectRatio: 1.05,
-                ),
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final t = _tiles[index];
-                  return _CategoryCard(tile: t).jaizaEnter(index: index);
-                }, childCount: _tiles.length),
-              ),
-            ),
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: JaizaMosqueSkyline(),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  ConsumerState<HomeHubScreen> createState() => _HomeHubScreenState();
 }
 
-/// Today's date (Hijri + Gregorian) and the currently-active Fard prayer's
-/// start/end window, refreshed every minute so the active prayer updates
-/// itself as the day goes on.
-class _PrayerStatusCard extends ConsumerStatefulWidget {
-  const _PrayerStatusCard();
-
-  @override
-  ConsumerState<_PrayerStatusCard> createState() => _PrayerStatusCardState();
-}
-
-class _PrayerStatusCardState extends ConsumerState<_PrayerStatusCard> {
+class _HomeHubScreenState extends ConsumerState<HomeHubScreen> {
   Timer? _ticker;
 
   @override
   void initState() {
     super.initState();
+    // Keep "current prayer" and the Jama'at countdown fresh.
     _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
       ref.invalidate(currentPrayerCardProvider);
     });
@@ -182,149 +53,321 @@ class _PrayerStatusCardState extends ConsumerState<_PrayerStatusCard> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final now = DateTime.now();
-    final cardAsync = ref.watch(currentPrayerCardProvider);
+    final card = ref.watch(currentPrayerCardProvider).valueOrNull;
+    final user = ref.watch(appUserStreamProvider).valueOrNull;
+    final fard = ref.watch(todayFardMapProvider).valueOrNull ?? const {};
+    final nawafilOn = user?.nawafilEnabled ?? false;
+    final nawafilLogs = ref.watch(todayNawafilProvider).valueOrNull ?? const [];
+    final nawafilDone = kNawafilDefs
+        .where(
+          (d) => nawafilLogs.any(
+            (l) => l.prayerName == d.name && l.status == PrayerStatus.completed,
+          ),
+        )
+        .length;
+    final qaza = ref.watch(qazaOverviewProvider);
+    final isParent = ref.watch(isParentProvider);
+    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final child = isParent
+        ? childById(children, ref.watch(selectedChildIdProvider))
+        : null;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surface,
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        boxShadow: AppTokens.softShadow(context),
-        border: Border.all(color: scheme.outline.withValues(alpha: 0.2)),
-      ),
+    if (child != null) {
+      return ListView(
+        padding: const EdgeInsets.only(bottom: 16),
+        children: [
+          _HeaderCard(data: card),
+          const _AddChildrenStrip(),
+          const PersonChipRow(),
+          _ChildView(child: child, data: card),
+          const SizedBox(height: 4),
+          const JaizaMosqueSkyline(),
+        ],
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 16),
+      children: [
+        _HeaderCard(data: card).jaizaEnter(),
+        _StreakStrip(
+          done: kFardPrayerDefs
+              .where((d) => fard[d.name]?.status == PrayerStatus.completed)
+              .length,
+        ).jaizaEnter(index: 1),
+        if (isParent) ...[const _AddChildrenStrip(), const PersonChipRow()],
+        _PrayerListCard(data: card, logs: fard).jaizaEnter(index: 2),
+        JzStripCard(
+          icon: Icons.front_hand_outlined,
+          title: 'Nawafil',
+          subtitle: nawafilOn
+              ? '$nawafilDone of ${kNawafilDefs.length} done today'
+              : 'Tracking off — tap to turn on',
+          onTap: () => context.push('/app/nawafil'),
+        ).jaizaEnter(index: 3),
+        JzStripCard(
+          icon: Icons.history_edu_outlined,
+          title: 'Qaza',
+          subtitle: qaza.remaining == 0
+              ? 'Nothing to make up'
+              : '${jzCount(qaza.remaining)} prayers to make up',
+          onTap: () => context.push('/app/qaza'),
+        ).jaizaEnter(index: 4),
+        if (isParent && children.isNotEmpty) _FamilyCard(children: children),
+        const SizedBox(height: 4),
+        const JaizaMosqueSkyline(),
+      ],
+    );
+  }
+}
+
+typedef _CardData = ({DailyPrayerSchedule today, PrayerWindowStatus status});
+
+class _HeaderCard extends ConsumerWidget {
+  const _HeaderCard({required this.data});
+
+  final _CardData? data;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final now = DateTime.now();
+    final d = data;
+    final activeKey = d?.status.activePrayerKey;
+    final window = d == null || activeKey == null
+        ? null
+        : d.today.fardWindows.firstWhere((w) => w.key == activeKey);
+    final label = window?.label ?? d?.status.nextLabel ?? '—';
+    final key = window?.key ?? d?.status.nextKey;
+    final start = window?.start ?? d?.status.nextTime;
+    final end =
+        window?.end ??
+        (key == null || d == null
+            ? null
+            : d.today.fardWindows
+                  .firstWhere(
+                    (w) => w.key == key,
+                    orElse: () => d.today.fardWindows.first,
+                  )
+                  .end);
+    final prayer = key == null ? null : PrayerNameX.fromFirestore(key);
+    final mosque = ref.watch(primaryMosqueProvider);
+
+    return JzCard(
+      margin: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       padding: const EdgeInsets.all(16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(
-            formatHijriDate(now),
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            formatGregorianFull(now),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: scheme.onSurfaceVariant,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Divider(color: scheme.outlineVariant, height: 1),
-          const SizedBox(height: 10),
-          cardAsync.when(
-            data: (data) => _ActivePrayerRow(data: data),
-            loading: () => const SizedBox(
-              height: 44,
-              child: Center(
-                child: SizedBox(
-                  height: 18,
-                  width: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+          Row(
+            children: [
+              Image.asset(
+                'assets/branding/jaiza_emblem.png',
+                width: 54,
+                height: 54,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      formatHijriDate(now),
+                      style: t.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(formatGregorianFull(now), style: t.bodySmall),
+                  ],
                 ),
               ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 9),
+            child: Text(
+              AppStrings.academyCredit,
+              style: t.labelSmall?.copyWith(letterSpacing: 0.3),
             ),
-            error: (e, st) => Text(
-              'Prayer times unavailable',
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
+          ),
+          const JzDivider(top: 11, bottom: 10),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: Row(
+              children: [
+                window != null
+                    ? PulsingDot(color: jzGreen(context), size: 9)
+                    : Container(
+                        width: 9,
+                        height: 9,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: c.outline,
+                        ),
+                      ),
+                const SizedBox(width: 9),
+                Text(
+                  label,
+                  style: t.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const Spacer(),
+                Text(
+                  window != null ? 'Current prayer' : 'Next prayer',
+                  style: t.bodySmall?.copyWith(
+                    color: window != null
+                        ? jzGreen(context)
+                        : c.onSurfaceVariant,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (mosque != null && prayer != null)
+            _JamaatBox(mosque: mosque, prayer: prayer, nextDay: _isTomorrow(d))
+          else
+            JzDashedAction(
+              gold: false,
+              radius: 16,
+              icon: Icons.mosque_outlined,
+              title: 'Set your primary mosque',
+              subtitle: "To see Jama'at times for every prayer",
+              trailing: TextButton(
+                onPressed: () => context.go('/app/mosques'),
+                child: const Text('Find'),
               ),
+              onTap: () => context.go('/app/mosques'),
+            ),
+          const JzDivider(top: 12, bottom: 10),
+          IntrinsicHeight(
+            child: Row(
+              children: [
+                Expanded(
+                  child: _TimeCell(
+                    icon: Icons.wb_twilight_outlined,
+                    label: 'Starts',
+                    time: start == null ? '—' : _hhm(start),
+                  ),
+                ),
+                VerticalDivider(width: 1, color: c.outlineVariant),
+                Expanded(
+                  child: _TimeCell(
+                    icon: Icons.nights_stay_outlined,
+                    label: 'Ends',
+                    time: end == null ? '—' : _hhm(end),
+                  ),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+
+  /// After Isha the "next" prayer is tomorrow's Fajr.
+  bool _isTomorrow(_CardData? d) {
+    if (d == null || d.status.activePrayerKey != null) return false;
+    return d.status.nextTime.day != DateTime.now().day;
+  }
 }
 
-class _ActivePrayerRow extends StatelessWidget {
-  const _ActivePrayerRow({required this.data});
+class _JamaatBox extends StatelessWidget {
+  const _JamaatBox({
+    required this.mosque,
+    required this.prayer,
+    required this.nextDay,
+  });
 
-  final ({DailyPrayerSchedule today, PrayerWindowStatus status}) data;
-
-  String _fmt(DateTime t) => DateFormat('hh:mm a').format(t.toLocal());
+  final Mosque mosque;
+  final PrayerName prayer;
+  final bool nextDay;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final activeKey = data.status.activePrayerKey;
-    final isActive = activeKey != null;
-    final window = isActive
-        ? data.today.fardWindows.firstWhere((w) => w.key == activeKey)
-        : null;
-    final label = window?.label ?? data.status.nextLabel;
-    final start = window?.start ?? data.status.nextTime;
-    final end = window?.end ?? data.status.targetTime;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            isActive
-                ? const PulsingDot(color: Colors.green, size: 9)
-                : Container(
-                    width: 9,
-                    height: 9,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: scheme.outline,
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final now = DateTime.now();
+    final day = nextDay ? now.add(const Duration(days: 1)) : now;
+    final at = mosque.jamaatOn(day, prayer);
+    String when = '';
+    if (at != null) {
+      final diff = at.difference(now);
+      if (diff.inMinutes > 0) {
+        when = ' · starts in ${PrayerTimesService.compactDuration(diff)}';
+      } else if (diff.inMinutes > -30) {
+        when = ' · started ${-diff.inMinutes} min ago';
+      }
+    }
+    return Material(
+      color: c.tertiaryContainer.withValues(alpha: 0.6),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: c.tertiary.withValues(alpha: 0.32)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => context.push('/app/mosques/${mosque.id}'),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const JzAvatar(
+                    icon: Icons.mosque_outlined,
+                    size: 34,
+                    iconSize: 18,
+                    tone: JzAvatarTone.gold,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Jama'at",
+                      style: t.titleSmall?.copyWith(letterSpacing: 0.3),
                     ),
                   ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w700,
+                  Text(
+                    mosque.longTime(prayer),
+                    style: t.titleLarge?.copyWith(
+                      fontSize: 21,
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 2),
-        Padding(
-          padding: const EdgeInsets.only(left: 16),
-          child: Text(
-            isActive ? 'Current Prayer' : 'Next Prayer',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: isActive ? Colors.green[700] : scheme.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-            ),
+              Padding(
+                padding: const EdgeInsets.only(left: 46, top: 3),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${mosque.name}$when',
+                        style: t.bodySmall?.copyWith(color: c.onSurface),
+                      ),
+                    ),
+                    Icon(
+                      Icons.chevron_right_rounded,
+                      size: 18,
+                      color: c.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 10),
-        Divider(color: scheme.outlineVariant, height: 1),
-        const SizedBox(height: 10),
-        // Two flexible halves (not a fixed-width Row) so this never
-        // overflows, no matter how narrow the card gets next to the logo.
-        Row(
-          children: [
-            Expanded(
-              child: _TimeBlock(
-                icon: Icons.wb_twilight_outlined,
-                label: 'Start',
-                time: _fmt(start),
-              ),
-            ),
-            Container(width: 1, height: 28, color: scheme.outlineVariant),
-            Expanded(
-              child: _TimeBlock(
-                icon: Icons.brightness_high_outlined,
-                label: 'End',
-                time: _fmt(end),
-              ),
-            ),
-          ],
-        ),
-      ],
+      ),
     );
   }
 }
 
-class _TimeBlock extends StatelessWidget {
-  const _TimeBlock({
+class _TimeCell extends StatelessWidget {
+  const _TimeCell({
     required this.icon,
     required this.label,
     required this.time,
@@ -336,114 +379,380 @@ class _TimeBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: 15, color: scheme.primary),
-          const SizedBox(width: 4),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelSmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                Text(
-                  time,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: c.primary),
+            const SizedBox(width: 7),
+            Text(label, style: t.labelSmall),
+            const SizedBox(width: 7),
+            Text(
+              time,
+              style: t.titleSmall?.copyWith(
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StreakStrip extends ConsumerWidget {
+  const _StreakStrip({required this.done});
+
+  final int done;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final streak = ref.watch(streakStreamProvider).valueOrNull;
+    final current = streak?.currentStreak ?? 0;
+    final best = streak?.longestStreak ?? 0;
+    final total = kFardPrayerDefs.length;
+    return JzStripCard(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      icon: Icons.local_fire_department_outlined,
+      iconColor: c.tertiary,
+      title: '$current-day streak',
+      subtitle: best > 0
+          ? 'Best so far — $best ${best == 1 ? 'day' : 'days'}'
+          : 'Pray all five to start one',
+      trailing: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '$done of $total today',
+            style: t.labelSmall?.copyWith(color: c.onSurface),
           ),
+          const SizedBox(height: 5),
+          JzBar(value: done / total, width: 72),
         ],
       ),
     );
   }
 }
 
-class _CategoryCard extends StatelessWidget {
-  const _CategoryCard({required this.tile});
+class _PrayerListCard extends ConsumerWidget {
+  const _PrayerListCard({
+    required this.data,
+    required this.logs,
+    this.personId,
+  });
 
-  final _HubTile tile;
+  final _CardData? data;
+  final Map<PrayerName, PrayerLog> logs;
+
+  /// A child's id when a parent is marking for them.
+  final String? personId;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mosque = ref.watch(primaryMosqueProvider);
+    final now = DateTime.now();
+    final d = data;
+    return JzCard(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      child: Column(
+        children: [
+          for (var i = 0; i < kFardPrayerDefs.length; i++)
+            Builder(
+              builder: (context) {
+                final def = kFardPrayerDefs[i];
+                final log = logs[def.name];
+                final done = log?.status == PrayerStatus.completed;
+                final window = d?.today.fardWindows.firstWhere(
+                  (w) => w.key == def.name.name,
+                );
+                final isCurrent = d?.status.activePrayerKey == def.name.name;
+                final ended = window != null && window.end.isBefore(now);
+                final state = done
+                    ? JzRowState.normal
+                    : isCurrent
+                    ? JzRowState.current
+                    : ended
+                    ? JzRowState.missed
+                    : JzRowState.normal;
+                final range = window == null
+                    ? '${def.startHint} — ${def.endHint}'
+                    : '${_hm(window.start)} – ${_hm(window.end)}';
+                Widget? sub;
+                String? subText = range;
+                if (state == JzRowState.current) subText = 'Now · $range';
+                if (state == JzRowState.missed) {
+                  subText = null;
+                  sub = log?.status == PrayerStatus.missed
+                      ? Text(
+                          personId == null
+                              ? 'Missed · in your Qaza list'
+                              : 'Missed · in the Qaza list',
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        )
+                      : MissedAddToQaza(
+                          onAdd: () => addMissedToQaza(
+                            context,
+                            ref,
+                            name: def.name,
+                            label: def.label,
+                            personId: personId,
+                          ),
+                        );
+                }
+                return JzPrayerRow(
+                  name: def.label,
+                  checked: done,
+                  state: state,
+                  sub: subText,
+                  subWidget: sub,
+                  showDivider: i < kFardPrayerDefs.length - 1,
+                  trailing: mosque == null
+                      ? null
+                      : JzJamaatChip(mosque.shortTime(def.name)),
+                  onToggle: () => togglePrayer(
+                    context,
+                    ref,
+                    name: def.name,
+                    label: def.label,
+                    type: PrayerType.fard,
+                    currentlyDone: done,
+                    personId: personId,
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// "Add children" strip — lists the children, "+" opens the add sheet.
+class _AddChildrenStrip extends ConsumerWidget {
+  const _AddChildrenStrip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
-    return Material(
-      color: c.surface,
-      elevation: 0,
-      shadowColor: Colors.transparent,
-      clipBehavior: Clip.antiAlias,
-      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-        onTap: () => context.push(tile.path),
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-            border: Border.all(color: c.outline.withValues(alpha: 0.18)),
-            // A tighter, lighter shadow than AppTokens.softShadow (tuned
-            // for big standalone cards) — that one's 18px blur bled into
-            // neighboring grid tiles at the corners where 4 cards meet.
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
+    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    return JzStripCard(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+      icon: Icons.family_restroom_outlined,
+      title: 'Add children',
+      subtitle: children.isEmpty
+          ? 'Mark their prayers from this same screen'
+          : children.map((k) => k.name).join(' · '),
+      onTap: () => showAddChildSheet(context),
+      trailing: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: c.primary),
+        child: Icon(Icons.add_rounded, size: 20, color: c.onPrimary),
+      ),
+    );
+  }
+}
+
+/// Today for one child: summary, streak, their Fard list, Nawafil and Qaza.
+class _ChildView extends ConsumerWidget {
+  const _ChildView({required this.child, required this.data});
+
+  final ChildProfile child;
+  final _CardData? data;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final logs =
+        ref.watch(personFardLogsProvider(child.id)).valueOrNull ?? const [];
+    final nawafil =
+        ref.watch(personNawafilLogsProvider(child.id)).valueOrNull ?? const [];
+    final extra = ref.watch(childExtrasProvider)[child.id];
+    final today = DateTime.now();
+    final todayMap = logsOnDay(logs, today);
+    final done = fardDoneOn(logs, today);
+    final week = fardDoneThisWeek(logs);
+    final (streak, best) = fardStreak(logs);
+    final nawafilMap = logsOnDay(nawafil, today);
+    final nawafilDone = kNawafilDefs
+        .where((d) => nawafilMap[d.name]?.status == PrayerStatus.completed)
+        .length;
+    final qaza = ref.watch(childQazaOverviewProvider(child.id));
+    final total = kFardPrayerDefs.length;
+
+    return Column(
+      children: [
+        JzCard(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+          child: Row(
+            children: [
+              LetterAvatar(child.name, size: 44),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      extra?.age == null
+                          ? child.name
+                          : '${child.name} · ${extra!.age} years',
+                      style: t.titleSmall,
+                    ),
+                    Text(
+                      'Today $done of $total · this week $week of ${total * 7}',
+                      style: t.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () => context.go('/app/history'),
+                child: const Text('History'),
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: c.primaryContainer.withValues(alpha: 0.65),
-                    border: Border.all(
-                      color: c.outline.withValues(alpha: 0.15),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: Icon(tile.icon, color: c.primary, size: 28),
-                ),
-                const Spacer(),
-                Text(
-                  tile.title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  tile.subtitle,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
+        ),
+        JzStripCard(
+          margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+          icon: Icons.local_fire_department_outlined,
+          iconColor: c.tertiary,
+          title: '${child.name} — $streak-day streak',
+          subtitle: best > 0
+              ? 'Best so far — $best ${best == 1 ? 'day' : 'days'}'
+              : 'All five in a day starts a streak',
+          trailing: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$done of $total today',
+                style: t.labelSmall?.copyWith(color: c.onSurface),
+              ),
+              const SizedBox(height: 5),
+              JzBar(value: done / total, width: 72),
+            ],
           ),
         ),
+        _PrayerListCard(data: data, logs: todayMap, personId: child.id),
+        JzStripCard(
+          icon: Icons.front_hand_outlined,
+          title: 'Nawafil',
+          subtitle: '$nawafilDone of ${kNawafilDefs.length} done today',
+          onTap: () => context.push('/app/nawafil'),
+        ),
+        JzStripCard(
+          icon: Icons.history_edu_outlined,
+          title: 'Qaza',
+          subtitle: qaza.remaining == 0
+              ? 'Nothing to make up'
+              : '${jzCount(qaza.remaining)} to make up · since '
+                    '${DateFormat('d MMMM').format(qaza.since)}',
+          onTap: () => context.push('/app/family/qaza/${child.id}'),
+        ),
+      ],
+    );
+  }
+}
+
+/// Family card on the parent's own Today: who still has prayers outstanding.
+class _FamilyCard extends ConsumerWidget {
+  const _FamilyCard({required this.children});
+
+  final List<ChildProfile> children;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
+    final total = kFardPrayerDefs.length;
+    return JzCard(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('Family', style: t.titleMedium)),
+              TextButton(
+                onPressed: () => context.push('/app/family'),
+                child: const Text('See all'),
+              ),
+            ],
+          ),
+          for (final k in children)
+            Builder(
+              builder: (context) {
+                final logs =
+                    ref.watch(personFardLogsProvider(k.id)).valueOrNull ??
+                    const [];
+                final done = fardDoneOn(logs, DateTime.now());
+                final (streak, _) = fardStreak(logs);
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () =>
+                      ref.read(selectedChildIdProvider.notifier).state = k.id,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Row(
+                      children: [
+                        LetterAvatar(k.name),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(k.name, style: t.titleSmall),
+                                  ),
+                                  Icon(
+                                    Icons.local_fire_department_outlined,
+                                    size: 14,
+                                    color: c.tertiary,
+                                  ),
+                                  const SizedBox(width: 2),
+                                  Text('$streak', style: t.labelSmall),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              JzBar(value: done / total),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          '$done/$total',
+                          style: t.titleSmall?.copyWith(
+                            color: done == total
+                                ? c.primary
+                                : c.onSurfaceVariant,
+                            fontFeatures: const [FontFeature.tabularFigures()],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: c.onSurfaceVariant,
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

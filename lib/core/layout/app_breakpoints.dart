@@ -42,21 +42,26 @@ class MaxWidthBody extends StatelessWidget {
 
 /// Centers narrow forms (auth, etc.) on tablet/desktop.
 class AuthMaxWidth extends StatelessWidget {
-  const AuthMaxWidth({super.key, required this.child});
+  const AuthMaxWidth({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsets.symmetric(horizontal: 24),
+  });
 
   static const double maxWidth = 480;
 
   final Widget child;
+
+  /// Pass [EdgeInsets.zero] when the screen has edge-to-edge ornaments
+  /// (arch header, skyline) and pads its own form content instead.
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: maxWidth),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          child: child,
-        ),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }

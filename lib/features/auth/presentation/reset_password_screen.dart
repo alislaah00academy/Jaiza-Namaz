@@ -64,65 +64,73 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         child: SafeArea(
           child: SingleChildScrollView(
             child: AuthMaxWidth(
+              padding: EdgeInsets.zero,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   JaizaAuthHeader(onBack: () => context.pop()),
-                  const SizedBox(height: 12),
-                  Text(
-                    'Reset Password',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Enter the email for your account. We\'ll send a link to choose a new password.',
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: scheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 28),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          AuthTextField(
-                            controller: _email,
-                            label: 'Email',
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.done,
-                            autocorrect: false,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return 'Enter your email';
-                              }
-                              if (!v.contains('@')) {
-                                return 'Enter a valid email';
-                              }
-                              return null;
-                            },
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        const SizedBox(height: 12),
+                        Text(
+                          'Reset Password',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          'Enter the email for your account. We\'ll send a link to choose a new password.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(color: scheme.onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 28),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                AuthTextField(
+                                  controller: _email,
+                                  label: 'Email',
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.done,
+                                  autocorrect: false,
+                                  validator: (v) {
+                                    if (v == null || v.trim().isEmpty) {
+                                      return 'Enter your email';
+                                    }
+                                    if (!v.contains('@')) {
+                                      return 'Enter a valid email';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                const SizedBox(height: 24),
+                                FilledButton(
+                                  onPressed: _loading ? null : _submit,
+                                  child: _loading
+                                      ? SizedBox(
+                                          height: 22,
+                                          width: 22,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: onPrimary,
+                                          ),
+                                        )
+                                      : const Text('Send reset link'),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+                            ),
                           ),
-                          const SizedBox(height: 24),
-                          FilledButton(
-                            onPressed: _loading ? null : _submit,
-                            child: _loading
-                                ? SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: onPrimary,
-                                    ),
-                                  )
-                                : const Text('Send reset link'),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

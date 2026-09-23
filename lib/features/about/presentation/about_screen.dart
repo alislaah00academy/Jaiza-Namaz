@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/app_strings.dart';
-import '../../../core/widgets/jaiza_hero_emblem.dart';
-import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/widgets/jz_ui.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -11,69 +10,61 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Center(child: JaizaHeroEmblem(size: 88, iconSize: 44)),
-        const SizedBox(height: 20),
+        const SizedBox(height: 8),
+        const Center(child: JzEmblem(icon: Icons.mosque_outlined)),
+        const SizedBox(height: 18),
         Text(
           AppStrings.appName,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: t.headlineSmall,
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
         Text(
           AppStrings.academyCredit,
           textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: c.primary,
-                fontWeight: FontWeight.w600,
-              ),
+          style: t.titleMedium?.copyWith(color: c.primary),
         ),
-        const SizedBox(height: 24),
-        JaizaSurfaceCard(
+        const SizedBox(height: 22),
+        JzCard(
           padding: const EdgeInsets.all(18),
           child: Text(
-            'Jaiza helps Muslims track obligatory prayers, optional '
-            'nawafil, and qaza with gentle motivation — streaks, badges, and '
-            'clear progress.',
-            style: Theme.of(context).textTheme.bodyLarge,
+            'Jaiza helps Muslims track obligatory prayers, optional nawafil, '
+            'and qaza with gentle motivation — clear progress, no clutter.',
+            style: t.bodyLarge,
           ),
         ),
         const SizedBox(height: 14),
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.all(18),
-          child: Text(
-            'Our goal is to support consistency with adab: simple design, honest '
-            'tracking, and room to grow in worship.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: ListTile(
-            leading: Icon(
-              Icons.menu_book_outlined,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            title: const Text(
-              'الاصلاح اکیڈمی کا مختصر تعارف',
-              textAlign: TextAlign.right,
-              textDirection: TextDirection.rtl,
-            ),
-            subtitle: const Text(
-              'Brief introduction to Al Islaah Academy (Urdu)',
-            ),
-            trailing: const Icon(Icons.chevron_right_rounded),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(18),
-            ),
-            onTap: () => context.push('/app/academy-intro'),
+        JzCard(
+          child: Column(
+            children: [
+              JzListRow(
+                leading: Icon(Icons.menu_book_outlined, color: c.primary),
+                title: 'الاصلاح اکیڈمی کا مختصر تعارف',
+                subtitle: 'Brief introduction (Urdu)',
+                trailing: const JzChevron(),
+                showDivider: true,
+                onTap: () => context.push('/app/academy-intro'),
+              ),
+              JzListRow(
+                leading: Icon(Icons.school_outlined, color: c.primary),
+                title: 'Al Islaah Academy',
+                subtitle: 'Courses and admissions',
+                trailing: const JzChevron(),
+                showDivider: true,
+                onTap: () => context.push('/app/academy-intro'),
+              ),
+              JzListRow(
+                leading: Icon(Icons.mail_outline_rounded, color: c.primary),
+                title: 'Contact',
+                subtitle: 'Reach Al Islaah Academy',
+                trailing: const JzChevron(),
+                onTap: () => context.push('/app/contact'),
+              ),
+            ],
           ),
         ),
       ],

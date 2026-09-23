@@ -1,15 +1,21 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/feedback/app_snackbar.dart';
+import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/home_widget_bridge.dart';
-import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/widgets/jz_ui.dart';
 import '../../../features/settings/data/prayer_settings.dart';
 import '../../../providers/providers.dart';
 import '../../../services/location_service.dart';
 import '../../../services/notifications_service.dart';
+import '../../mosques/data/mosque_data.dart';
 
-/// Calculation method, location, and notification toggles for widgets + reminders.
+/// Notifications & widgets: per-prayer reminders, Jama'at alerts, home
+/// widgets, location, and prayer-time calculation.
 class WidgetsNotificationsScreen extends ConsumerStatefulWidget {
   const WidgetsNotificationsScreen({super.key});
 
@@ -47,9 +53,7 @@ class _WidgetsNotificationsScreenState
           );
       await HomeWidgetBridge.syncAllWidgets(ref);
     } catch (e) {
-      if (mounted) {
-        AppSnackBar.error(context, '$e');
-      }
+      if (mounted) AppSnackBar.error(context, '$e');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -72,11 +76,13 @@ class _WidgetsNotificationsScreenState
     );
   }
 
-  Future<void> _onMasterNotificationsChanged(
-    PrayerSettingsParsed settings,
-    bool value,
-  ) async {
-    if (value) {
+  /// Turning any prayer on also turns reminders on (asking for permission
+  /// the first time).
+  Future<void> _setPrayer(PrayerSettingsParsed s, String key, bool on) async {
+    final start = Map<String, bool>.from(s.startPrayerNotifications);
+    final end = Map<String, bool>.from(s.perPrayerNotifications);
+    var enabled = s.notificationsEnabled;
+    if (on && !enabled) {
       final ok = await NotificationsService.instance
           .requestNotificationPermission();
       if (!mounted) return;
@@ -87,18 +93,50 @@ class _WidgetsNotificationsScreenState
         );
         return;
       }
+      enabled = true;
     }
-    await _apply(settings.copyWith(notificationsEnabled: value));
+    start[key] = on;
+    end[key] = on;
+    await _apply(
+      s.copyWith(
+        notificationsEnabled: enabled,
+        startPrayerNotifications: start,
+        perPrayerNotifications: end,
+      ),
+    );
+  }
+
+  Future<void> _detect(PrayerSettingsParsed settings) async {
+    final pos = await LocationService.getCurrentPosition();
+    if (!mounted) return;
+    if (pos == null) {
+      AppSnackBar.error(
+        context,
+        'Could not get location (permission or services off).',
+      );
+      return;
+    }
+    await _apply(
+      settings.copyWith(
+        manualLat: pos.lat,
+        manualLon: pos.lon,
+        manualLabel: pos.label ?? settings.manualLabel,
+      ),
+    );
+    if (!mounted) return;
+    setState(() {
+      _lat.text = pos.lat.toString();
+      _lon.text = pos.lon.toString();
+      if (pos.label != null) _label.text = pos.label!;
+    });
+    AppSnackBar.success(context, 'Location detected');
   }
 
   @override
   Widget build(BuildContext context) {
     final uid = ref.watch(currentUserProvider)?.uid;
     final settings = ref.watch(prayerSettingsProvider);
-
-    if (uid == null) {
-      return const Center(child: Text('Sign in required'));
-    }
+    if (uid == null) return const Center(child: Text('Sign in required'));
 
     if (!_seeded) {
       _lat.text = settings.manualLat.toString();
@@ -107,79 +145,63 @@ class _WidgetsNotificationsScreenState
       _seeded = true;
     }
 
-    final scheme = Theme.of(context).colorScheme;
+    final c = Theme.of(context).colorScheme;
+    final t = Theme.of(context).textTheme;
 
     return ListView(
       padding: const EdgeInsets.all(20),
       children: [
-        Text(
-          'Widgets & notifications',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Home-screen prayer times, GPS/manual location, and reminders when a '
-          'prayer window ends.',
-          style: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-        ),
         if (_saving) ...[
-          const SizedBox(height: 12),
           const LinearProgressIndicator(),
+          const SizedBox(height: 12),
         ],
-        const SizedBox(height: 20),
-        JaizaSurfaceCard(
+        _prayerReminders(settings, t),
+        const SizedBox(height: 14),
+        const _JamaatAlertsCard(),
+        const SizedBox(height: 14),
+        JzCard(
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text('Home widgets', style: t.titleMedium),
+              const SizedBox(height: 4),
               Text(
-                'Home widgets',
-                style: Theme.of(context).textTheme.titleMedium,
+                'Prayer Times (4×2) and Prayer Tracker (4×3) — add them from '
+                'your launcher. Refresh after changing location or calculation '
+                'settings.',
+                style: t.bodySmall,
               ),
-              const SizedBox(height: 8),
-              Text(
-                'Two widgets are available from the launcher: Prayer Times '
-                '(4x2) showing today’s times and your location, and Prayer '
-                'Tracker (4x3) which adds tap-to-mark for the five daily '
-                'prayers. Use Refresh widgets now after changing location or '
-                'calculation settings.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton(
+              const SizedBox(height: 14),
+              OutlinedButton.icon(
                 onPressed: () async {
                   await HomeWidgetBridge.syncAllWidgets(ref);
                   if (context.mounted) {
                     AppSnackBar.success(context, 'Widgets refreshed');
                   }
                 },
-                child: const Text('Refresh widgets now'),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Refresh widgets now'),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        JaizaSurfaceCard(
+        const SizedBox(height: 14),
+        JzCard(
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Location', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Use my current location'),
+              Text('Location', style: t.titleMedium),
+              const SizedBox(height: 8),
+              JzSwitchRow(
+                title: 'Use my current location',
+                subtitle: settings.manualLabel,
                 value: settings.useGps,
                 onChanged: (v) => _apply(settings.copyWith(useGps: v)),
               ),
               if (!settings.useGps) ...[
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 TextField(
                   controller: _lat,
                   decoration: const InputDecoration(labelText: 'Latitude'),
@@ -191,7 +213,7 @@ class _WidgetsNotificationsScreenState
                     FilteringTextInputFormatter.allow(RegExp(r'[-0-9.]')),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 TextField(
                   controller: _lon,
                   decoration: const InputDecoration(labelText: 'Longitude'),
@@ -203,61 +225,35 @@ class _WidgetsNotificationsScreenState
                     FilteringTextInputFormatter.allow(RegExp(r'[-0-9.]')),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 TextField(
                   controller: _label,
                   decoration: const InputDecoration(labelText: 'Place label'),
                   onSubmitted: (_) => _saveManualFromFields(settings),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 OutlinedButton(
                   onPressed: () => _saveManualFromFields(settings),
                   child: const Text('Save manual location'),
                 ),
               ],
-              const SizedBox(height: 12),
-              FilledButton.tonal(
-                onPressed: () async {
-                  final pos = await LocationService.getCurrentPosition();
-                  if (!context.mounted) return;
-                  if (pos == null) {
-                    AppSnackBar.error(
-                      context,
-                      'Could not get location (permission or services off).',
-                    );
-                    return;
-                  }
-                  await _apply(
-                    settings.copyWith(
-                      manualLat: pos.lat,
-                      manualLon: pos.lon,
-                      manualLabel: pos.label ?? settings.manualLabel,
-                    ),
-                  );
-                  if (!context.mounted) return;
-                  setState(() {
-                    _lat.text = pos.lat.toString();
-                    _lon.text = pos.lon.toString();
-                    if (pos.label != null) _label.text = pos.label!;
-                  });
-                  AppSnackBar.success(context, 'Location detected');
-                },
-                child: const Text('Detect now'),
+              const SizedBox(height: 14),
+              FilledButton.tonalIcon(
+                onPressed: () => _detect(settings),
+                icon: const Icon(Icons.my_location_rounded, size: 18),
+                label: const Text('Detect now'),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        JaizaSurfaceCard(
+        const SizedBox(height: 14),
+        JzCard(
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                'Calculation',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
+              Text('Prayer time calculation', style: t.titleMedium),
+              const SizedBox(height: 14),
               DropdownButtonFormField<String>(
                 initialValue:
                     PrayerSettingsParsed.calcMethodOptions.contains(
@@ -277,134 +273,193 @@ class _WidgetsNotificationsScreenState
                   if (v != null) _apply(settings.copyWith(calcMethod: v));
                 },
               ),
-              const SizedBox(height: 16),
-              Text('Madhab', style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 14),
+              Text('Madhab', style: t.titleSmall),
               const SizedBox(height: 8),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'hanafi', label: Text('Hanafi')),
-                  ButtonSegment(value: 'shafi', label: Text('Shafi’i')),
-                ],
-                selected: {settings.madhab},
-                onSelectionChanged: (s) {
-                  final m = s.first;
-                  _apply(settings.copyWith(madhab: m));
-                },
+              JzSegmented<String>(
+                options: const {'hanafi': 'Hanafi', 'shafi': 'Shafi’i'},
+                selected: settings.madhab,
+                onChanged: (m) => _apply(settings.copyWith(madhab: m)),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Notifications',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Start alerts fire when prayer time begins. End reminders fire '
-                '10 minutes before the window ends and are cancelled when you '
-                'mark the prayer as prayed.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('Enable reminders'),
-                value: settings.notificationsEnabled,
-                onChanged: (v) => _onMasterNotificationsChanged(settings, v),
-              ),
-              ..._perPrayerTile(settings, 'fajr', 'Fajr'),
-              ..._perPrayerTile(settings, 'zuhr', 'Zuhr'),
-              ..._perPrayerTile(settings, 'asr', 'Asr'),
-              ..._perPrayerTile(settings, 'maghrib', 'Maghrib'),
-              ..._perPrayerTile(settings, 'isha', 'Isha'),
-            ],
+        if (kDebugMode) ...[
+          const SizedBox(height: 14),
+          OutlinedButton(
+            onPressed: () async {
+              await NotificationsService.instance.scheduleTestIn(
+                const Duration(seconds: 30),
+              );
+              if (context.mounted) {
+                AppSnackBar.success(context, 'Test notification in 30 seconds');
+              }
+            },
+            style: OutlinedButton.styleFrom(
+              foregroundColor: c.onSurfaceVariant,
+            ),
+            child: const Text('Debug: test notification in 30 s'),
           ),
-        ),
-        const SizedBox(height: 16),
-        JaizaSurfaceCard(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Debug', style: Theme.of(context).textTheme.titleMedium),
-              const SizedBox(height: 12),
-              FilledButton(
-                onPressed: () async {
-                  await NotificationsService.instance.scheduleTestIn(
-                    const Duration(seconds: 30),
-                  );
-                  if (context.mounted) {
-                    AppSnackBar.success(
-                      context,
-                      'Test notification in 30 seconds',
-                    );
-                  }
-                },
-                child: const Text('Send test notification in 30 s'),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton(
-                onPressed: () async {
-                  await HomeWidgetBridge.syncAllWidgets(ref);
-                  if (context.mounted) {
-                    AppSnackBar.success(context, 'Widgets refreshed');
-                  }
-                },
-                child: const Text('Refresh widgets now'),
-              ),
-            ],
-          ),
-        ),
+        ],
       ],
     );
   }
 
-  List<Widget> _perPrayerTile(
-    PrayerSettingsParsed settings,
-    String key,
-    String label,
-  ) {
-    final endMap = Map<String, bool>.from(settings.perPrayerNotifications);
-    final startMap = Map<String, bool>.from(settings.startPrayerNotifications);
-    final startOn = startMap[key] ?? true;
-    final endOn = endMap[key] ?? true;
-    return [
-      Padding(
-        padding: const EdgeInsets.only(top: 8),
-        child: Text(label, style: Theme.of(context).textTheme.titleSmall),
+  Widget _prayerReminders(PrayerSettingsParsed s, TextTheme t) {
+    final start = s.startPrayerNotifications;
+    final end = s.perPrayerNotifications;
+    return JzCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Prayer reminders', style: t.titleMedium),
+          const SizedBox(height: 4),
+          Text(
+            'Each prayer is separate — turn on only the ones you want to be '
+            'reminded about.',
+            style: t.bodySmall,
+          ),
+          const SizedBox(height: 8),
+          for (var i = 0; i < kFardPrayerDefs.length; i++)
+            Builder(
+              builder: (context) {
+                final def = kFardPrayerDefs[i];
+                final key = def.name.name;
+                final startOn = start[key] ?? true;
+                final endOn = end[key] ?? true;
+                final on = s.notificationsEnabled && (startOn || endOn);
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(def.label, style: t.bodyLarge)),
+                        Switch(
+                          value: on,
+                          onChanged: (v) => _setPrayer(s, key, v),
+                        ),
+                      ],
+                    ),
+                    if (on)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            JzChip(
+                              'At start',
+                              selected: startOn,
+                              onTap: () {
+                                final m = Map<String, bool>.from(start)
+                                  ..[key] = !startOn;
+                                _apply(s.copyWith(startPrayerNotifications: m));
+                              },
+                            ),
+                            JzChip(
+                              '10 min before end',
+                              selected: endOn,
+                              onTap: () {
+                                final m = Map<String, bool>.from(end)
+                                  ..[key] = !endOn;
+                                _apply(s.copyWith(perPrayerNotifications: m));
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    if (i < kFardPrayerDefs.length - 1)
+                      const JzDivider(top: 2, bottom: 2),
+                  ],
+                );
+              },
+            ),
+        ],
       ),
-      SwitchListTile(
-        dense: true,
-        contentPadding: EdgeInsets.zero,
-        title: const Text('At start time'),
-        value: startOn && settings.notificationsEnabled,
-        onChanged: settings.notificationsEnabled
-            ? (v) {
-                startMap[key] = v;
-                _apply(settings.copyWith(startPrayerNotifications: startMap));
-              }
-            : null,
-      ),
-      SwitchListTile(
-        dense: true,
-        contentPadding: EdgeInsets.zero,
-        title: const Text('10 minutes before end if not prayed'),
-        value: endOn && settings.notificationsEnabled,
-        onChanged: settings.notificationsEnabled
-            ? (v) {
-                endMap[key] = v;
-                _apply(settings.copyWith(perPrayerNotifications: endMap));
-              }
-            : null,
+    );
+  }
+}
+
+class _JamaatAlertsCard extends ConsumerWidget {
+  const _JamaatAlertsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context).textTheme;
+    final on = ref.watch(jamaatAlertsOnProvider);
+    final minutes = ref.watch(jamaatAlertMinutesProvider);
+    final alertIds = ref.watch(jamaatAlertMosquesProvider);
+    final primary = ref.watch(primaryMosqueProvider);
+    final savedIds = ref.watch(savedMosqueIdsProvider);
+    final mosques = [
+      ?primary,
+      ...kDemoMosques.where(
+        (m) => savedIds.contains(m.id) && m.id != primary?.id,
       ),
     ];
+    return JzCard(
+      padding: const EdgeInsets.all(18),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text('Jama’at alerts', style: t.titleMedium)),
+              const JzChip('New', gold: true),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'A reminder before Jama’at at your favourite mosques.',
+            style: t.bodySmall,
+          ),
+          const SizedBox(height: 10),
+          JzSwitchRow(
+            title: 'Jama’at alerts on',
+            value: on,
+            onChanged: (v) => ref.read(jamaatAlertsOnProvider.notifier).set(v),
+          ),
+          if (on) ...[
+            const JzDivider(),
+            Row(
+              children: [
+                Expanded(child: Text('How early', style: t.bodyLarge)),
+                PopupMenuButton<int>(
+                  initialValue: minutes,
+                  onSelected: (v) =>
+                      ref.read(jamaatAlertMinutesProvider.notifier).set(v),
+                  itemBuilder: (_) => [
+                    for (final m in const [5, 10, 15, 20, 30])
+                      PopupMenuItem(value: m, child: Text('$m minutes')),
+                  ],
+                  child: JzChip('$minutes minutes', gold: true),
+                ),
+              ],
+            ),
+            const JzDivider(),
+            if (mosques.isEmpty)
+              Text(
+                'Save a mosque or set a primary one on the Mosques tab to get '
+                'alerts.',
+                style: t.bodySmall,
+              )
+            else
+              for (final m in mosques)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: JzSwitchRow(
+                    title: m.name,
+                    subtitle: m.id == primary?.id ? 'Primary' : null,
+                    value: alertIds.contains(m.id),
+                    onChanged: (v) => ref
+                        .read(jamaatAlertMosquesProvider.notifier)
+                        .toggle(m.id, v),
+                  ),
+                ),
+          ],
+        ],
+      ),
+    );
   }
 }

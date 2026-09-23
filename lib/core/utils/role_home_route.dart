@@ -6,7 +6,7 @@ import '../../data/models/user_role.dart';
 String homeRouteForAppUser(AppUser? appUser) {
   switch (appUser?.role) {
     case UserRole.parent:
-      return '/app/parent';
+      return '/app/home'; // Parents share the Today shell.
     case UserRole.organization:
       return appUser?.orgMemberRole == OrgMemberRole.teacher
           ? '/app/org/teacher'
@@ -24,7 +24,7 @@ String homeRouteForAppUser(AppUser? appUser) {
 String homeRouteForRole(UserRole role, {OrgMemberRole? orgMemberRole}) {
   switch (role) {
     case UserRole.parent:
-      return '/app/parent';
+      return '/app/home'; // Parents share the Today shell.
     case UserRole.organization:
       return orgMemberRole == OrgMemberRole.teacher
           ? '/app/org/teacher'
