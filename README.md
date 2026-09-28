@@ -1,17 +1,26 @@
-# jaiza_namaz
+# Jaiza (Jaiza-Namaz)
 
-A new Flutter project.
+Flutter app from **Al Islaah Academy** for tracking Fard, Nawafil, and Qaza prayers, with local Adhan-based prayer times, reminders, history, home widgets, and Parent / Organization attendance flows.
 
-## Getting Started
+**Backend:** Firebase Authentication + Cloud Firestore.
 
-This project is a starting point for a Flutter application.
+## Documentation
 
-A few resources to get you started if this is your first Flutter project:
+- **[Project overview, architecture, improvements & Jamaat Timing feature](docs/PROJECT_OVERVIEW.md)** — full project report, including the proposed Mosque Jamaat (iqamah) feature
+- [Home widget setup](WIDGET_SETUP.md)
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+## Getting started
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+flutter pub get
+flutter run
+```
+
+Requires Firebase configured for your target platform (`lib/firebase_options.dart`, Android `google-services.json`, and iOS Firebase config as applicable).
+
+## Stack
+
+- Flutter + Riverpod + go_router  
+- Firebase Auth & Cloud Firestore  
+- `adhan_dart` for local prayer times  
+- Local notifications & home widgets  
