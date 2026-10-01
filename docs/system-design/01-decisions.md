@@ -127,3 +127,13 @@ design, based on the owner's goals.
 | D-093 | Donation opens an **external link** (a URL and bank/JazzCash/Easypaisa details set in **Remote Config**). No in-app payments. | Owner said "you decide". It avoids store payment rules and fees. Donation links for a registered charity are allowed. **Check with each store's current policy before release.** | Tech |
 | D-094 | Contact: an in-app form saved to Firestore `feedback`, plus WhatsApp and email buttons (numbers/addresses from Remote Config). | Owner said "you decide". Messages can't be lost, and staff can read them in the dashboard. | Tech |
 | D-095 | Default prayer calculation for Pakistan: **Karachi (University of Islamic Sciences) method + Hanafi Asr**. The current default (Muslim World League + Mecca coordinates) is only used outside Pakistan. | Most Pakistani mosques follow Karachi/Hanafi. | Tech |
+
+## K. Decisions made while building P0 (1 Oct 2026)
+
+| ID | Decision | Why | By |
+|----|----------|-----|----|
+| D-096 | The app uses a new **named Firestore database `jaiza` in `asia-south1`** (15 §2.3 option b). The `(default)` database stays in `nam5` and is no longer used. Functions run in `asia-south1`. The database id and region live in one place: `lib/bootstrap/env.dart`. | The `(default)` database was created in `nam5` and its region can't change (D-006). There are no real users yet, so we start clean (18 §3, "No"). | Owner |
+| D-097 | The final app id is **`com.alislaah.jaiza`** on Android and iOS (app group `group.com.alislaah.jaiza`). New Firebase apps were registered for it; the old `com.alislaacademy.jayzanamaz.*` apps can be deleted from the console. | The old ids had typos and can't change after a store release (18 §6.1). | Owner |
+| D-098 | `jaiza_core` is **pure Dart** (no Flutter, no Firebase). Firestore types are converted in `lib/core/firestore/converters.dart` (`FirestoreJson`). | The recommended option in 03 §2: testable with `dart test`, shareable with Functions fixtures. | Tech |
+| D-099 | Until the user document gains `locale` (P1/P2), the language choice is stored **on the device** (`jz_locale_v1`). Notifications and widget payloads use the same saved language. | 16 §1 wants `users.locale` for signed-in users; that field arrives with the new user model. | Tech |
+| D-100 | Debug builds never send Analytics, and Crashlytics collection is off in debug. | There is one Firebase project for dev and prod (D-003); debug traffic would pollute production numbers. | Tech |

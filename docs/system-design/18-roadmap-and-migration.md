@@ -104,3 +104,36 @@ step, or ship the link in P6.
 6. **Privacy policy owner** — someone at Al Islaah must approve the CNIC/children's data wording.
 7. **Mapbox account & token** (only when the map view starts, P7).
 8. **Email sending for teacher invites** (optional): an SMTP account for the Trigger Email extension.
+
+## 7. P0 status (1 Oct 2026)
+
+**Done in code** (branch `ui-redesign`):
+- [x] Monorepo: pub workspace + `packages/jaiza_core` (pure Dart, D-098) with shared enums, dateKey rules,
+      log ids, `SubjectRef`, validators, and tests.
+- [x] FlutterFire on the latest majors (D-083); `android_alarm_manager_plus` removed (D-084).
+- [x] Riverpod 3 with legacy imports (04 §8 step 1) + breaking-change fixes (step 2: `.value`, retry
+      policy, `ProviderException` unwrapping). Step 3 (migrate feature by feature) is still open.
+- [x] freezed + json_serializable setup; `FirestoreJson` / converters in `lib/core/firestore/`.
+- [x] `lib/bootstrap/` (env, Firebase bootstrap, crash reporting), emulators in `firebase.json`,
+      named database `jaiza` (D-096), persistent cache on all platforms.
+- [x] App Check client activation (monitor mode), Crashlytics, typed Analytics + Privacy opt-out.
+- [x] gen-l10n with every existing string in `app_en.arb` / `app_ur.arb`, language picker, bundled Urdu
+      fonts, RTL-safe layout in features, `tool/check_l10n.dart`.
+- [x] App id `com.alislaah.jaiza` (D-097), `firebase_options.dart`, `google-services.json` and the
+      missing `GoogleService-Info.plist` regenerated.
+- [x] CI: `.github/workflows/ci.yml`.
+
+**Still to do by the owner in the consoles** (they need an account login, so they can't be scripted
+from the repo):
+1. Create the database: `firebase firestore:databases:create jaiza --location=asia-south1`, then
+   `firebase deploy --only firestore,storage` (current rules until P1 replaces them).
+2. Console → Crashlytics and Analytics → enable (15 §14).
+3. App Check → register Android (Play Integrity, needs the SHA-256 of the new app id), iOS (App Attest)
+   and web (reCAPTCHA Enterprise key → `--dart-define=RECAPTCHA_SITE_KEY`); add each developer's debug
+   token. **Do not enforce yet** (15 §9 step 4).
+4. Add debug + release SHA-1/SHA-256 for `com.alislaah.jaiza` (15 §4.2) and re-download
+   `google-services.json`.
+5. Apple Developer: register the App ID `com.alislaah.jaiza`, the app group `group.com.alislaah.jaiza`,
+   and enable App Attest; set the signing team in Xcode.
+6. Optional: delete the old `com.alislaacademy.jayzanamaz.*` Firebase apps.
+7. A native speaker at Al Islaah reviews `app_ur.arb` (16 §1.1).

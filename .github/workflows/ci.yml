@@ -1,0 +1,57 @@
+# CI for every PR and push (15 §16, 18 §2). Functions and rules tests join
+# this workflow in P1, when functions/ and the new rules exist.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, ui-redesign]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: App · jaiza_core
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.0
+          channel: stable
+          cache: true
+
+      - name: Install dependencies (whole workspace)
+        run: flutter pub get
+
+      - name: Generated code is committed (l10n, freezed, json)
+        run: |
+          flutter gen-l10n
+          (cd packages/jaiza_core && dart run build_runner build --delete-conflicting-outputs)
+          git diff --exit-code -- lib/core/l10n/gen packages/jaiza_core/lib
+
+      - name: Format
+        run: |
+          git ls-files '*.dart' \
+            | grep -v -e '/gen/' -e '\.g\.dart$' -e '\.freezed\.dart$' -e '^lib/firebase_options.dart$' \
+            | xargs dart format --output=none --set-exit-if-changed
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: No hard-coded text, RTL-safe layout (16 §1–2)
+        run: dart run tool/check_l10n.dart
+
+      - name: App tests
+        run: flutter test
+
+      - name: jaiza_core tests
+        working-directory: packages/jaiza_core
+        run: dart test
+
+      - name: Web build compiles
+        run: flutter build web --release
