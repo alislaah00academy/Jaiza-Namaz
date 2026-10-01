@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/analytics/analytics.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
@@ -207,7 +208,28 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ThemeMode.system: 'System',
                     },
                     selected: ref.watch(themeModeProvider),
-                    onChanged: (m) => ref.read(themeModeProvider.notifier).set(m),
+                    onChanged: (m) =>
+                        ref.read(themeModeProvider.notifier).set(m),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            JzCard(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text('Privacy', style: t.titleMedium),
+                  const SizedBox(height: 8),
+                  JzSwitchRow(
+                    title: 'Share anonymous usage data',
+                    subtitle:
+                        'Helps us improve Jaiza. Never includes your name, '
+                        'email, phone or location.',
+                    value: ref.watch(analyticsEnabledProvider),
+                    onChanged: (v) =>
+                        ref.read(analyticsEnabledProvider.notifier).set(v),
                   ),
                 ],
               ),

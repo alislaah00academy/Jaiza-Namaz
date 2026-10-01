@@ -1,10 +1,14 @@
 // Riverpod wiring for Firebase services and Firestore streams.
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
 import 'package:flutter_riverpod/legacy.dart';
 
+import '../bootstrap/firebase_bootstrap.dart';
+import '../core/analytics/analytics.dart';
 import '../core/constants/prayer_catalog.dart';
 import '../core/utils/date_utils.dart';
 import '../data/models/app_user.dart';
@@ -35,12 +39,24 @@ final firebaseAuthProvider = Provider<FirebaseAuth>(
   (ref) => FirebaseAuth.instance,
 );
 
+/// The app's named database `jaiza` in asia-south1 (D-096).
 final firestoreProvider = Provider<FirebaseFirestore>(
-  (ref) => FirebaseFirestore.instance,
+  (ref) => FirebaseBootstrap.firestore,
+);
+
+final functionsProvider = Provider<FirebaseFunctions>(
+  (ref) => FirebaseBootstrap.functions,
+);
+
+final storageProvider = Provider<FirebaseStorage>(
+  (ref) => FirebaseBootstrap.storage,
 );
 
 final authRepositoryProvider = Provider<AuthRepository>(
-  (ref) => AuthRepository(ref.watch(firebaseAuthProvider)),
+  (ref) => AuthRepository(
+    ref.watch(firebaseAuthProvider),
+    analytics: ref.watch(analyticsProvider),
+  ),
 );
 
 final userRepositoryProvider = Provider<UserRepository>(
@@ -55,6 +71,7 @@ final prayerRepositoryProvider = Provider<PrayerRepository>(
   (ref) => PrayerRepository(
     ref.watch(firestoreProvider),
     streakRepository: ref.watch(streakRepositoryProvider),
+    analytics: ref.watch(analyticsProvider),
   ),
 );
 
@@ -325,8 +342,7 @@ final childFardMapForDateProvider =
       Map<PrayerName, PrayerLog>,
       ({String childId, DateTime day})
     >((ref, args) {
-      final logs =
-          ref.watch(childAllFardProvider(args.childId)).value ?? [];
+      final logs = ref.watch(childAllFardProvider(args.childId)).value ?? [];
       final key = AppDateUtils.localDateKey(args.day);
       final map = <PrayerName, PrayerLog>{};
       for (final log in logs) {

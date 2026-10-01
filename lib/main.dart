@@ -1,18 +1,21 @@
 // Jaiza — bootstrap: Firebase, first auth tick, Riverpod root.
 import 'package:device_preview/device_preview.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
+import 'bootstrap/crash_reporting.dart';
+import 'bootstrap/firebase_bootstrap.dart';
+import 'core/analytics/analytics.dart';
+import 'core/errors/error_mapper.dart';
 import 'core/local/local_prefs.dart';
 import 'core/widgets/home_widget_bridge.dart';
 import 'data/models/prayer_log.dart';
 import 'features/onboarding/data/onboarding_repository.dart';
-import 'firebase_options.dart';
 import 'providers/providers.dart';
 import 'services/notifications_service.dart';
 
@@ -26,7 +29,8 @@ Future<void> homeWidgetCallback(Uri? uri) async {
   }
 
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // Same database, App Check and emulator wiring as the app (03 §6).
+  await FirebaseBootstrap.init();
 
   final uid = await HomeWidget.getWidgetData<String>(
     HomeWidgetBridge.uidKey,
@@ -61,16 +65,24 @@ Future<void> homeWidgetCallback(Uri? uri) async {
   }
 }
 
+/// Start-up order from 03 §6. Network work that isn't needed for the first
+/// frame (Remote Config, push) runs after it, never before.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FirebaseBootstrap.init();
+  await CrashReporting.init();
+  final prefs = await SharedPreferences.getInstance();
+  // Analytics follows the Profile → Privacy switch (15 §14). Debug builds
+  // never send: there is one Firebase project for dev and prod (D-003).
+  await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(
+    !kDebugMode && (prefs.getBool(AnalyticsEnabledNotifier.key) ?? true),
+  );
+  await NotificationsService.instance.init(); // no-op on web
   if (!kIsWeb) {
     await HomeWidget.registerInteractivityCallback(homeWidgetCallback);
   }
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await NotificationsService.instance.init();
-  final prefs = await SharedPreferences.getInstance();
   final onboardingRepo = OnboardingRepository(prefs);
-  // Wait until Firebase restores session to avoid auth redirect flicker.
+  // Wait until Firebase restores the session to avoid redirect flicker.
   await FirebaseAuth.instance.authStateChanges().first;
   runApp(
     DevicePreview(
@@ -79,6 +91,7 @@ Future<void> main() async {
       // show it, even in debug mode.
       enabled: kIsWeb && !kReleaseMode,
       builder: (context) => ProviderScope(
+        retry: providerRetry,
         overrides: [
           onboardingRepositoryProvider.overrideWithValue(onboardingRepo),
           sharedPrefsProvider.overrideWithValue(prefs),
@@ -88,4 +101,3 @@ Future<void> main() async {
     ),
   );
 }
-

@@ -1,0 +1,11 @@
+rules_version = '2';
+
+// Placeholder until P1 ships the full rules from docs/system-design/07 §3.
+// Nothing in the app uses Storage yet, so everything is denied.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

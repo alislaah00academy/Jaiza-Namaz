@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../core/analytics/analytics.dart' show AnalyticsSubject;
 import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/prayer_catalog.dart';
@@ -36,6 +38,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
             type: PrayerType.fard,
             status: done ? PrayerStatus.completed : PrayerStatus.missed,
             ownerUid: teacherUid,
+            subject: AnalyticsSubject.student,
           );
     } catch (_) {
       if (mounted) AppSnackBar.error(context, 'Could not save. Try again.');

@@ -1,1 +1,60 @@
-{"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"flutter":{"platforms":{"android":{"default":{"projectId":"jaiza-namaz","appId":"1:170319084683:android:8803ebb1f0cfd087aaa88e","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"jaiza-namaz","configurations":{"android":"1:170319084683:android:8803ebb1f0cfd087aaa88e","ios":"1:170319084683:ios:2429ece5de8b5bbfaaa88e","web":"1:170319084683:web:26733ff3ef97cff7aaa88e"}}},"ios":{"default":{"projectId":"jaiza-namaz","appId":"1:170319084683:ios:2429ece5de8b5bbfaaa88e","uploadDebugSymbols":true,"fileOutput":"ios/Runner/GoogleService-Info.plist"}}}}}
+{
+  "firestore": [
+    {
+      "database": "jaiza",
+      "rules": "firestore.rules",
+      "indexes": "firestore.indexes.json"
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  },
+  "emulators": {
+    "singleProjectMode": true,
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    }
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "jaiza-namaz",
+          "appId": "1:170319084683:android:8803ebb1f0cfd087aaa88e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "jaiza-namaz",
+          "configurations": {
+            "android": "1:170319084683:android:8803ebb1f0cfd087aaa88e",
+            "ios": "1:170319084683:ios:2429ece5de8b5bbfaaa88e",
+            "web": "1:170319084683:web:26733ff3ef97cff7aaa88e"
+          }
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "jaiza-namaz",
+          "appId": "1:170319084683:ios:2429ece5de8b5bbfaaa88e",
+          "uploadDebugSymbols": true,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      }
+    }
+  }
+}

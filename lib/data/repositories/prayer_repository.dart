@@ -1,5 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:jaiza_core/jaiza_core.dart' show PrayerLogSource;
+
+import '../../core/analytics/analytics.dart';
 import '../../core/constants/prayer_catalog.dart';
 import '../../core/logging/app_log.dart';
 import '../../core/utils/date_utils.dart';
@@ -9,11 +12,16 @@ import 'streak_repository.dart';
 
 /// Top-level `prayers` collection with deterministic document ids.
 class PrayerRepository {
-  PrayerRepository(this._firestore, {StreakRepository? streakRepository})
-    : _streakRepository = streakRepository;
+  PrayerRepository(
+    this._firestore, {
+    StreakRepository? streakRepository,
+    Analytics? analytics,
+  }) : _streakRepository = streakRepository,
+       _analytics = analytics;
 
   final FirebaseFirestore _firestore;
   final StreakRepository? _streakRepository;
+  final Analytics? _analytics;
 
   CollectionReference<Map<String, dynamic>> get _col =>
       _firestore.collection('prayers');
@@ -28,6 +36,13 @@ class PrayerRepository {
 
     /// Day to record for; defaults to now. Lets Records edit past days.
     DateTime? at,
+
+    /// For analytics only. Defaults to self when [ownerUid] is null, else
+    /// child (Parent mode); class marking passes student.
+    AnalyticsSubject? subject,
+
+    /// For analytics only. Defaults from [subject] (guardian / teacher / app).
+    PrayerLogSource? source,
   }) async {
     try {
       final now = at ?? DateTime.now();
@@ -48,6 +63,15 @@ class PrayerRepository {
         ownerUid: ownerUid,
       );
       await _col.doc(id).set(log.toFirestore(), SetOptions(merge: true));
+      _logMarked(
+        prayerName: prayerName,
+        type: type,
+        status: status,
+        subject:
+            subject ??
+            (ownerUid == null ? AnalyticsSubject.self : AnalyticsSubject.child),
+        source: source,
+      );
       if (type == PrayerType.fard && status == PrayerStatus.completed) {
         await NotificationsService.instance.cancelForPrayer(now, prayerName);
       }
@@ -61,6 +85,35 @@ class PrayerRepository {
       appLog('upsertPrayer', error: e, stackTrace: st);
       rethrow;
     }
+  }
+
+  void _logMarked({
+    required PrayerName prayerName,
+    required PrayerType type,
+    required PrayerStatus status,
+    required AnalyticsSubject subject,
+    PrayerLogSource? source,
+  }) {
+    final a = _analytics;
+    if (a == null) return;
+    if (type == PrayerType.qaza) {
+      // Each Qaza log is one made-up prayer.
+      a.qazaLogged(prayer: prayerName, delta: 1);
+      return;
+    }
+    a.prayerMarked(
+      prayer: prayerName,
+      type: type,
+      status: status,
+      subject: subject,
+      source:
+          source ??
+          switch (subject) {
+            AnalyticsSubject.self => PrayerLogSource.app,
+            AnalyticsSubject.child => PrayerLogSource.guardian,
+            AnalyticsSubject.student => PrayerLogSource.teacher,
+          },
+    );
   }
 
   /// All Fard logs for this user (client-side filtering by day/month).

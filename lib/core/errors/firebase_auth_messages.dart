@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'error_mapper.dart';
+
 /// Maps [FirebaseAuthException.code] to user-facing copy (no technical jargon).
 String mapFirebaseAuthMessage(FirebaseAuthException e) {
   switch (e.code) {
@@ -30,6 +32,7 @@ String mapFirebaseAuthMessage(FirebaseAuthException e) {
 
 /// Maps any error to a safe snackbar/dialog string.
 String mapGenericError(Object error) {
+  error = unwrapError(error);
   if (error is FirebaseAuthException) {
     return mapFirebaseAuthMessage(error);
   }

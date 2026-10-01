@@ -8,7 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:jaiza_core/jaiza_core.dart' show PrayerLogSource;
 
+import '../../bootstrap/firebase_bootstrap.dart';
 import '../../core/utils/date_utils.dart';
 import '../../core/utils/jaiza_dates.dart';
 import '../../data/models/prayer_log.dart';
@@ -322,6 +324,7 @@ abstract final class HomeWidgetBridge {
             prayerName: prayer,
             type: PrayerType.fard,
             status: status,
+            source: PrayerLogSource.widget,
           );
       await Future<void>.delayed(const Duration(milliseconds: 350));
       await syncAllWidgets(ref);
@@ -483,7 +486,7 @@ abstract final class BackgroundWidgetWriter {
       dateTime: now,
     );
 
-    await FirebaseFirestore.instance
+    await FirebaseBootstrap.firestore
         .collection('prayers')
         .doc(id)
         .set(log.toFirestore(), SetOptions(merge: true));
