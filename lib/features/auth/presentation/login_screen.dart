@@ -42,7 +42,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           .read(authRepositoryProvider)
           .signIn(email: _email.text, password: _password.text);
       await ref.read(userRepositoryProvider).syncFromAuth(cred.user!);
-      await ref.read(streakRepositoryProvider).ensureStreakDoc(cred.user!.uid);
       var appUser = await ref
           .read(userRepositoryProvider)
           .watchUser(cred.user!.uid)

@@ -2,13 +2,13 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' show Platform;
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:intl/intl.dart';
-import 'package:jaiza_core/jaiza_core.dart' show PrayerLogSource;
+import 'package:jaiza_core/jaiza_core.dart'
+    show PrayerLogSource, SubjectRef, prayerLogId;
 
 import '../../bootstrap/firebase_bootstrap.dart';
 import '../../core/l10n/l10n.dart';
@@ -233,7 +233,7 @@ abstract final class HomeWidgetBridge {
         },
         'prayers': {
           for (final name in kJaizaStripPrayerNames)
-            name.name: fardMap[name]?.status.firestoreValue ?? '',
+            name.name: fardMap[name]?.status?.firestoreValue ?? '',
         },
         'startsEpochMs': {
           'fajr': today.fajr.millisecondsSinceEpoch,
@@ -326,7 +326,8 @@ abstract final class HomeWidgetBridge {
       await ref
           .read(prayerRepositoryProvider)
           .upsertPrayer(
-            userId: uid,
+            subject: SubjectRef.self(uid),
+            markedBy: uid,
             prayerName: prayer,
             type: PrayerType.fard,
             status: status,
@@ -479,25 +480,25 @@ abstract final class BackgroundWidgetWriter {
     }
 
     final now = DateTime.now();
-    final id = PrayerLog.deterministicId(
-      userId: uid,
-      localDateKey: AppDateUtils.localDateKey(now),
-      prayerName: prayer,
-      type: PrayerType.fard,
-    );
-
-    final log = PrayerLog(
-      id: id,
-      userId: uid,
-      prayerName: prayer,
-      type: PrayerType.fard,
-      status: parsedStatus,
-      dateTime: now,
+    final subject = SubjectRef.self(uid);
+    final id = prayerLogId(
+      AppDateUtils.localDateKey(now),
+      prayer,
+      PrayerType.fard,
     );
 
     await FirebaseBootstrap.firestore
-        .collection('prayers')
+        .collection(subject.prayersPath)
         .doc(id)
-        .set(log.toFirestore(), SetOptions(merge: true));
+        .set(
+          prayerLogWriteData(
+            prayerName: prayer,
+            type: PrayerType.fard,
+            status: parsedStatus,
+            markedBy: uid,
+            source: PrayerLogSource.widget,
+            dateTime: now,
+          ),
+        );
   }
 }

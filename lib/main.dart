@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app.dart';
 import 'bootstrap/crash_reporting.dart';
 import 'bootstrap/firebase_bootstrap.dart';
+import 'bootstrap/remote_config_bootstrap.dart';
 import 'core/analytics/analytics.dart';
 import 'core/errors/error_mapper.dart';
 import 'core/l10n/locale_provider.dart';
@@ -72,6 +73,7 @@ Future<void> homeWidgetCallback(Uri? uri) async {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FirebaseBootstrap.init();
+  await RemoteConfigBootstrap.init();
   await CrashReporting.init();
   final prefs = await SharedPreferences.getInstance();
   initL10nLookup(prefs);

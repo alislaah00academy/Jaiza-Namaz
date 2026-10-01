@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../bootstrap/firebase_bootstrap.dart';
 import '../core/analytics/analytics.dart';
@@ -70,7 +71,6 @@ final streakRepositoryProvider = Provider<StreakRepository>(
 final prayerRepositoryProvider = Provider<PrayerRepository>(
   (ref) => PrayerRepository(
     ref.watch(firestoreProvider),
-    streakRepository: ref.watch(streakRepositoryProvider),
     analytics: ref.watch(analyticsProvider),
   ),
 );
@@ -152,7 +152,7 @@ final streakStreamProvider = StreamProvider<StreakStats?>((ref) {
   if (uid == null) {
     return const Stream<StreakStats?>.empty();
   }
-  return ref.watch(streakRepositoryProvider).watchStreaks(uid);
+  return ref.watch(streakRepositoryProvider).watchStreaks(SubjectRef.self(uid));
 });
 
 final todayFardMapProvider = StreamProvider<Map<PrayerName, PrayerLog>>((ref) {
@@ -160,7 +160,9 @@ final todayFardMapProvider = StreamProvider<Map<PrayerName, PrayerLog>>((ref) {
   if (uid == null) {
     return const Stream<Map<PrayerName, PrayerLog>>.empty();
   }
-  return ref.watch(prayerRepositoryProvider).watchTodayFard(uid);
+  return ref
+      .watch(prayerRepositoryProvider)
+      .watchTodayFard(SubjectRef.self(uid));
 });
 
 /// All Fard prayer logs for the signed-in user (for calendar / history).
@@ -169,7 +171,7 @@ final userFardLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
   if (uid == null) {
     return Stream.value([]);
   }
-  return ref.watch(prayerRepositoryProvider).watchAllFard(uid);
+  return ref.watch(prayerRepositoryProvider).watchAllFard(SubjectRef.self(uid));
 });
 
 /// Fard logs mapped by [PrayerName] for a single local calendar day.
@@ -194,7 +196,7 @@ final fullFardDayKeysForMonthProvider = Provider.family<Set<String>, DateTime>((
   final logs = ref.watch(userFardLogsProvider).value ?? [];
   final y = focusedMonth.year;
   final m = focusedMonth.month;
-  final byDay = <String, Map<PrayerName, PrayerStatus>>{};
+  final byDay = <String, Map<PrayerName, PrayerStatus?>>{};
   for (final log in logs) {
     final ld = log.dateTime.toLocal();
     if (ld.year != y || ld.month != m) continue;
@@ -218,7 +220,9 @@ final todayNawafilProvider = StreamProvider<List<PrayerLog>>((ref) {
   if (uid == null) {
     return const Stream<List<PrayerLog>>.empty();
   }
-  return ref.watch(prayerRepositoryProvider).watchTodayNawafil(uid);
+  return ref
+      .watch(prayerRepositoryProvider)
+      .watchTodayNawafil(SubjectRef.self(uid));
 });
 
 /// All Nawafil/Qaza prayer logs for the signed-in user — same shape as
@@ -228,7 +232,7 @@ final userNawafilLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
   if (uid == null) return Stream.value([]);
   return ref
       .watch(prayerRepositoryProvider)
-      .watchAllByType(uid, PrayerType.nawafil);
+      .watchAllByType(SubjectRef.self(uid), PrayerType.nawafil);
 });
 
 final userQazaLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
@@ -236,7 +240,7 @@ final userQazaLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
   if (uid == null) return Stream.value([]);
   return ref
       .watch(prayerRepositoryProvider)
-      .watchAllByType(uid, PrayerType.qaza);
+      .watchAllByType(SubjectRef.self(uid), PrayerType.qaza);
 });
 
 /// Nawafil logs mapped by [PrayerName] for a single local calendar day.
@@ -266,15 +270,13 @@ final qazaLogsForDateProvider = Provider.family<List<PrayerLog>, DateTime>((
       .toList();
 });
 
-/// All-time completed-Qaza count for one specific Fard prayer name (e.g.
-/// how many Qaza Fajr instances this user has logged as made up).
+/// All-time completed-Qaza count for one specific Fard prayer name (sum of
+/// `count` across that prayer's Qaza logs; one log per day, D-072).
 final qazaCompletedForProvider = Provider.family<int, PrayerName>((ref, name) {
   final logs = ref.watch(userQazaLogsProvider).value ?? [];
   return logs
-      .where(
-        (log) => log.prayerName == name && log.status == PrayerStatus.completed,
-      )
-      .length;
+      .where((log) => log.prayerName == name)
+      .fold(0, (total, log) => total + log.count);
 });
 
 /// Today's completed-Qaza count for one specific Fard prayer name.
@@ -285,10 +287,9 @@ final qazaTodayCountForProvider = Provider.family<int, PrayerName>((ref, name) {
       .where(
         (log) =>
             log.prayerName == name &&
-            log.status == PrayerStatus.completed &&
             AppDateUtils.localDateKey(log.dateTime) == todayKey,
       )
-      .length;
+      .fold(0, (total, log) => total + log.count);
 });
 
 // ---------------------------------------------------------------------------
@@ -323,18 +324,21 @@ final childrenStreamProvider = StreamProvider<List<ChildProfile>>((ref) {
 /// Currently selected child on the Parent dashboard (null = none picked yet).
 final selectedChildIdProvider = StateProvider<String?>((ref) => null);
 
-/// Today's Fard logs for one child, scoped by passing [childId] as the
-/// `userId` of the existing flat `prayers` collection (see [PrayerRepository]).
+/// Today's Fard logs for one child (`children/{childId}/prayers`, D-072).
 final childTodayFardMapProvider =
     StreamProvider.family<Map<PrayerName, PrayerLog>, String>((ref, childId) {
-      return ref.watch(prayerRepositoryProvider).watchTodayFard(childId);
+      return ref
+          .watch(prayerRepositoryProvider)
+          .watchTodayFard(SubjectRef.child(childId));
     });
 
 final childAllFardProvider = StreamProvider.family<List<PrayerLog>, String>((
   ref,
   childId,
 ) {
-  return ref.watch(prayerRepositoryProvider).watchAllFard(childId);
+  return ref
+      .watch(prayerRepositoryProvider)
+      .watchAllFard(SubjectRef.child(childId));
 });
 
 final childFardMapForDateProvider =
@@ -428,5 +432,7 @@ final allClassesForOrgProvider =
 
 final studentTodayFardMapProvider =
     StreamProvider.family<Map<PrayerName, PrayerLog>, String>((ref, studentId) {
-      return ref.watch(prayerRepositoryProvider).watchTodayFard(studentId);
+      return ref
+          .watch(prayerRepositoryProvider)
+          .watchTodayFard(SubjectRef.student(studentId));
     });

@@ -2812,4 +2812,14 @@ class L10nUr extends L10n {
 
   @override
   String get studentNamesHint => 'عبداللہ خان\nابراہیم صدیقی\nیوسف ملک';
+
+  @override
+  String get updateRequiredTitle => 'جائزہ اپ ڈیٹ کریں';
+
+  @override
+  String get updateRequiredBody =>
+      'جائزہ کا یہ ورژن اب سپورٹ نہیں کیا جاتا۔ جاری رکھنے کے لیے براہ کرم اپ ڈیٹ کریں۔';
+
+  @override
+  String get updateRequiredButton => 'ابھی اپ ڈیٹ کریں';
 }

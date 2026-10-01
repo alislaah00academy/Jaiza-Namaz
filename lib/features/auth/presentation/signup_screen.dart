@@ -61,7 +61,6 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       await ref
           .read(userRepositoryProvider)
           .createUserProfile(user: user, name: _name.text.trim());
-      await ref.read(streakRepositoryProvider).ensureStreakDoc(user.uid);
       final claimedTeacherInvite = await _claimPendingOrgInviteIfAny(user);
       // An explicit teacher invite always wins over whatever the user picked
       // on /get-started — they're joining an existing org, not starting one.

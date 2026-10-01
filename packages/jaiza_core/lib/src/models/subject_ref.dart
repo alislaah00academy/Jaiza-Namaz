@@ -35,4 +35,10 @@ sealed class SubjectRef with _$SubjectRef {
 
   /// `{subject}/dailySummaries` (06 §2.3).
   String get dailySummariesPath => '$documentPath/dailySummaries';
+
+  /// `{subject}/stats/streak` (06 §2.4) — Function-written, read-only client-side.
+  String get statsStreakPath => '$documentPath/stats/streak';
+
+  /// `{subject}/stats/qaza` (06 §2.5) — Function-written, read-only client-side.
+  String get statsQazaPath => '$documentPath/stats/qaza';
 }

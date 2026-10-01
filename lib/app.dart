@@ -8,6 +8,8 @@ import 'core/l10n/l10n.dart';
 import 'core/l10n/locale_provider.dart';
 import 'core/local/local_prefs.dart';
 import 'core/theme/app_theme.dart';
+import 'core/update_gate/update_gate.dart';
+import 'core/update_gate/update_required_screen.dart';
 import 'core/utils/date_utils.dart';
 import 'core/widgets/home_widget_bridge.dart';
 import 'router/app_router.dart';
@@ -38,6 +40,7 @@ class _JaizaNamazAppState extends ConsumerState<JaizaNamazApp>
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       HomeWidgetBridge.bootstrap(ref);
+      checkUpdateGate(ref);
     });
   }
 
@@ -77,7 +80,12 @@ class _JaizaNamazAppState extends ConsumerState<JaizaNamazApp>
       builder: (context, child) => DevicePreview.appBuilder(
         context,
         // Support system text scaling up to 2.0 (16 §3.2 rule 8).
-        MediaQuery.withClampedTextScaling(maxScaleFactor: 2.0, child: child!),
+        MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 2.0,
+          child: ref.watch(updateRequiredProvider)
+              ? const UpdateRequiredScreen()
+              : child!,
+        ),
       ),
     );
   }

@@ -736,5 +736,8 @@
   "pctPrayedComplete": "{pct}٪ ادا · {days}",
   "teacherAlreadyActive": "یہ شخص پہلے سے یہاں استاد ہے۔",
   "anOrganization": "ایک ادارہ",
-  "studentNamesHint": "عبداللہ خان\nابراہیم صدیقی\nیوسف ملک"
+  "studentNamesHint": "عبداللہ خان\nابراہیم صدیقی\nیوسف ملک",
+  "updateRequiredTitle": "جائزہ اپ ڈیٹ کریں",
+  "updateRequiredBody": "جائزہ کا یہ ورژن اب سپورٹ نہیں کیا جاتا۔ جاری رکھنے کے لیے براہ کرم اپ ڈیٹ کریں۔",
+  "updateRequiredButton": "ابھی اپ ڈیٹ کریں"
 }

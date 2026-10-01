@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/widgets/jz_ui.dart';
@@ -41,7 +42,9 @@ class StudentDetailScreen extends ConsumerWidget {
     final matches = students.where((s) => s.id == studentId);
     final student = matches.isEmpty ? null : matches.first;
 
-    final logs = ref.watch(personFardLogsProvider(studentId)).value ?? const [];
+    final studentSubject = SubjectRef.student(studentId);
+    final logs =
+        ref.watch(personFardLogsProvider(studentSubject)).value ?? const [];
     final now = DateTime.now();
     final todayMap = logsOnDay(logs, now);
     final doneToday = fardDoneOn(logs, now);
@@ -53,7 +56,8 @@ class StudentDetailScreen extends ConsumerWidget {
     final overview = buildQazaOverview(
       since: since,
       fardLogs: logs,
-      qazaLogs: ref.watch(personQazaLogsProvider(studentId)).value ?? const [],
+      qazaLogs:
+          ref.watch(personQazaLogsProvider(studentSubject)).value ?? const [],
       schedule: ref.watch(currentPrayerCardProvider).value?.today,
     );
 
@@ -150,6 +154,7 @@ class StudentDetailScreen extends ConsumerWidget {
                         type: PrayerType.fard,
                         currentlyDone: done,
                         personId: studentId,
+                        personIsStudent: true,
                       ),
                     );
                   },

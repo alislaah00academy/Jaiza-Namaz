@@ -152,14 +152,13 @@ QazaOverview buildQazaOverview({
 
   final byPrayer = <PrayerName, QazaPrayerSummary>{};
   for (final p in kQazaPrayerNames) {
-    final done =
-        qazaLogs
-            .where(
-              (l) => l.prayerName == p && l.status == PrayerStatus.completed,
-            )
-            .map((l) => l.dateTime.toLocal())
-            .toList()
-          ..sort();
+    // Qaza logs carry a `count` (one log per subject/day/prayer, D-072), so
+    // each unit of that count is one made-up day — expand it to keep the
+    // existing 1-log-per-payoff display logic ([madeUpOn]) working.
+    final done = <DateTime>[
+      for (final l in qazaLogs.where((l) => l.prayerName == p))
+        for (var i = 0; i < l.count; i++) l.dateTime.toLocal(),
+    ]..sort();
     byPrayer[p] = QazaPrayerSummary(
       prayer: p,
       trackedMissed: missed[p]!,

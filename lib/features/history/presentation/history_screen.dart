@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/utils/date_utils.dart';
@@ -91,11 +92,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     ).isBefore(DateTime(_today.year, _today.month + 1));
 
     if (uid == null) return const SizedBox.shrink();
+    final subject = childId == null
+        ? SubjectRef.self(uid)
+        : SubjectRef.child(uid);
 
-    final fardLogs = ref.watch(personFardLogsProvider(uid)).value ?? const [];
+    final fardLogs =
+        ref.watch(personFardLogsProvider(subject)).value ?? const [];
     final nawafilLogs =
-        ref.watch(personNawafilLogsProvider(uid)).value ?? const [];
-    final qazaLogs = ref.watch(personQazaLogsProvider(uid)).value ?? const [];
+        ref.watch(personNawafilLogsProvider(subject)).value ?? const [];
+    final qazaLogs =
+        ref.watch(personQazaLogsProvider(subject)).value ?? const [];
     final full = fullFardDayKeysForMonth(fardLogs, _month);
 
     return ListView(

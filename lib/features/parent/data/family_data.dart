@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/local/local_prefs.dart';
@@ -13,24 +14,27 @@ import '../../../providers/providers.dart';
 import '../../qaza/data/qaza_tracker.dart';
 import '../../../core/l10n/l10n.dart';
 
-/// All Fard / Nawafil / Qaza logs for any tracked person — the signed-in
-/// user or one of their children (children's logs use the child id as
-/// `userId`, see [PrayerRepository]).
-final personFardLogsProvider = StreamProvider.family<List<PrayerLog>, String>(
-  (ref, uid) => ref.watch(prayerRepositoryProvider).watchAllFard(uid),
-);
-
-final personNawafilLogsProvider =
-    StreamProvider.family<List<PrayerLog>, String>(
-      (ref, uid) => ref
-          .watch(prayerRepositoryProvider)
-          .watchAllByType(uid, PrayerType.nawafil),
+/// All Fard / Nawafil / Qaza logs for any tracked subject — the signed-in
+/// user, one of their children, or (org screens) a student.
+final personFardLogsProvider =
+    StreamProvider.family<List<PrayerLog>, SubjectRef>(
+      (ref, subject) =>
+          ref.watch(prayerRepositoryProvider).watchAllFard(subject),
     );
 
-final personQazaLogsProvider = StreamProvider.family<List<PrayerLog>, String>(
-  (ref, uid) =>
-      ref.watch(prayerRepositoryProvider).watchAllByType(uid, PrayerType.qaza),
-);
+final personNawafilLogsProvider =
+    StreamProvider.family<List<PrayerLog>, SubjectRef>(
+      (ref, subject) => ref
+          .watch(prayerRepositoryProvider)
+          .watchAllByType(subject, PrayerType.nawafil),
+    );
+
+final personQazaLogsProvider =
+    StreamProvider.family<List<PrayerLog>, SubjectRef>(
+      (ref, subject) => ref
+          .watch(prayerRepositoryProvider)
+          .watchAllByType(subject, PrayerType.qaza),
+    );
 
 /// Logs of [type] on one local day, keyed by prayer.
 Map<PrayerName, PrayerLog> logsOnDay(List<PrayerLog> logs, DateTime day) {
@@ -189,10 +193,11 @@ final childQazaOverviewProvider = Provider.family<QazaOverview, String>((
   final since = createdAt == null
       ? ref.watch(qazaTrackingSinceProvider)
       : DateTime(createdAt.year, createdAt.month, createdAt.day);
+  final subject = SubjectRef.child(childId);
   return buildQazaOverview(
     since: since,
-    fardLogs: ref.watch(personFardLogsProvider(childId)).value ?? const [],
-    qazaLogs: ref.watch(personQazaLogsProvider(childId)).value ?? const [],
+    fardLogs: ref.watch(personFardLogsProvider(subject)).value ?? const [],
+    qazaLogs: ref.watch(personQazaLogsProvider(subject)).value ?? const [],
     schedule: ref.watch(currentPrayerCardProvider).value?.today,
   );
 });
@@ -203,7 +208,9 @@ final childNeedsAttentionProvider = Provider.family<bool, String>((
   ref,
   childId,
 ) {
-  final logs = ref.watch(personFardLogsProvider(childId)).value ?? const [];
+  final logs =
+      ref.watch(personFardLogsProvider(SubjectRef.child(childId))).value ??
+      const [];
   final schedule = ref.watch(currentPrayerCardProvider).value?.today;
   if (schedule == null) return false;
   final map = logsOnDay(logs, DateTime.now());

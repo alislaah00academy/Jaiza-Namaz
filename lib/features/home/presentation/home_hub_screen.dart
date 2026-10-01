@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/animations/jaiza_motion.dart';
 import '../../../core/constants/prayer_catalog.dart';
@@ -580,9 +581,11 @@ class _ChildView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final logs = ref.watch(personFardLogsProvider(child.id)).value ?? const [];
+    final childSubject = SubjectRef.child(child.id);
+    final logs =
+        ref.watch(personFardLogsProvider(childSubject)).value ?? const [];
     final nawafil =
-        ref.watch(personNawafilLogsProvider(child.id)).value ?? const [];
+        ref.watch(personNawafilLogsProvider(childSubject)).value ?? const [];
     final extra = ref.watch(childExtrasProvider)[child.id];
     final today = DateTime.now();
     final todayMap = logsOnDay(logs, today);
@@ -706,7 +709,10 @@ class _FamilyCard extends ConsumerWidget {
             Builder(
               builder: (context) {
                 final logs =
-                    ref.watch(personFardLogsProvider(k.id)).value ?? const [];
+                    ref
+                        .watch(personFardLogsProvider(SubjectRef.child(k.id)))
+                        .value ??
+                    const [];
                 final done = fardDoneOn(logs, DateTime.now());
                 final (streak, _) = fardStreak(logs);
                 return InkWell(

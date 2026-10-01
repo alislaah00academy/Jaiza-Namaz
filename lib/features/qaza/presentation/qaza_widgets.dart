@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/widgets/jz_ui.dart';
@@ -20,8 +21,8 @@ IconData prayerIcon(PrayerName p) => switch (p) {
   _ => Icons.access_time_rounded,
 };
 
-/// Records one made-up Qaza of [prayer] for today. The repository keeps
-/// one Qaza log per prayer per day, so a second tap the same day is a no-op.
+/// Records one made-up Qaza of [prayer] for today. The repository keeps one
+/// log per prayer per day; each tap adds 1 to that log's `count` (09 §4.2).
 Future<void> markQazaDone(
   BuildContext context,
   WidgetRef ref,
@@ -30,17 +31,13 @@ Future<void> markQazaDone(
 }) async {
   final me = ref.read(currentUserProvider)?.uid;
   if (me == null) return;
-  final uid = personId ?? me;
+  final subject = personId == null
+      ? SubjectRef.self(me)
+      : SubjectRef.child(personId);
   try {
     await ref
         .read(prayerRepositoryProvider)
-        .upsertPrayer(
-          userId: uid,
-          prayerName: prayer,
-          type: PrayerType.qaza,
-          status: PrayerStatus.completed,
-          ownerUid: uid == me ? null : me,
-        );
+        .incrementQaza(subject: subject, markedBy: me, prayerName: prayer);
     if (context.mounted) {
       AppSnackBar.success(
         context,

@@ -53,5 +53,6 @@ abstract class PrayerLog with _$PrayerLog {
 
   /// Whether this log represents the prayer as prayed (Fard/Nawafil) or at
   /// least one make-up logged (Qaza).
-  bool get isDone => type == PrayerType.qaza ? count > 0 : status == PrayerStatus.completed;
+  bool get isDone =>
+      type == PrayerType.qaza ? count > 0 : status == PrayerStatus.completed;
 }

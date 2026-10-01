@@ -2826,4 +2826,14 @@ class L10nEn extends L10n {
 
   @override
   String get studentNamesHint => 'Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik';
+
+  @override
+  String get updateRequiredTitle => 'Update Jaiza';
+
+  @override
+  String get updateRequiredBody =>
+      'This version of Jaiza is no longer supported. Please update to continue.';
+
+  @override
+  String get updateRequiredButton => 'Update now';
 }

@@ -1588,5 +1588,8 @@
   },
   "teacherAlreadyActive": "This person is already a teacher here.",
   "anOrganization": "an organization",
-  "studentNamesHint": "Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik"
+  "studentNamesHint": "Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik",
+  "updateRequiredTitle": "Update Jaiza",
+  "updateRequiredBody": "This version of Jaiza is no longer supported. Please update to continue.",
+  "updateRequiredButton": "Update now"
 }

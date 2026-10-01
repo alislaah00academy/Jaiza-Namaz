@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/widgets/jz_ui.dart';
@@ -73,7 +74,9 @@ class _ChildCard extends ConsumerWidget {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final extra = ref.watch(childExtrasProvider)[childId];
-    final logs = ref.watch(personFardLogsProvider(childId)).value ?? const [];
+    final logs =
+        ref.watch(personFardLogsProvider(SubjectRef.child(childId))).value ??
+        const [];
     final total = kFardPrayerDefs.length;
     final today = fardDoneOn(logs, DateTime.now());
     final week = fardDoneThisWeek(logs);

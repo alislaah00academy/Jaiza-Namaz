@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/feedback/app_snackbar.dart';
@@ -191,7 +192,8 @@ class FardPrayersScreen extends ConsumerWidget {
       await ref
           .read(prayerRepositoryProvider)
           .upsertPrayer(
-            userId: uid,
+            subject: SubjectRef.self(uid),
+            markedBy: uid,
             prayerName: name,
             type: PrayerType.fard,
             status: status,

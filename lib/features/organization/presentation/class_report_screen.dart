@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/feedback/app_snackbar.dart';
@@ -55,7 +56,9 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
     final rows = <(String, int, double)>[];
     var totalDone = 0;
     for (final s in students) {
-      final logs = ref.watch(personFardLogsProvider(s.id)).value ?? const [];
+      final logs =
+          ref.watch(personFardLogsProvider(SubjectRef.student(s.id))).value ??
+          const [];
       final done = logs.where((l) {
         final d = l.dateTime.toLocal();
         final day = DateTime(d.year, d.month, d.day);

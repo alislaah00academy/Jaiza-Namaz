@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/l10n/l10n.dart';
@@ -18,12 +19,16 @@ Future<void> togglePrayer(
   required bool currentlyDone,
   DateTime? at,
 
-  /// Whose prayer this is — a child's id when a parent marks for them.
+  /// Whose prayer this is — a child's or student's id when marking for
+  /// someone else (defaults to the signed-in user when null).
   String? personId,
+
+  /// Required alongside [personId] when it's a student, not a child.
+  bool personIsStudent = false,
 }) async {
   final me = ref.read(currentUserProvider)?.uid;
   if (me == null) return;
-  final uid = personId ?? me;
+  final subject = _subjectFor(personId, personIsStudent, me);
   if (currentlyDone) {
     final ok = await showDialog<bool>(
       context: context,
@@ -48,12 +53,12 @@ Future<void> togglePrayer(
     await ref
         .read(prayerRepositoryProvider)
         .upsertPrayer(
-          userId: uid,
+          subject: subject,
+          markedBy: me,
           prayerName: name,
           type: type,
           status: currentlyDone ? PrayerStatus.missed : PrayerStatus.completed,
           at: at,
-          ownerUid: uid == me ? null : me,
         );
     if (context.mounted && !currentlyDone && type == PrayerType.fard) {
       AppSnackBar.success(context, context.l10n.namazMarkedSuccess);
@@ -74,25 +79,26 @@ Future<void> addMissedToQaza(
   required String label,
   DateTime? at,
   String? personId,
+  bool personIsStudent = false,
 }) async {
   final me = ref.read(currentUserProvider)?.uid;
   if (me == null) return;
-  final uid = personId ?? me;
+  final subject = _subjectFor(personId, personIsStudent, me);
   try {
     await ref
         .read(prayerRepositoryProvider)
         .upsertPrayer(
-          userId: uid,
+          subject: subject,
+          markedBy: me,
           prayerName: name,
           type: PrayerType.fard,
           status: PrayerStatus.missed,
           at: at,
-          ownerUid: uid == me ? null : me,
         );
     if (context.mounted) {
       AppSnackBar.success(
         context,
-        uid == me
+        personId == null
             ? context.l10n.addedToYourQaza(label)
             : context.l10n.addedToQaza(label),
       );
@@ -102,6 +108,13 @@ Future<void> addMissedToQaza(
       AppSnackBar.error(context, context.l10n.errorSaveFailed);
     }
   }
+}
+
+SubjectRef _subjectFor(String? personId, bool personIsStudent, String me) {
+  if (personId == null) return SubjectRef.self(me);
+  return personIsStudent
+      ? SubjectRef.student(personId)
+      : SubjectRef.child(personId);
 }
 
 /// The inline "Missed · Add to Qaza" sub line.

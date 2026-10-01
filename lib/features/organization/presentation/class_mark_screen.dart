@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jaiza_core/jaiza_core.dart' show SubjectRef;
 
 import '../../../core/analytics/analytics.dart' show AnalyticsSubject;
 import 'package:go_router/go_router.dart';
@@ -36,12 +37,12 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
       await ref
           .read(prayerRepositoryProvider)
           .upsertPrayer(
-            userId: studentId,
+            subject: SubjectRef.student(studentId),
+            markedBy: teacherUid,
             prayerName: prayer,
             type: PrayerType.fard,
             status: done ? PrayerStatus.completed : PrayerStatus.missed,
-            ownerUid: teacherUid,
-            subject: AnalyticsSubject.student,
+            analyticsSubject: AnalyticsSubject.student,
           );
     } catch (_) {
       if (mounted) AppSnackBar.error(context, context.l10n.errorSaveFailed);

@@ -4523,6 +4523,24 @@ abstract class L10n {
   /// In en, this message translates to:
   /// **'Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik'**
   String get studentNamesHint;
+
+  /// No description provided for @updateRequiredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Update Jaiza'**
+  String get updateRequiredTitle;
+
+  /// No description provided for @updateRequiredBody.
+  ///
+  /// In en, this message translates to:
+  /// **'This version of Jaiza is no longer supported. Please update to continue.'**
+  String get updateRequiredBody;
+
+  /// No description provided for @updateRequiredButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Update now'**
+  String get updateRequiredButton;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
