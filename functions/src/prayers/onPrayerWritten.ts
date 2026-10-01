@@ -1,5 +1,6 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import { logger } from 'firebase-functions/v2';
+import { FIRESTORE_DATABASE_ID } from '../config';
 import { recomputeDay } from './recomputeDay';
 import { applyStreakUpdate } from './streak';
 import { applyQazaDelta } from './qaza';
@@ -29,35 +30,44 @@ async function handlePrayerWritten(
   logger.info({ fn: 'onPrayerWritten', subjectPath, dateKey });
 }
 
-export const onSelfPrayerWritten = onDocumentWritten('users/{uid}/prayers/{logId}', async (event) => {
-  const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
-  if (!dateKey) return;
-  await handlePrayerWritten(
-    `users/${event.params.uid}`,
-    dateKey,
-    event.data?.before.data(),
-    event.data?.after.data(),
-  );
-});
+export const onSelfPrayerWritten = onDocumentWritten(
+  { document: 'users/{uid}/prayers/{logId}', database: FIRESTORE_DATABASE_ID },
+  async (event) => {
+    const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
+    if (!dateKey) return;
+    await handlePrayerWritten(
+      `users/${event.params.uid}`,
+      dateKey,
+      event.data?.before.data(),
+      event.data?.after.data(),
+    );
+  },
+);
 
-export const onChildPrayerWritten = onDocumentWritten('children/{id}/prayers/{logId}', async (event) => {
-  const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
-  if (!dateKey) return;
-  await handlePrayerWritten(
-    `children/${event.params.id}`,
-    dateKey,
-    event.data?.before.data(),
-    event.data?.after.data(),
-  );
-});
+export const onChildPrayerWritten = onDocumentWritten(
+  { document: 'children/{id}/prayers/{logId}', database: FIRESTORE_DATABASE_ID },
+  async (event) => {
+    const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
+    if (!dateKey) return;
+    await handlePrayerWritten(
+      `children/${event.params.id}`,
+      dateKey,
+      event.data?.before.data(),
+      event.data?.after.data(),
+    );
+  },
+);
 
-export const onStudentPrayerWritten = onDocumentWritten('students/{id}/prayers/{logId}', async (event) => {
-  const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
-  if (!dateKey) return;
-  await handlePrayerWritten(
-    `students/${event.params.id}`,
-    dateKey,
-    event.data?.before.data(),
-    event.data?.after.data(),
-  );
-});
+export const onStudentPrayerWritten = onDocumentWritten(
+  { document: 'students/{id}/prayers/{logId}', database: FIRESTORE_DATABASE_ID },
+  async (event) => {
+    const dateKey = event.data?.after.data()?.dateKey ?? event.data?.before.data()?.dateKey;
+    if (!dateKey) return;
+    await handlePrayerWritten(
+      `students/${event.params.id}`,
+      dateKey,
+      event.data?.before.data(),
+      event.data?.after.data(),
+    );
+  },
+);

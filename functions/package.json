@@ -10,6 +10,7 @@
     "lint": "eslint src --ext .ts",
     "test": "npm run build && node --test lib/test/*.test.js",
     "test:watch": "npm run build && node --test --watch lib/test/*.test.js",
+    "test:integration": "npm run build && firebase emulators:exec --only firestore,functions --project jaiza-rules-test \"node test/integration/prayerFlow.integration.cjs\"",
     "serve": "npm run build && firebase emulators:start --only auth,firestore,functions,storage"
   },
   "dependencies": {
