@@ -6,6 +6,7 @@ import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../../../services/prayer_times_service.dart';
 import 'qaza_plan.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// One prayer's Qaza picture: prayers Jaiza counted as missed (with dates),
 /// the user's own pre-Jaiza estimate, and how many have been made up.
@@ -78,15 +79,15 @@ class QazaOverview {
 }
 
 /// "2 years 1 month" style label for a span of days.
-String qazaDurationLabel(int days) {
-  if (days <= 0) return '0 days';
+String qazaDurationLabel(int days, L10n l) {
+  if (days <= 0) return l.spanDays(0);
   final years = days ~/ 365;
   final months = (days % 365) ~/ 30;
   final rest = days % 365 % 30;
   final parts = <String>[
-    if (years > 0) '$years ${years == 1 ? 'year' : 'years'}',
-    if (months > 0) '$months ${months == 1 ? 'month' : 'months'}',
-    if (years == 0 && months == 0) '$rest ${rest == 1 ? 'day' : 'days'}',
+    if (years > 0) l.spanYears(years),
+    if (months > 0) l.spanMonths(months),
+    if (years == 0 && months == 0) l.spanDays(rest),
   ];
   return parts.join(' ');
 }

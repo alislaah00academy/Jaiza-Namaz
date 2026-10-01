@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/animations/jaiza_motion.dart';
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
@@ -37,7 +37,7 @@ class WelcomeScreen extends StatelessWidget {
                         // with a large gap above the buttons).
                         const Spacer(),
                         Text(
-                          AppStrings.appName,
+                          context.l10n.appName,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.headlineMedium?.copyWith(
                             color: theme.colorScheme.onSurface,
@@ -45,7 +45,7 @@ class WelcomeScreen extends StatelessWidget {
                         ).jaizaEnter(index: 1),
                         const SizedBox(height: 12),
                         Text(
-                          AppStrings.welcomeSubtitle,
+                          context.l10n.welcomeSubtitle,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
@@ -54,13 +54,13 @@ class WelcomeScreen extends StatelessWidget {
                         const Spacer(),
                         FilledButton(
                           onPressed: () => context.go('/login'),
-                          child: const Text('Log in'),
+                          child: Text(context.l10n.logInLower),
                         ).jaizaEnter(index: 3),
                         const SizedBox(height: 12),
                         FilledButton.tonal(
                           style: AppTheme.tonalButtonStyle(context),
                           onPressed: () => context.go('/get-started'),
-                          child: const Text('Create account'),
+                          child: Text(context.l10n.createAccount),
                         ).jaizaEnter(index: 4),
                         const SizedBox(height: 20),
                       ],

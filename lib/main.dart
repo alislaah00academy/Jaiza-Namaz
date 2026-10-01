@@ -12,6 +12,7 @@ import 'bootstrap/crash_reporting.dart';
 import 'bootstrap/firebase_bootstrap.dart';
 import 'core/analytics/analytics.dart';
 import 'core/errors/error_mapper.dart';
+import 'core/l10n/locale_provider.dart';
 import 'core/local/local_prefs.dart';
 import 'core/widgets/home_widget_bridge.dart';
 import 'data/models/prayer_log.dart';
@@ -31,6 +32,7 @@ Future<void> homeWidgetCallback(Uri? uri) async {
   WidgetsFlutterBinding.ensureInitialized();
   // Same database, App Check and emulator wiring as the app (03 §6).
   await FirebaseBootstrap.init();
+  initL10nLookup(await SharedPreferences.getInstance());
 
   final uid = await HomeWidget.getWidgetData<String>(
     HomeWidgetBridge.uidKey,
@@ -72,6 +74,7 @@ Future<void> main() async {
   await FirebaseBootstrap.init();
   await CrashReporting.init();
   final prefs = await SharedPreferences.getInstance();
+  initL10nLookup(prefs);
   // Analytics follows the Profile → Privacy switch (15 §14). Debug builds
   // never send: there is one Firebase project for dev and prod (D-003).
   await FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(

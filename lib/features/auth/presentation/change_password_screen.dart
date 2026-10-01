@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jaiza_core/jaiza_core.dart' show Validators;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/firebase_auth_messages.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/auth_text_field.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../providers/providers.dart';
@@ -44,13 +46,13 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Password updated.')));
+        ).showSnackBar(SnackBar(content: Text(context.l10n.passwordUpdated)));
         context.pop();
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? mapGenericError(e))),
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
         );
       }
     } finally {
@@ -71,7 +73,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'Re-enter your current password, then choose a new one.',
+                context.l10n.changePasswordIntro,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -79,25 +81,25 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               const SizedBox(height: 24),
               AuthTextField(
                 controller: _current,
-                label: 'Current password',
+                label: context.l10n.currentPasswordLabel,
                 obscureText: true,
                 textInputAction: TextInputAction.next,
                 autocorrect: false,
                 validator: (v) {
-                  if (v == null || v.isEmpty) return 'Required';
+                  if (v == null || v.isEmpty) return context.l10n.validationRequired;
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               AuthTextField(
                 controller: _next,
-                label: 'New password',
+                label: context.l10n.newPasswordLabel,
                 obscureText: true,
                 textInputAction: TextInputAction.next,
                 autocorrect: false,
                 validator: (v) {
-                  if (v == null || v.length < 6) {
-                    return 'Use at least 6 characters';
+                  if (v == null || !Validators.isValidPassword(v)) {
+                    return context.l10n.validationPasswordRule;
                   }
                   return null;
                 },
@@ -105,12 +107,12 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
               const SizedBox(height: 16),
               AuthTextField(
                 controller: _confirm,
-                label: 'Confirm new password',
+                label: context.l10n.confirmNewPasswordLabel,
                 obscureText: true,
                 textInputAction: TextInputAction.done,
                 autocorrect: false,
                 validator: (v) {
-                  if (v != _next.text) return 'Does not match';
+                  if (v != _next.text) return context.l10n.validationNoMatch;
                   return null;
                 },
               ),
@@ -126,7 +128,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                           color: onPrimary,
                         ),
                       )
-                    : const Text('Update password'),
+                    : Text(context.l10n.updatePasswordButton),
               ),
             ],
           ),

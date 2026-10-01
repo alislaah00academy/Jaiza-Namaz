@@ -9,6 +9,8 @@ import '../../../providers/providers.dart';
 import '../../home/presentation/prayer_marking.dart';
 import '../../parent/data/family_data.dart';
 import '../../qaza/data/qaza_tracker.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/formatters.dart';
 
 /// One student: today's five prayers (mark straight from here too), this
 /// month's summary, Qaza owed, and a link into their full history.
@@ -83,11 +85,16 @@ class StudentDetailScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(student?.name ?? 'Student', style: t.titleMedium),
+                    Text(
+                      student?.name ?? context.l10n.titleStudent,
+                      style: t.titleMedium,
+                    ),
                     Text(
                       student?.createdAt == null
-                          ? 'Added recently'
-                          : 'Added ${DateFormat('d MMMM').format(student!.createdAt!)}',
+                          ? context.l10n.addedRecently
+                          : context.l10n.addedOn(
+                              formatDayMonth(student!.createdAt!, context.l10n),
+                            ),
                       style: t.bodySmall,
                     ),
                   ],
@@ -111,8 +118,15 @@ class StudentDetailScreen extends ConsumerWidget {
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 8),
                 child: Row(
                   children: [
-                    Expanded(child: Text('Today', style: t.titleMedium)),
-                    JzChip('$doneToday / ${kFardPrayerDefs.length}'),
+                    Expanded(
+                      child: Text(context.l10n.titleToday, style: t.titleMedium),
+                    ),
+                    JzChip(
+                      context.l10n.doneSlashTotalSpaced(
+                        doneToday,
+                        kFardPrayerDefs.length,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -124,14 +138,14 @@ class StudentDetailScreen extends ConsumerWidget {
                     final done =
                         todayMap[def.name]?.status == PrayerStatus.completed;
                     return JzPrayerRow(
-                      name: def.label,
+                      name: def.label(context.l10n),
                       checked: done,
                       showDivider: i < kFardPrayerDefs.length - 1,
                       onToggle: () => togglePrayer(
                         context,
                         ref,
                         name: def.name,
-                        label: def.label,
+                        label: def.label(context.l10n),
                         type: PrayerType.fard,
                         currentlyDone: done,
                         personId: studentId,
@@ -150,15 +164,23 @@ class StudentDetailScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('This month', style: t.titleMedium)),
-                  Text('$monthLogs / $possible', style: t.titleSmall),
+                  Expanded(
+                    child: Text(context.l10n.thisMonth, style: t.titleMedium),
+                  ),
+                  Text(
+                    context.l10n.doneSlashTotalSpaced(monthLogs, possible),
+                    style: t.titleSmall,
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
               JzBar(value: possible == 0 ? 0 : monthLogs / possible),
               const SizedBox(height: 6),
               Text(
-                '$pct% on time · ${fullDays.length} complete ${fullDays.length == 1 ? 'day' : 'days'}',
+                context.l10n.pctOnTimeComplete(
+                  pct,
+                  context.l10n.completeDays(fullDays.length),
+                ),
                 style: t.bodySmall,
               ),
             ],
@@ -168,21 +190,30 @@ class StudentDetailScreen extends ConsumerWidget {
         JzStripCard(
           margin: EdgeInsets.zero,
           icon: Icons.history_edu_outlined,
-          title: 'Qaza',
+          title: context.l10n.titleQaza,
           subtitle: overview.remaining == 0
-              ? 'Nothing to make up'
-              : '${overview.remaining} to make up · since ${DateFormat('d MMMM').format(overview.since)}',
+              ? context.l10n.qazaNothingToMakeUp
+              : context.l10n.qazaToMakeUpSince(
+                  jzCount(overview.remaining),
+                  formatDayMonth(overview.since, context.l10n),
+                ),
         ),
         const SizedBox(height: 12),
         JzCard(
           padding: const EdgeInsets.all(16),
           onTap: () =>
-              _showFullHistory(context, student?.name ?? 'Student', logs),
+              _showFullHistory(
+                context,
+                student?.name ?? context.l10n.titleStudent,
+                logs,
+              ),
           child: Row(
             children: [
               Icon(Icons.calendar_month_outlined, color: c.primary),
               const SizedBox(width: 12),
-              Expanded(child: Text('Full history', style: t.titleSmall)),
+              Expanded(
+                child: Text(context.l10n.fullHistory, style: t.titleSmall),
+              ),
               const JzChevron(),
             ],
           ),
@@ -212,13 +243,13 @@ class StudentDetailScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('$name — full history', style: t.headlineSmall),
+              Text(context.l10n.nameFullHistory(name), style: t.headlineSmall),
               const SizedBox(height: 12),
               Expanded(
                 child: days.isEmpty
                     ? Center(
                         child: Text(
-                          'No prayers logged yet.',
+                          context.l10n.noPrayersLoggedYet,
                           style: t.bodyMedium,
                         ),
                       )
@@ -231,10 +262,14 @@ class StudentDetailScreen extends ConsumerWidget {
                             title: Text(
                               DateFormat(
                                 'EEEE, d MMMM',
+                                context.l10n.localeName,
                               ).format(DateTime.parse(day)),
                             ),
                             trailing: Text(
-                              '${byDay[day]}/${kFardPrayerDefs.length}',
+                              context.l10n.doneSlashTotal(
+                                byDay[day]!,
+                                kFardPrayerDefs.length,
+                              ),
                             ),
                           );
                         },

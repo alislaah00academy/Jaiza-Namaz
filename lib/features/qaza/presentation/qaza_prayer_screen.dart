@@ -7,6 +7,9 @@ import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../data/qaza_tracker.dart';
 import 'qaza_widgets.dart';
+import '../../../core/l10n/formatters.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 /// Qaza for one prayer: progress, "I prayed some", the dated list Jaiza
 /// tracked, and what is left of the user's estimate.
@@ -30,15 +33,14 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
     final p = widget.prayer;
     final summary = ref.watch(qazaOverviewProvider).byPrayer[p];
     if (summary == null) {
-      return const Center(
-        child: Text('Qaza is tracked for the five Fard only.'),
-      );
+      return Center(child: Text(context.l10n.qazaFiveFardOnly));
     }
-    final label = prayerLabel(p);
+    final label = p.label(context.l10n);
     // The repository stores one Qaza per prayer per day.
     final doneToday = ref.watch(qazaTodayCountForProvider(p)) > 0;
     final maxToday = doneToday ? 0 : 1;
-    final dayFmt = DateFormat('EEEE, d MMMM');
+    final l10n = context.l10n;
+    final dayFmt = DateFormat('EEEE, d MMMM', l10n.localeName);
     final tracked = summary.trackedMissed;
     final indices = [for (var i = tracked.length - 1; i >= 0; i--) i];
 
@@ -58,12 +60,14 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          '${jzCount(summary.remaining)} remaining',
+                          l10n.qazaRemaining(jzCount(summary.remaining)),
                           style: t.headlineSmall,
                         ),
                         Text(
-                          '${jzCount(summary.completed)} of '
-                          '${jzCount(summary.total)} done',
+                          l10n.qazaDoneOfTotal(
+                            jzCount(summary.completed),
+                            jzCount(summary.total),
+                          ),
                           style: t.bodySmall,
                         ),
                       ],
@@ -87,7 +91,7 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('I prayed some Qaza $label', style: t.titleMedium),
+              Text(l10n.qazaIPrayedSome(label), style: t.titleMedium),
               const SizedBox(height: 12),
               if (maxToday == 0)
                 Row(
@@ -96,8 +100,7 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        "Today's Qaza $label is recorded. Come back tomorrow "
-                        'for the next one.',
+                        l10n.qazaTodayRecorded(label),
                         style: t.bodyMedium,
                       ),
                     ),
@@ -120,7 +123,7 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                       onPressed: summary.remaining == 0
                           ? null
                           : () => markQazaDone(context, ref, p),
-                      child: const Text('Mark done'),
+                      child: Text(l10n.markDone),
                     ),
                   ],
                 ),
@@ -128,12 +131,12 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
           ),
         ),
         const SizedBox(height: 16),
-        JzSectionLabel('Tracked by Jaiza · ${jzCount(tracked.length)}'),
+        JzSectionLabel(l10n.trackedByJaizaCount(jzCount(tracked.length))),
         if (tracked.isEmpty)
           JzCard(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'No missed $label since you started using Jaiza.',
+              l10n.qazaNoMissedSince(label),
               style: t.bodyMedium,
             ),
           )
@@ -150,8 +153,8 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                         name: dayFmt.format(tracked[i]),
                         checked: madeUp != null,
                         sub: madeUp == null
-                            ? 'Missed'
-                            : 'Made up on ${DateFormat('d MMMM').format(madeUp)}',
+                            ? l10n.statusMissed
+                            : l10n.madeUpOn(formatDayMonth(madeUp, l10n)),
                         showDivider:
                             k < indices.length - 1 && k < _visibleDays - 1,
                       );
@@ -161,7 +164,9 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                   Padding(
                     padding: const EdgeInsets.all(14),
                     child: Text(
-                      '+ ${jzCount(indices.length - _visibleDays)} earlier days',
+                      l10n.earlierDays(
+                        jzCount(indices.length - _visibleDays),
+                      ),
                       style: t.bodySmall,
                     ),
                   ),
@@ -180,10 +185,11 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('From your estimate', style: t.titleSmall),
+                      Text(l10n.fromYourEstimate, style: t.titleSmall),
                       Text(
-                        '${jzCount(summary.estimateRemaining)} remaining · '
-                        'these carry no date',
+                        l10n.estimateRemainingNoDate(
+                          jzCount(summary.estimateRemaining),
+                        ),
                         style: t.bodySmall,
                       ),
                     ],

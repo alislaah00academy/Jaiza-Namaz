@@ -7,6 +7,7 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../data/family_data.dart';
 import 'family_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Family: every child's today/week progress, streak and Qaza — the "See
 /// all" destination from the parent's Today card.
@@ -21,7 +22,7 @@ class FamilyScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => showAddChildSheet(context),
         icon: const Icon(Icons.add_rounded),
-        label: const Text('Add a child'),
+        label: Text(context.l10n.addAChild),
       ),
       body: children.isEmpty
           ? Center(
@@ -37,12 +38,12 @@ class FamilyScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
                     Text(
-                      'No children added yet',
+                      context.l10n.noChildrenYet,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Add a child to mark and track their Salah.',
+                      context.l10n.noChildrenYetBody,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
@@ -109,8 +110,8 @@ class _ChildCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(name, style: t.titleMedium),
-                    if (extra?.label.isNotEmpty ?? false)
-                      Text(extra!.label, style: t.bodySmall),
+                    if (extra?.label(context.l10n).isNotEmpty ?? false)
+                      Text(extra!.label(context.l10n), style: t.bodySmall),
                   ],
                 ),
               ),
@@ -118,8 +119,16 @@ class _ChildCard extends ConsumerWidget {
             ],
           ),
           const SizedBox(height: 4),
-          bar('Today', today / total, '$today/$total'),
-          bar('Week', week / (total * 7), '$week/${total * 7}'),
+          bar(
+            context.l10n.barToday,
+            today / total,
+            context.l10n.doneSlashTotal(today, total),
+          ),
+          bar(
+            context.l10n.barWeek,
+            week / (total * 7),
+            context.l10n.doneSlashTotal(week, total * 7),
+          ),
           const JzDivider(top: 12, bottom: 8),
           Row(
             children: [
@@ -129,8 +138,8 @@ class _ChildCard extends ConsumerWidget {
                 color: c.tertiary,
               ),
               const SizedBox(width: 8),
-              Expanded(child: Text('Streak', style: t.bodySmall)),
-              JzChip('$streak ${streak == 1 ? 'day' : 'days'}'),
+              Expanded(child: Text(context.l10n.streakLabel, style: t.bodySmall)),
+              JzChip(context.l10n.spanDays(streak)),
             ],
           ),
           Padding(
@@ -139,9 +148,13 @@ class _ChildCard extends ConsumerWidget {
               children: [
                 Icon(Icons.history_edu_outlined, size: 18, color: c.primary),
                 const SizedBox(width: 8),
-                Expanded(child: Text('Qaza to make up', style: t.bodySmall)),
+                Expanded(
+                  child: Text(context.l10n.qazaToMakeUp, style: t.bodySmall),
+                ),
                 JzChip(
-                  qaza.remaining == 0 ? 'None' : '${qaza.remaining}',
+                  qaza.remaining == 0
+                      ? context.l10n.none
+                      : jzCount(qaza.remaining),
                   gold: qaza.remaining == 0,
                 ),
               ],

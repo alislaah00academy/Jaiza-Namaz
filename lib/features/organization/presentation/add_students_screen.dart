@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
+import '../../../core/l10n/l10n.dart';
 
 enum _Mode { one, paste }
 
@@ -69,13 +70,13 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
         AppSnackBar.success(
           context,
           names.length == 1
-              ? '${names.first} added.'
-              : '${names.length} students added.',
+              ? context.l10n.childAdded(names.first)
+              : context.l10n.studentsAdded(names.length),
         );
         context.pop();
       }
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not add students.');
+      if (mounted) AppSnackBar.error(context, context.l10n.couldNotAddStudents);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -88,7 +89,10 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         JzSegmented<_Mode>(
-          options: const {_Mode.one: 'One by one', _Mode.paste: 'Paste a list'},
+          options: {
+            _Mode.one: context.l10n.oneByOne,
+            _Mode.paste: context.l10n.pasteAList,
+          },
           selected: _mode,
           onChanged: (m) => setState(() => _mode = m),
         ),
@@ -105,31 +109,26 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
       textCapitalization: TextCapitalization.words,
       onChanged: (_) => setState(() {}),
       onSubmitted: (_) => _addOne(),
-      decoration: const InputDecoration(labelText: "Student's name"),
+      decoration: InputDecoration(labelText: context.l10n.studentNameLabel),
     ),
     const SizedBox(height: 18),
     FilledButton(
       onPressed: _saving || _one.text.trim().isEmpty ? null : _addOne,
-      child: const Text('Add student'),
+      child: Text(context.l10n.addStudent),
     ),
   ];
 
   List<Widget> _pasteList(TextTheme t) => [
-    const JzNoteCard(
-      body: Text(
-        'One name per line. Thirty students take about a minute this way '
-        'instead of thirty separate forms.',
-      ),
-    ),
+    JzNoteCard(body: Text(context.l10n.pasteListNote)),
     const SizedBox(height: 16),
-    const JzSectionLabel('Names'),
+    JzSectionLabel(context.l10n.namesSection),
     TextField(
       controller: _paste,
       maxLines: 10,
       minLines: 8,
       onChanged: (_) => setState(() {}),
-      decoration: const InputDecoration(
-        hintText: 'Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik',
+      decoration: InputDecoration(
+        hintText: context.l10n.studentNamesHint,
         alignLabelWithHint: true,
       ),
     ),
@@ -140,7 +139,7 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
         children: [
           Expanded(
             child: Text(
-              '${_names.length} ${_names.length == 1 ? 'name' : 'names'} found',
+              context.l10n.namesFound(_names.length),
               style: t.titleSmall,
             ),
           ),
@@ -150,7 +149,7 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
     const SizedBox(height: 18),
     FilledButton(
       onPressed: _saving || _names.isEmpty ? null : _addPasted,
-      child: Text('Add ${_names.length} students'),
+      child: Text(context.l10n.addNStudents(_names.length)),
     ),
   ];
 }

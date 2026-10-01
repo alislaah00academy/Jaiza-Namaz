@@ -9,6 +9,7 @@ import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../data/qaza_tracker.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// "Add past Qaza" — shown after the estimate is saved: confirmation, a
 /// daily goal (`qazaDailyTarget`) and the daily reminder toggle.
@@ -44,7 +45,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
       }
       if (mounted) context.go('/app/qaza');
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not save. Try again.');
+      if (mounted) AppSnackBar.error(context, context.l10n.errorSaveFailed);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -70,12 +71,13 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
             children: [
               const JzEmblem(icon: Icons.check_rounded, size: 72),
               const SizedBox(height: 14),
-              Text('Your estimate is saved', style: t.headlineSmall),
+              Text(context.l10n.qazaEstimateSaved, style: t.headlineSmall),
               const SizedBox(height: 6),
               Text(
-                '${jzCount(overview.estimateTotal)} prayers from before Jaiza, '
-                'plus the ${jzCount(overview.trackedTotal)} counted since you '
-                'installed it.',
+                context.l10n.qazaEstimateSavedBody(
+                  jzCount(overview.estimateTotal),
+                  jzCount(overview.trackedTotal),
+                ),
                 textAlign: TextAlign.center,
                 style: t.bodyMedium,
               ),
@@ -88,11 +90,10 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Set a daily goal', style: t.titleMedium),
+              Text(context.l10n.qazaSetDailyGoal, style: t.titleMedium),
               const SizedBox(height: 2),
               Text(
-                'How many Qaza will you pray each day? Start small — you can '
-                'change this whenever you like.',
+                context.l10n.qazaSetDailyGoalBody,
                 style: t.bodySmall,
               ),
               const SizedBox(height: 14),
@@ -105,7 +106,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
                     ),
                   ),
                   const SizedBox(width: 14),
-                  Text('a day', style: t.bodyLarge),
+                  Text(context.l10n.aDay, style: t.bodyLarge),
                 ],
               ),
               const SizedBox(height: 16),
@@ -125,17 +126,21 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
                     Expanded(
                       child: Text.rich(
                         TextSpan(
-                          text: 'At $goal a day you will finish in about ',
+                          text: context.l10n.qazaFinishPrefix(goal),
                           children: [
                             TextSpan(
-                              text: qazaDurationLabel(days),
+                              text: qazaDurationLabel(days, context.l10n),
                               style: const TextStyle(
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                             TextSpan(
-                              text:
-                                  ' — around ${DateFormat('MMMM y').format(finish)}.',
+                              text: context.l10n.qazaFinishSuffix(
+                                DateFormat(
+                                  'MMMM y',
+                                  context.l10n.localeName,
+                                ).format(finish),
+                              ),
                             ),
                           ],
                         ),
@@ -156,8 +161,8 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
               Icons.notifications_active_outlined,
               color: c.primary,
             ),
-            title: 'Remind me daily',
-            subtitle: "One nudge after Isha if the day's Qaza is not done",
+            title: context.l10n.remindMeDaily,
+            subtitle: context.l10n.remindMeDailySubtitle,
             value: remind,
             onChanged: (v) => ref.read(qazaRemindDailyProvider.notifier).set(v),
           ),
@@ -165,7 +170,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
         const SizedBox(height: 18),
         FilledButton(
           onPressed: _saving ? null : _done,
-          child: const Text('Done'),
+          child: Text(context.l10n.actionDone),
         ),
       ],
     );

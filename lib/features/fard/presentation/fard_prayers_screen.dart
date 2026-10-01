@@ -3,12 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/feedback/app_snackbar.dart';
-import '../../../core/l10n/app_strings.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import 'fard_history_section.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/errors/firebase_auth_messages.dart';
 
 /// Lists six Fard prayers with informational windows and mark completed/missed.
 class FardPrayersScreen extends ConsumerWidget {
@@ -20,7 +21,7 @@ class FardPrayersScreen extends ConsumerWidget {
     final today = ref.watch(todayFardMapProvider);
 
     if (uid == null) {
-      return const Center(child: Text('Sign in required'));
+      return Center(child: Text(context.l10n.signInRequired));
     }
 
     return ListView(
@@ -33,7 +34,11 @@ class FardPrayersScreen extends ConsumerWidget {
             padding: EdgeInsets.all(24),
             child: Center(child: CircularProgressIndicator()),
           ),
-          error: (e, _) => Center(child: Text('Could not load: $e')),
+          error: (e, _) => Center(
+            child: Text(
+              context.l10n.couldNotLoad(mapGenericError(e, context.l10n)),
+            ),
+          ),
           data: (map) {
             final completedCount = kFardPrayerDefs
                 .where(
@@ -52,7 +57,7 @@ class FardPrayersScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Today's Fard progress",
+                        context.l10n.todaysFardProgress,
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w600,
                             ),
@@ -68,7 +73,10 @@ class FardPrayersScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '$completedCount / ${kFardPrayerDefs.length} completed',
+                        context.l10n.completedOfTotal(
+                          completedCount,
+                          kFardPrayerDefs.length,
+                        ),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context)
                                   .colorScheme
@@ -83,7 +91,7 @@ class FardPrayersScreen extends ConsumerWidget {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16),
                     child: Text(
-                      AppStrings.noPrayersYet,
+                      context.l10n.noPrayersYet,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context)
                                 .colorScheme
@@ -105,7 +113,7 @@ class FardPrayersScreen extends ConsumerWidget {
                             children: [
                               Expanded(
                                 child: Text(
-                                  def.label,
+                                  def.label(context.l10n),
                                   style: Theme.of(context)
                                       .textTheme
                                       .titleMedium
@@ -126,7 +134,10 @@ class FardPrayersScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Window: ${def.startHint} — ${def.endHint}',
+                            context.l10n.windowHint(
+                              def.startHint(context.l10n),
+                              def.endHint(context.l10n),
+                            ),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -145,7 +156,7 @@ class FardPrayersScreen extends ConsumerWidget {
                                     def.name,
                                     PrayerStatus.completed,
                                   ),
-                                  child: const Text('Mark as prayed'),
+                                  child: Text(context.l10n.markAsPrayed),
                                 ),
                               ),
                               const SizedBox(width: 10),
@@ -159,7 +170,7 @@ class FardPrayersScreen extends ConsumerWidget {
                                     def.name,
                                     PrayerStatus.missed,
                                   ),
-                                  child: const Text('Missed'),
+                                  child: Text(context.l10n.statusMissed),
                                 ),
                               ),
                             ],
@@ -192,13 +203,13 @@ class FardPrayersScreen extends ConsumerWidget {
             status: status,
           );
       if (context.mounted && status == PrayerStatus.completed) {
-        AppSnackBar.success(context, AppStrings.namazMarkedSuccess);
+        AppSnackBar.success(context, context.l10n.namazMarkedSuccess);
       } else if (context.mounted) {
-        AppSnackBar.success(context, 'Recorded as missed. Stay steadfast.');
+        AppSnackBar.success(context, context.l10n.recordedAsMissed);
       }
     } catch (e) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Could not save. Try again.');
+        AppSnackBar.error(context, context.l10n.errorSaveFailed);
       }
     }
   }

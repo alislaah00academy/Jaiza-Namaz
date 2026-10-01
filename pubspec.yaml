@@ -92,6 +92,8 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  # gen-l10n from lib/core/l10n/arb (l10n.yaml, D-090).
+  generate: true
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
@@ -133,6 +135,21 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  # Urdu fonts are bundled, never downloaded at runtime (16 §1.2):
+  # Nastaliq for reading text, Naskh for dense UI (chips, buttons, numbers).
+  # Noto, SIL Open Font License — see assets/fonts/OFL.txt.
+  fonts:
+    - family: NotoNastaliqUrdu
+      fonts:
+        - asset: assets/fonts/NotoNastaliqUrdu-Regular.ttf
+        - asset: assets/fonts/NotoNastaliqUrdu-Bold.ttf
+          weight: 700
+    - family: NotoNaskhArabic
+      fonts:
+        - asset: assets/fonts/NotoNaskhArabic-Regular.ttf
+        - asset: assets/fonts/NotoNaskhArabic-Bold.ttf
+          weight: 700
 
 flutter_launcher_icons:
   # Legacy/iOS/web icon: emblem pre-flattened onto a solid cream background

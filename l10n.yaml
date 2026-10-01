@@ -1,0 +1,10 @@
+# gen-l10n config (16 §1, D-090). Run `flutter gen-l10n` (or any flutter
+# build/run) to regenerate lib/core/l10n/gen/. Generated files are committed.
+arb-dir: lib/core/l10n/arb
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: L10n
+output-dir: lib/core/l10n/gen
+nullable-getter: false
+required-resource-attributes: false
+untranslated-messages-file: build/l10n_untranslated.json

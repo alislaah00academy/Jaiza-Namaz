@@ -1,33 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:jaiza_namaz/core/l10n/app_strings.dart';
 import 'package:jaiza_namaz/features/about/presentation/about_screen.dart';
 import 'package:jaiza_namaz/features/about/presentation/academy_intro_screen.dart';
 
-void main() {
-  testWidgets('About screen shows academy credit', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: AboutScreen(),
-        ),
-      ),
-    );
+import 'helpers/pump_app.dart';
 
-    expect(find.text(AppStrings.academyCredit), findsOneWidget);
+void main() {
+  testWidgets('About screen shows academy credit', (tester) async {
+    final l10n = await pumpLocalized(tester, const AboutScreen());
+    expect(find.text(l10n.academyCredit), findsOneWidget);
   });
 
-  testWidgets('Academy intro screen shows Urdu title', (WidgetTester tester) async {
-    await tester.pumpWidget(
-      const ProviderScope(
-        child: MaterialApp(
-          home: AcademyIntroScreen(),
-        ),
-      ),
+  testWidgets('About screen in Urdu is right-to-left', (tester) async {
+    final l10n = await pumpLocalized(
+      tester,
+      const AboutScreen(),
+      locale: const Locale('ur'),
     );
+    expect(find.text(l10n.academyCredit), findsOneWidget);
+    final dir = Directionality.of(tester.element(find.byType(AboutScreen)));
+    expect(dir, TextDirection.rtl);
+  });
 
+  testWidgets('Academy intro screen shows Urdu title', (tester) async {
+    await pumpLocalized(tester, const AcademyIntroScreen());
     expect(find.textContaining('الاصلاح اکیڈمی'), findsWidgets);
   });
 }

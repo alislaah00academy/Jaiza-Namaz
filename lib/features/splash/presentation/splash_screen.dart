@@ -4,7 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
@@ -73,7 +73,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                       ),
                   const SizedBox(height: 28),
                   Text(
-                    AppStrings.startWithSalaam,
+                    context.l10n.startWithSalaam,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.w600,

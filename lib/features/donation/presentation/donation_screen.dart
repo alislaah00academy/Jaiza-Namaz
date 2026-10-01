@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/l10n/app_strings.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/l10n/l10n.dart';
 
 class DonationScreen extends StatelessWidget {
   const DonationScreen({super.key});
@@ -12,15 +12,17 @@ class DonationScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       children: [
         Text(
-          'Support the project',
+          context.l10n.donationTitle,
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 12),
         Text(
-          '${AppStrings.appName} is offered by ${AppStrings.academyCredit}. '
-          'Your sadaqah helps maintain the app, content, and community programs.',
+          context.l10n.donationIntro(
+            context.l10n.appName,
+            context.l10n.academyCredit,
+          ),
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         const SizedBox(height: 24),
@@ -30,16 +32,14 @@ class DonationScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'How to donate',
+                context.l10n.donationHowTitle,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Connect your real donation link (bank, gateway, or campaign) '
-                'here when ready. This screen is structured for future '
-                'integration.',
+                context.l10n.donationHowBody,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
@@ -48,12 +48,12 @@ class DonationScreen extends StatelessWidget {
               FilledButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Link your donation URL in the codebase.'),
+                    SnackBar(
+                      content: Text(context.l10n.donationLinkMissing),
                     ),
                   );
                 },
-                child: const Text('Open donation (placeholder)'),
+                child: Text(context.l10n.donationOpenPlaceholder),
               ),
             ],
           ),

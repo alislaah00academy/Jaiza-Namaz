@@ -1,0 +1,1592 @@
+{
+  "@@locale": "en",
+  "appName": "Jaiza",
+  "academyCredit": "A project by Al Islaah Academy",
+  "startWithSalaam": "Start with Salaam",
+  "welcomeSubtitle": "Track and mark your daily prayers, set reminders, and keep a complete history of your worship.",
+  "namazMarkedSuccess": "Namaz marked successfully 🤍",
+  "noPrayersYet": "No prayers recorded yet",
+  "comingSoonTitle": "Coming soon",
+  "comingSoonBody": "We are preparing this section. Check back in a future update.",
+  "prayerFajr": "Fajr",
+  "prayerZuhr": "Zuhr",
+  "prayerAsr": "Asr",
+  "prayerMaghrib": "Maghrib",
+  "prayerIsha": "Isha",
+  "prayerWitr": "Witr",
+  "prayerTahajjud": "Tahajjud",
+  "prayerIshraq": "Ishraq",
+  "prayerChasht": "Chasht (Duha)",
+  "prayerAwwabin": "Salat al-Awwabin",
+  "prayerRawatib": "Rawatib",
+  "prayerTaraweeh": "Taraweeh",
+  "prayerQazaGeneric": "Qaza",
+  "fardFajrStartHint": "Begins at dawn",
+  "fardFajrEndHint": "Until sunrise",
+  "fardZuhrStartHint": "After zenith",
+  "fardZuhrEndHint": "Before Asr",
+  "fardAsrStartHint": "Afternoon",
+  "fardAsrEndHint": "Before sunset",
+  "fardMaghribStartHint": "Just after sunset",
+  "fardMaghribEndHint": "Until Isha",
+  "fardIshaStartHint": "Night begins",
+  "fardIshaEndHint": "Until Fajr",
+  "actionSave": "Save",
+  "actionCancel": "Cancel",
+  "actionOk": "OK",
+  "actionRetry": "Try again",
+  "actionClose": "Close",
+  "actionDone": "Done",
+  "actionContinue": "Continue",
+  "actionBack": "Back",
+  "actionNext": "Next",
+  "actionSkip": "Skip",
+  "actionAdd": "Add",
+  "actionEdit": "Edit",
+  "actionDelete": "Delete",
+  "actionRemove": "Remove",
+  "actionSignOut": "Sign out",
+  "actionUndo": "Undo",
+  "errorGeneric": "Something went wrong. Please try again.",
+  "errorSaveFailed": "Could not save. Try again.",
+  "languageTitle": "Language",
+  "languageSubtitle": "Choose the app language. Urdu text is reviewed by Al Islaah Academy.",
+  "languageSystem": "Device",
+  "languageEnglish": "English",
+  "languageUrdu": "اردو",
+  "privacyTitle": "Privacy",
+  "privacyAnalyticsTitle": "Share anonymous usage data",
+  "privacyAnalyticsSubtitle": "Helps us improve Jaiza. Never includes your name, email, phone or location.",
+  "authErrorWrongPassword": "Incorrect password. Please try again.",
+  "authErrorUserNotFound": "No account found.",
+  "authErrorEmailInUse": "Email already registered.",
+  "authErrorInvalidEmail": "Please enter a valid email.",
+  "errorNetwork": "Check your connection and try again.",
+  "authErrorTooManyRequests": "Too many attempts. Please wait and try again.",
+  "authErrorUserDisabled": "This account has been disabled.",
+  "authErrorRecentLogin": "Please sign in again to continue.",
+  "authErrorWeakPassword": "Password is too weak. Use at least 8 characters with a letter and a number.",
+  "authErrorNoEmail": "No email associated with this account.",
+  "stripTitle": "Jaiza · Today's Prayers",
+  "statusPrayed": "Prayed",
+  "statusMissed": "Missed",
+  "statusNotRecorded": "Not recorded",
+  "markAsPrayed": "Mark as prayed",
+  "recordedAsMissed": "Recorded as missed. Stay steadfast.",
+  "showPassword": "Show password",
+  "hidePassword": "Hide password",
+  "importantNoteTitle": "Important Note",
+  "qazaEstimateNote": "This calculation is only an estimate. Islam encourages sincere effort when the exact number is unknown. Enter your best estimate and remain consistent.",
+  "mosqueSearchHint": "Mosque name or area",
+  "quoteFormat": "“{quote}”",
+  "@quoteFormat": {
+    "placeholders": {
+      "quote": {
+        "type": "String"
+      }
+    }
+  },
+  "quoteSource": "({source})",
+  "@quoteSource": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "badgeFirstStepTitle": "First step",
+  "badgeFirstStepDescription": "Complete all Fard prayers for one day.",
+  "badgeWeekWarriorTitle": "Week warrior",
+  "badgeWeekWarriorDescription": "7-day Fard streak.",
+  "badgeMonthOfLightTitle": "Month of light",
+  "badgeMonthOfLightDescription": "30-day Fard streak.",
+  "badgeNawafilNurTitle": "Nawafil Nur",
+  "badgeNawafilNurDescription": "Offer nawafil 10 times (tracked).",
+  "hijriSuffix": "AH",
+  "dateLineSeparator": "{gregorian} · {hijri}",
+  "@dateLineSeparator": {
+    "placeholders": {
+      "gregorian": {
+        "type": "String"
+      },
+      "hijri": {
+        "type": "String"
+      }
+    }
+  },
+  "hijriMonth1": "Muharram",
+  "hijriMonth2": "Safar",
+  "hijriMonth3": "Rabi al-Awwal",
+  "hijriMonth4": "Rabi al-Thani",
+  "hijriMonth5": "Jumada al-Ula",
+  "hijriMonth6": "Jumada al-Thaniyah",
+  "hijriMonth7": "Rajab",
+  "hijriMonth8": "Sha'ban",
+  "hijriMonth9": "Ramadan",
+  "hijriMonth10": "Shawwal",
+  "hijriMonth11": "Dhul Qa'dah",
+  "hijriMonth12": "Dhul Hijjah",
+  "notifPrayerStarted": "{prayer} time has begun. Don’t miss your prayer.",
+  "@notifPrayerStarted": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notifPrayerEndsSoon": "{prayer} ends in {minutes} minutes. Have you prayed?",
+  "@notifPrayerEndsSoon": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      },
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "notifPrayerEnded": "{prayer} time has ended. Did you pray?",
+  "@notifPrayerEnded": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "notifTest": "Test notification — prayer reminders are working.",
+  "notifChannelPrayerName": "Prayer time reminders",
+  "notifChannelPrayerDescription": "Prayer start and reminder notifications",
+  "calcMethodKarachi": "Karachi (UIS)",
+  "calcMethodMwl": "Muslim World League",
+  "calcMethodUmmAlQura": "Umm al-Qura",
+  "calcMethodIsna": "ISNA (North America)",
+  "calcMethodEgyptian": "Egyptian",
+  "calcMethodTehran": "Tehran",
+  "calcMethodSingapore": "Singapore",
+  "madhabHanafi": "Hanafi",
+  "madhabShafii": "Shafi’i",
+  "widgetPrayerTimesTitle": "Jaiza · Prayer times",
+  "widgetTimesSubtitle": "{method} · {madhab} · {place}",
+  "@widgetTimesSubtitle": {
+    "placeholders": {
+      "method": {
+        "type": "String"
+      },
+      "madhab": {
+        "type": "String"
+      },
+      "place": {
+        "type": "String"
+      }
+    }
+  },
+  "passwordUpdated": "Password updated.",
+  "changePasswordIntro": "Re-enter your current password, then choose a new one.",
+  "currentPasswordLabel": "Current password",
+  "newPasswordLabel": "New password",
+  "confirmNewPasswordLabel": "Confirm new password",
+  "validationRequired": "Required",
+  "validationPasswordRule": "Use at least 8 characters with a letter and a number",
+  "validationNoMatch": "Does not match",
+  "validationPasswordsNoMatch": "Passwords do not match",
+  "updatePasswordButton": "Update password",
+  "verifyEmailNotYet": "Email not verified yet. Open the link we sent, then try again.",
+  "verifyEmailSent": "Verification email sent.",
+  "verifyEmailTitle": "Verify Your Email",
+  "verifyEmailSentTo": "We sent a verification link to:",
+  "verifyEmailInstructions": "Tap the link in the email, then press “I’ve verified” below.",
+  "verifyEmailDone": "I’ve verified",
+  "verifyEmailResendAgain": "Resend again",
+  "verifyEmailResend": "Resend email",
+  "getStartedWelcome": "WELCOME TO JAIZA",
+  "getStartedTagline": "Track your Salah, stay consistent, and earn Allah's pleasure.",
+  "chooseAccountType": "CHOOSE YOUR ACCOUNT TYPE",
+  "roleIndividual": "Individual",
+  "roleIndividualSubtitle": "Track and manage your own Salah attendance.",
+  "roleParents": "Parents",
+  "roleParentsSubtitle": "Monitor and manage your children's Salah attendance.",
+  "roleInstitute": "Institute",
+  "roleInstituteSubtitle": "Manage Salah attendance for your school, madrasa or organization.",
+  "quoteAnkaboot": "Indeed, Salah prohibits from indecency and wrongdoing.",
+  "quoteAnkabootSource": "Surah Al-Ankaboot 29:45",
+  "haveAccount": "Have an account?",
+  "logInButton": "Log In",
+  "teacherSwitchTitle": "Switch to a teacher account?",
+  "teacherSwitchBody": "{org} has invited you as a teacher. Accepting will move your account to the Teacher dashboard for that organization.",
+  "@teacherSwitchBody": {
+    "placeholders": {
+      "org": {
+        "type": "String"
+      }
+    }
+  },
+  "notNow": "Not now",
+  "switchButton": "Switch",
+  "loginTitle": "Welcome Back",
+  "loginSubtitle": "Log in to continue tracking your Salah.",
+  "emailLabel": "Email",
+  "validationEnterEmail": "Enter your email",
+  "validationValidEmail": "Enter a valid email",
+  "passwordLabel": "Password",
+  "validationEnterPassword": "Enter your password",
+  "forgotPassword": "Forgot password?",
+  "logInLower": "Log in",
+  "newHere": "New here?",
+  "createAccount": "Create account",
+  "resetCheckInbox": "Check your inbox for reset instructions.",
+  "resetTitle": "Reset Password",
+  "resetIntro": "Enter the email for your account. We'll send a link to choose a new password.",
+  "resetSendLink": "Send reset link",
+  "signupTitle": "Create Your Account",
+  "signupSubtitle": "Start tracking your Salah with Jaiza.",
+  "fullNameLabel": "Full name",
+  "validationEnterName": "Enter your name",
+  "instituteNameLabel": "Institute name",
+  "instituteNameHint": "e.g. Al Falah Madarsa",
+  "validationEnterInstitute": "Enter your institute name",
+  "confirmPasswordLabel": "Confirm password",
+  "signUpButton": "Sign up",
+  "academyIntroTitle": "الاصلاح اکیڈمی کا مختصر تعارف",
+  "academyIntroIntroParagraph": "الاصلاح اکیڈمی ایک ایسا تعلیمی ادارہ ہے جو مختلف شعبہ جات میں اپنی خدمات انجام دے رہا ہے۔ اس کا نصب العین یہی ہے کہ لوگوں کی جاری زندگیوں میں بہتری لائی جائے۔ معاشرے میں ہر ممکن مثبت تبدیلیاں پیدا ہوں، اور مسلمان اپنی حقیقی پہچان کو سمجھیں اور اپنے اسلام پر عمل کرنے والے بنیں۔",
+  "academyIntroSectionAghaz": "آغاز:",
+  "academyIntroAghazBody1": "الحمدللہ! ابتدا کا کام الاصلاح اکیڈمی نے نہایت سادگی سے کیا۔ یہ چند دوستوں کی خواہش تھی کہ عام مسلمانوں کے لیے سستا مگر معیاری دینی کورس کروایا جائے۔ اس کورس کے دوران سب مشکلات کا سامنا کرنا پڑا، لیکن الحمدللہ آہستہ آہستہ کام آگے بڑھتا گیا۔ کچھ عرصہ کے بعد ایک مستقل ادارہ قائم کیا گیا، اور اس کا نام الاصلاح اکیڈمی رکھا گیا اور اس کی بنیاد پر اساتذہ کرام نے دین کی تعلیم کو عام کرنے کا عزم کیا۔ اس دوران حضرت عثمان غنی رضی اللہ عنہ کی خدمات کو سامنے رکھا گیا اور اس نام کو چننے کا مقصد بھی یہی تھا کہ معاشرے میں اصلاح کا کام عام ہو۔",
+  "academyIntroAghazBody2": "الاصلاح اکیڈمی کا باقاعدہ نظام قائم کرنے کے لیے حافظ محمد فاروق صاحب نے نمایاں کردار ادا کیا، اور پھر ان کے ساتھ دیگر اساتذہ بھی شامل ہوتے گئے۔ الاصلاح اکیڈمی میں اس وقت قرآن، حدیث، فقہ اور دیگر علوم کی تعلیم دی جا رہی ہے۔",
+  "academyIntroAghazBody3": "الاصلاح اکیڈمی کے قیام میں ہمیں اساتذہ کرام کا تعاون حاصل رہا، اور پھر حضرت استاد محترم مولانا مشتاق صاحب کی نگرانی میں یہ ادارہ ترقی کرتا گیا۔",
+  "academyIntroDepartmentsLead": "الاصلاح اکیڈمی کے چند ایک شعبہ جات درج ذیل ہیں:",
+  "academyIntroEducationDeptTitle": "☆ تعلیمی شعبہ",
+  "academyIntroEducationDeptBody": "اس شعبہ میں علومِ شرعیہ وغیرہ کی تعلیم دی جاتی ہے۔ الاصلاح اکیڈمی میں مختلف کورسز کا انعقاد مختلف اوقات میں ہوتا رہتا ہے جن میں کثیر تعداد میں طلبہ شریک ہوتے ہیں۔",
+  "academyIntroDetailedCoursesHeading": "تفصیلی کورسز:",
+  "academyIntroShortCoursesHeading": "مختصر کورسز:",
+  "academyIntroClosingLine": "ان کے علاوہ بھی کئی کورسز کی کلاسز جاری ہیں",
+  "academyIntroDetailedCourses1": "آٹھ سالہ درسِ نظامی (وفاق المدارس العربیہ پاکستان)",
+  "academyIntroDetailedCourses2": "آن لائن چھ سالہ درسِ نظامی (وفاق المدارس العربیہ پاکستان)",
+  "academyIntroDetailedCourses3": "دو سالہ درسِ حدیث للبنات",
+  "academyIntroShortCourses1": "سیرت النبی ﷺ کورس",
+  "academyIntroShortCourses2": "مثالی اسلامی کورس",
+  "academyIntroShortCourses3": "منتخب احادیث",
+  "academyIntroShortCourses4": "آسان تفسیر کورس",
+  "academyIntroShortCourses5": "تجوید کورس",
+  "academyIntroShortCourses6": "آسان عربی",
+  "academyIntroShortCourses7": "عقیدہ کورس",
+  "academyIntroShortCourses8": "ترجمہ قرآن کورس",
+  "academyIntroShortCourses9": "حفظِ قرآن کورس",
+  "academyIntroShortCourses10": "عقائد و ایمانیات کورس",
+  "academyIntroShortCourses11": "تصوف و اصلاحی تربیت",
+  "onboardTrackTitle": "Track Every Salah",
+  "onboardTrackBody": "Mark your Fard, Nawafil and Qaza prayers with a tap, and see your progress build day by day.",
+  "onboardFamiliesTitle": "For Families & Institutes",
+  "onboardFamiliesBody": "Parents can track their children, and madaris can manage teachers, classes and students — all in one place.",
+  "onboardConsistentTitle": "Stay Consistent",
+  "onboardConsistentBody": "Gentle reminders at the right times help you never miss a prayer and stay steadfast on your journey.",
+  "getStarted": "Get Started",
+  "nameYourOrganization": "Name your organization",
+  "roleSelectTitle": "How will you use Jaiza?",
+  "roleSelectSubtitle": "Pick the setup that fits you. You can't change this later.",
+  "roleIndividualSelectSubtitle": "Track your own daily prayers, streaks and badges.",
+  "roleParent": "Parent",
+  "roleParentSelectSubtitle": "Mark and track prayer attendance for your children.",
+  "roleOrganization": "Madarsa / Organization",
+  "roleOrganizationSelectSubtitle": "Run a school or institute: teachers, classes and student attendance.",
+  "aboutBody": "Jaiza helps Muslims track obligatory prayers, optional nawafil, and qaza with gentle motivation — clear progress, no clutter.",
+  "aboutAcademyIntroSubtitle": "Brief introduction (Urdu)",
+  "academyName": "Al Islaah Academy",
+  "aboutCoursesSubtitle": "Courses and admissions",
+  "contactTitle": "Contact",
+  "aboutContactSubtitle": "Reach Al Islaah Academy",
+  "fazailTitle": "Fazail of Prayers",
+  "fazailClosenessTitle": "Closeness to Allah",
+  "fazailClosenessBody": "Salah is a direct link between the servant and the Lord. It reminds us that we turn to Him in every state.",
+  "fazailDisciplineTitle": "Discipline & structure",
+  "fazailDisciplineBody": "Praying on time builds patience, order, and mindfulness throughout the day.",
+  "fazailPurificationTitle": "Purification",
+  "fazailPurificationBody": "Regular prayer washes away slips, renews intention, and keeps the heart soft.",
+  "fazailCommunityTitle": "Community",
+  "fazailCommunityBody": "Congregational prayer strengthens brotherhood and sisterhood in faith.",
+  "contactIntro": "Reach out to Al Islaah Academy for questions about the app, classes, or general support.",
+  "contactBriefIntro": "مختصر تعارف · Brief intro",
+  "contactEmailPlaceholder": "Add your official contact email in the console",
+  "donationTitle": "Support the project",
+  "donationIntro": "{app} is offered by {academy}. Your sadaqah helps maintain the app, content, and community programs.",
+  "@donationIntro": {
+    "placeholders": {
+      "app": {
+        "type": "String"
+      },
+      "academy": {
+        "type": "String"
+      }
+    }
+  },
+  "donationHowTitle": "How to donate",
+  "donationHowBody": "Connect your real donation link (bank, gateway, or campaign) here when ready. This screen is structured for future integration.",
+  "donationLinkMissing": "Link your donation URL in the codebase.",
+  "donationOpenPlaceholder": "Open donation (placeholder)",
+  "titleFamilyReminders": "Family reminders",
+  "titleQaza": "Qaza",
+  "titleFamily": "Family",
+  "titleMyEstimate": "My estimate",
+  "titleAddPastQaza": "Add past Qaza",
+  "titleQazaPrayer": "Qaza {prayer}",
+  "@titleQazaPrayer": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "titleRegisterMosque": "Register a mosque",
+  "titleMosque": "Mosque",
+  "titleMosques": "Mosques",
+  "titleRecords": "Records",
+  "titleMore": "More",
+  "titleToday": "Today",
+  "titleFaraiz": "Faraiz",
+  "titleNawafil": "Nawafil",
+  "titleAboutJaiza": "About Jaiza",
+  "titleDonation": "Donation",
+  "titleNotificationsWidgets": "Notifications & widgets",
+  "titleProfile": "Profile",
+  "titleChangePassword": "Change password",
+  "titleTeacher": "Teacher",
+  "titleStudent": "Student",
+  "titleAddStudents": "Add students",
+  "titleClass": "Class",
+  "titleChildren": "Children",
+  "titleClasses": "Classes",
+  "titleChildQaza": "{name}’s Qaza",
+  "@titleChildQaza": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleClassReport": "{className} report",
+  "@titleClassReport": {
+    "placeholders": {
+      "className": {
+        "type": "String"
+      }
+    }
+  },
+  "navHome": "Home",
+  "navWidgetsNotifications": "Widgets & Notifications",
+  "unmarkTitle": "Unmark {prayer}?",
+  "@unmarkTitle": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "unmarkBody": "It will be recorded as not prayed.",
+  "unmarkButton": "Unmark",
+  "addedToYourQaza": "{prayer} added to your Qaza list.",
+  "@addedToYourQaza": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToQaza": "{prayer} added to the Qaza list.",
+  "@addedToQaza": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "missedDot": "Missed · ",
+  "addToQaza": "Add to Qaza",
+  "durationMinutes": "{minutes}m",
+  "@durationMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "durationHours": "{hours}h",
+  "@durationHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "durationHoursMinutes": "{hours}h {minutes}m",
+  "@durationHoursMinutes": {
+    "placeholders": {
+      "hours": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "nawafilDoneToday": "{done} of {total} done today",
+  "@nawafilDoneToday": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "nawafilTrackingOff": "Tracking off — tap to turn on",
+  "qazaNothingToMakeUp": "Nothing to make up",
+  "qazaPrayersToMakeUp": "{count} prayers to make up",
+  "@qazaPrayersToMakeUp": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaToMakeUpSince": "{count} to make up · since {date}",
+  "@qazaToMakeUpSince": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "currentPrayer": "Current prayer",
+  "nextPrayer": "Next prayer",
+  "setPrimaryMosqueTitle": "Set your primary mosque",
+  "setPrimaryMosqueSubtitle": "To see Jama'at times for every prayer",
+  "findButton": "Find",
+  "startsLabel": "Starts",
+  "endsLabel": "Ends",
+  "jamaatStartsIn": " · starts in {duration}",
+  "@jamaatStartsIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "jamaatStartedAgo": " · started {minutes} min ago",
+  "@jamaatStartedAgo": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "jamaat": "Jama'at",
+  "streakDays": "{count}-day streak",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "streakBestSoFar": "{count, plural, =1{Best so far — 1 day} other{Best so far — {count} days}}",
+  "@streakBestSoFar": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "streakStartHint": "Pray all five to start one",
+  "doneOfTotalToday": "{done} of {total} today",
+  "@doneOfTotalToday": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "nowRange": "Now · {range}",
+  "@nowRange": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "timeRange": "{start} – {end}",
+  "@timeRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "hintRange": "{start} — {end}",
+  "@hintRange": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "missedInYourQaza": "Missed · in your Qaza list",
+  "missedInTheQaza": "Missed · in the Qaza list",
+  "addChildren": "Add children",
+  "addChildrenSubtitle": "Mark their prayers from this same screen",
+  "childNameAge": "{name} · {age} years",
+  "@childNameAge": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "age": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "childTodayWeek": "Today {done} of {total} · this week {week} of {weekTotal}",
+  "@childTodayWeek": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "week": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "weekTotal": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "historyButton": "History",
+  "childStreak": "{name} — {count}-day streak",
+  "@childStreak": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "childStreakStartHint": "All five in a day starts a streak",
+  "seeAll": "See all",
+  "doneSlashTotal": "{done}/{total}",
+  "@doneSlashTotal": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "sectionMadrasa": "Madrasa",
+  "sectionOrganization": "Organization",
+  "moreOrgSubtitle": "Teachers, classes and reports",
+  "myClasses": "My classes",
+  "noClassesYet": "No classes yet",
+  "addYourChildren": "Add your children",
+  "moreFamilySubtitle": "Children, progress and their reminders",
+  "moreFamilyRemindersSubtitle": "Nudges when a prayer isn’t marked",
+  "sectionAccount": "Account",
+  "sectionApp": "App",
+  "moreNotificationsParentSubtitle": "Your prayers, Jama’at, widgets",
+  "moreNotificationsSubtitle": "Reminders, Jama’at alerts, location",
+  "qazaPlan": "Qaza plan",
+  "qazaRemaining": "{count} remaining",
+  "@qazaRemaining": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "trackingOn": "Tracking on",
+  "trackingOff": "Tracking off",
+  "appearanceTitle": "Appearance",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "themeAuto": "Auto",
+  "themeSystem": "System",
+  "fazailOfPrayers": "Fazail of prayers",
+  "aboutJaizaAndAcademy": "About Jaiza & Al Islaah Academy",
+  "contactUs": "Contact us",
+  "deleteAccount": "Delete account",
+  "deleteAccountSubtitle": "Removes your record permanently",
+  "nawafilSheetBody": "Track Tahajjud, Ishraq, Chasht, Awwabin, Rawatib and Taraweeh alongside your Fard. Nawafil are never counted as Qaza.",
+  "trackNawafil": "Track Nawafil",
+  "trackNawafilSubtitle": "Shows a Nawafil card on Today",
+  "openTodaysNawafil": "Open today’s Nawafil",
+  "deleteLostPrayerRecord": "Your prayer record and streaks",
+  "deleteLostQazaList": "Your Qaza list",
+  "deleteLostMosques": "Saved mosques and Jama’at alerts",
+  "deleteLostChildren": "Children you added, and their records",
+  "deleteAccountTitle": "Delete your account?",
+  "cannotBeUndone": "This cannot be undone.",
+  "deleteTypePrefix": "Type ",
+  "deleteTypeSuffix": " to confirm.",
+  "deleteNotConnected": "Account deletion is not connected yet — please contact Al Islaah Academy to remove your data.",
+  "deleteMyAccount": "Delete my account",
+  "keepMyAccount": "Keep my account",
+  "profileSaved": "Profile saved.",
+  "profileSaveFailed": "Could not save profile.",
+  "signInRequired": "Sign in required",
+  "yourProfile": "Your profile",
+  "tapCameraToChangePhoto": "Tap the camera to change your photo",
+  "nameLabel": "Name",
+  "ageLabel": "Age",
+  "cityLabel": "City",
+  "phoneLabel": "Phone",
+  "completeProfileHint": "Complete your profile — your document will be created on save.",
+  "appearanceSubtitle": "Switch between light and dark to check both — this overrides your device setting.",
+  "profilePhotosComingSoon": "Profile photos arrive with photo storage — coming soon.",
+  "profilePhotoTitle": "Profile photo",
+  "profilePhotoSubtitle": "Choose where the picture comes from.",
+  "takePhoto": "Take a photo",
+  "openCamera": "Open the camera",
+  "chooseFromGallery": "Choose from gallery",
+  "pickExistingPicture": "Pick an existing picture",
+  "removeCurrentPhoto": "Remove current photo",
+  "backToDefaultAvatar": "Go back to the default avatar",
+  "qazaRecorded": "Qaza {prayer} recorded. May Allah accept it.",
+  "@qazaRecorded": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotSave": "Could not save.",
+  "qazaHowTwoKindsTitle": "Two kinds, one list",
+  "qazaHowTwoKindsBody": "Prayers you miss while using Jaiza are added for you, with their date. Prayers from before Jaiza are whatever estimate you enter.",
+  "qazaHowBulughTitle": "Count from Bulugh",
+  "qazaHowBulughBody": "Your backlog starts the day you became Islamically accountable — not from birth.",
+  "qazaHowEstimateTitle": "An estimate is enough",
+  "qazaHowEstimateBody": "If you do not remember exactly, enter your most reasonable guess. Islam asks for sincere effort where the exact number is unknown.",
+  "qazaHowFardTitle": "Only the five Fard",
+  "qazaHowFardBody": "Fajr, Zuhr, Asr, Maghrib and Isha. Nawafil are never counted as Qaza.",
+  "qazaHowTitle": "How Qaza works in Jaiza",
+  "gotIt": "Got it",
+  "totalQaza": "Total Qaza",
+  "trackedByJaiza": "Tracked by Jaiza",
+  "missedSince": "Missed since {date}",
+  "@missedSince": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "yourEstimate": "Your estimate",
+  "beforeInstalledJaiza": "Before you installed Jaiza",
+  "addAnEstimate": "Add an estimate",
+  "addAnEstimateSubtitle": "Have Qaza from before Jaiza? Add it once.",
+  "qazaLeft": "{count} left",
+  "@qazaLeft": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaDoneOfTotal": "{done} of {total} done",
+  "@qazaDoneOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "doneForToday": "Done for today",
+  "markQazaDone": "Mark Qaza done",
+  "qazaEstimateOnlyMissedPrefix": "This is only for the prayers you missed ",
+  "qazaEstimateBeforeInstalled": "before you installed Jaiza",
+  "qazaEstimateOnlyMissedSuffix": " — {date}. Everything after that date is counted for you, so nothing is added twice.",
+  "@qazaEstimateOnlyMissedSuffix": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaEstimateEachIntro": "Enter what you already know. Leave a prayer blank if you are not sure — you can come back and change it any time.",
+  "qazaEstimateHowEnter": "How do you want to enter it?",
+  "qazaEstimateSameForAll": "Same for all",
+  "qazaEstimateEachPrayer": "Each prayer",
+  "qazaTotalEstimate": "Total estimate",
+  "qazaSaveEstimate": "Save estimate",
+  "qazaHowLongNotPraying": "How long were you not praying?",
+  "qazaBestGuessEnough": "Your best guess is enough.",
+  "unitYears": "Years",
+  "unitMonths": "Months",
+  "unitDays": "Days",
+  "qazaThatIsAboutDays": "That is about {count} days",
+  "@qazaThatIsAboutDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaEach": "{count} each",
+  "@qazaEach": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaEveryPrayerSame": "Every prayer gets the same figure",
+  "qazaHowManyEach": "How many of each?",
+  "spanYears": "{count, plural, =1{1 year} other{{count} years}}",
+  "@spanYears": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "spanMonths": "{count, plural, =1{1 month} other{{count} months}}",
+  "@spanMonths": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "spanDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@spanDays": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "qazaEstimateSaved": "Your estimate is saved",
+  "qazaEstimateSavedBody": "{estimate} prayers from before Jaiza, plus the {tracked} counted since you installed it.",
+  "@qazaEstimateSavedBody": {
+    "placeholders": {
+      "estimate": {
+        "type": "String"
+      },
+      "tracked": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaSetDailyGoal": "Set a daily goal",
+  "qazaSetDailyGoalBody": "How many Qaza will you pray each day? Start small — you can change this whenever you like.",
+  "aDay": "a day",
+  "qazaFinishPrefix": "At {goal} a day you will finish in about ",
+  "@qazaFinishPrefix": {
+    "placeholders": {
+      "goal": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "qazaFinishSuffix": " — around {monthYear}.",
+  "@qazaFinishSuffix": {
+    "placeholders": {
+      "monthYear": {
+        "type": "String"
+      }
+    }
+  },
+  "remindMeDaily": "Remind me daily",
+  "remindMeDailySubtitle": "One nudge after Isha if the day's Qaza is not done",
+  "qazaFiveFardOnly": "Qaza is tracked for the five Fard only.",
+  "qazaIPrayedSome": "I prayed some Qaza {prayer}",
+  "@qazaIPrayedSome": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaTodayRecorded": "Today's Qaza {prayer} is recorded. Come back tomorrow for the next one.",
+  "@qazaTodayRecorded": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "markDone": "Mark done",
+  "trackedByJaizaCount": "Tracked by Jaiza · {count}",
+  "@trackedByJaizaCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaNoMissedSince": "No missed {prayer} since you started using Jaiza.",
+  "@qazaNoMissedSince": {
+    "placeholders": {
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "madeUpOn": "Made up on {date}",
+  "@madeUpOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "earlierDays": "+ {count} earlier days",
+  "@earlierDays": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "fromYourEstimate": "From your estimate",
+  "estimateRemainingNoDate": "{count} remaining · these carry no date",
+  "@estimateRemainingNoDate": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "qazaCalculateYour": "CALCULATE YOUR\n",
+  "qazaPrayersCaps": "QAZA PRAYERS",
+  "qazaIntroBody": "Work out the prayers you missed from the time you reached Bulugh (puberty) until today.",
+  "chooseHowToStart": "CHOOSE HOW TO START",
+  "qazaOptionEstimateTitle": "I will enter my own estimate",
+  "qazaOptionEstimateBody": "Type how much you missed before Jaiza — the same figure for all five prayers, or each prayer separately.",
+  "qazaOptionCountTitle": "Let Jaiza count from today",
+  "qazaOptionCountBody": "From now on, every prayer you do not mark becomes Qaza by itself, with its date. Nothing to type — and you can still add an estimate later.",
+  "qazaDashboardWithEstimate": "Everything you still owe, in one place — what Jaiza counted for you since install, plus the backlog you estimated. Tap any prayer to mark some as prayed.",
+  "qazaDashboardNoEstimate": "Jaiza has been counting missed prayers for you since the day you installed it. If you also have Qaza from before that, add an estimate once and both are kept in one list.",
+  "dailyGoal": "Daily goal",
+  "perDay": "{count} a day",
+  "@perDay": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "qazaPacePrefix": "At this pace you will finish in about ",
+  "qazaPaceSuffix": ".",
+  "countDone": "{count} done",
+  "@countDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "byPrayer": "By prayer",
+  "prayerHistory": "Prayer history",
+  "selectADate": "Select a date ({date})",
+  "@selectADate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "statusFor": "Status for {date}",
+  "@statusFor": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotLoad": "Could not load. {error}",
+  "@couldNotLoad": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "todaysFardProgress": "Today's Fard progress",
+  "completedOfTotal": "{done} / {total} completed",
+  "@completedOfTotal": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "windowHint": "Window: {start} — {end}",
+  "@windowHint": {
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "end": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotUpdatePreference": "Could not update preference.",
+  "nawafilTrackingIsOff": "Nawafil tracking is off",
+  "nawafilTurnOnBody": "Turn it on to tick off your optional prayers each day.",
+  "turnOnNawafil": "Turn on Nawafil",
+  "nawafilTurnOffHint": "To stop tracking Nawafil, turn it off in More → Nawafil.",
+  "remindersOn": "Reminders are on",
+  "remindersOff": "Reminders are off",
+  "manage": "Manage",
+  "todaysPrayers": "Today's prayers",
+  "prayerTimesUnavailable": "Prayer times unavailable",
+  "reminderStart": "Start",
+  "reminderEnd": "End",
+  "enterValidLatLon": "Enter valid latitude and longitude",
+  "notificationsBlocked": "Notifications blocked — open system settings to enable.",
+  "couldNotGetLocation": "Could not get location (permission or services off).",
+  "locationDetected": "Location detected",
+  "homeWidgets": "Home widgets",
+  "homeWidgetsBody": "Prayer Times (4×2) and Prayer Tracker (4×3) — add them from your launcher. Refresh after changing location or calculation settings.",
+  "widgetsRefreshed": "Widgets refreshed",
+  "refreshWidgetsNow": "Refresh widgets now",
+  "locationTitle": "Location",
+  "useMyCurrentLocation": "Use my current location",
+  "latitude": "Latitude",
+  "longitude": "Longitude",
+  "placeLabel": "Place label",
+  "saveManualLocation": "Save manual location",
+  "detectNow": "Detect now",
+  "prayerTimeCalculation": "Prayer time calculation",
+  "calcMethodLabel": "Method",
+  "madhabLabel": "Madhab",
+  "testNotificationIn30": "Test notification in 30 seconds",
+  "debugTestNotification": "Debug: test notification in 30 s",
+  "prayerReminders": "Prayer reminders",
+  "prayerRemindersBody": "Each prayer is separate — turn on only the ones you want to be reminded about.",
+  "atStart": "At start",
+  "minBeforeEnd": "{minutes} min before end",
+  "@minBeforeEnd": {
+    "placeholders": {
+      "minutes": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "jamaatAlerts": "Jama’at alerts",
+  "newBadge": "New",
+  "jamaatAlertsBody": "A reminder before Jama’at at your favourite mosques.",
+  "jamaatAlertsOn": "Jama’at alerts on",
+  "howEarly": "How early",
+  "minutesCount": "{count} minutes",
+  "@minutesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "minCount": "{count} min",
+  "@minCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "jamaatAlertsNoMosque": "Save a mosque or set a primary one on the Mosques tab to get alerts.",
+  "primaryBadge": "Primary",
+  "classReminders": "Class reminders",
+  "classRemindersBody": "A nudge when a prayer window is closing and your class is still unmarked.",
+  "unmarkedClassAlerts": "Unmarked class alerts",
+  "distanceMeters": "{meters} m",
+  "@distanceMeters": {
+    "placeholders": {
+      "meters": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "distanceKm": "{km} km",
+  "@distanceKm": {
+    "placeholders": {
+      "km": {
+        "type": "String"
+      }
+    }
+  },
+  "dotJoin": "{a} · {b}",
+  "@dotJoin": {
+    "placeholders": {
+      "a": {
+        "type": "String"
+      },
+      "b": {
+        "type": "String"
+      }
+    }
+  },
+  "mosqueNotFound": "Mosque not found",
+  "jamaatTimes": "Jama’at times",
+  "timesWrong": "Times wrong? ",
+  "reportThanks": "Thanks — the Al Islaah team will check these times.",
+  "reportThem": "Report them",
+  "myPrimaryMosque": "My primary mosque",
+  "myPrimaryMosqueSubtitle": "Its times show on your Today screen",
+  "inFavourites": "In favourites",
+  "alertBeforeJamaat": "Alert before Jama’at",
+  "minutesBefore": "{count} minutes before",
+  "@minutesBefore": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "yourMosque": "Your mosque",
+  "noPrimaryMosqueYet": "No primary mosque yet. Open any mosque below and turn on “My primary mosque” to see its Jama'at times on Today.",
+  "savedSection": "Saved",
+  "tapStarToRemove": "Tap the star to remove",
+  "nearbySection": "Nearby",
+  "tapStarToSave": "Tap the star to save",
+  "primaryMosqueTimesNote": "Jama'at times from this mosque show on your Today screen.",
+  "linkYourMosque": "Link Your Mosque",
+  "linkMosqueBody": "Jama'at times will show on your Today screen, with a reminder before each prayer.",
+  "noMosqueFoundRegisterLater": "No mosque found. You can register it later from the Mosques tab.",
+  "setAsMyMosque": "Set as my mosque",
+  "resultsCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@resultsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "noMosqueMatches": "No mosque matches “{query}”. You can register it above.",
+  "@noMosqueMatches": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromSaved": "Remove from saved",
+  "saveTooltip": "Save",
+  "registerNewMosque": "Register a new mosque",
+  "registerNewMosqueSubtitle": "If yours isn't listed yet",
+  "connImam": "Imam",
+  "connCommittee": "Committee member",
+  "connMutawalli": "Mutawalli",
+  "connCaretaker": "Caretaker",
+  "connWorshipper": "Regular worshipper",
+  "gpsFailedSamplePin": "Could not read GPS — a sample pin was placed. Tap the map to move it.",
+  "sampleFileAttached": "Sample file attached — real uploads arrive with the registration backend.",
+  "mosqueAlreadyRegistered": "This mosque is already registered",
+  "mosqueSameNameAway": "A registered mosque with the same name sits {distance} away.",
+  "@mosqueSameNameAway": {
+    "placeholders": {
+      "distance": {
+        "type": "String"
+      }
+    }
+  },
+  "useThisMosque": "Yes, that’s it — use this one",
+  "differentMosque": "No, this is a different mosque",
+  "differentMosqueNote": "Choosing “different” sends your request to the Al Islaah team. The same mosque cannot be registered twice.",
+  "stepMosqueDetails": "Mosque details",
+  "stepYourDetails": "Your details",
+  "stepReview": "Review",
+  "stepOf": "Step {step} of {total}",
+  "@stepOf": {
+    "placeholders": {
+      "step": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "fieldsStillNeeded": "{count, plural, =1{1 field still needed} other{{count} fields still needed}}",
+  "@fieldsStillNeeded": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "mosqueNeedsEveryField": "A mosque cannot be registered until every field is filled.",
+  "everyFieldRequired": "Every field is required. A mosque cannot be registered until all of them are filled — that is what keeps duplicate and fake entries out.",
+  "sectionIdentity": "Identity",
+  "fullMosqueName": "Full mosque name",
+  "enterMosqueName": "Enter the mosque name",
+  "streetAddress": "Street address",
+  "enterStreetAddress": "Enter the street address",
+  "cityArea": "City / area",
+  "enterCityArea": "Enter the city or area",
+  "dropPinOnMap": "Drop a pin on the map",
+  "tapGpsOrDrag": "Tap GPS, or drag the pin to the mosque",
+  "dragPinHint": "Drag the pin, or tap GPS. An accurate location is what stops duplicate entries.",
+  "signBoardPhoto": "Sign board photo",
+  "addAPhoto": "Add a photo",
+  "addAPhotoSubtitle": "One where the mosque’s name is clearly readable",
+  "jamaatAddedAfterVerify": "Jama’at times are not entered here. The Al Islaah team adds them once the mosque is verified, so the times people see are always confirmed.",
+  "continueTurnsOn": "Continue turns on once every field is filled.",
+  "yourConnection": "Your connection",
+  "howConnected": "How are you connected to this mosque?",
+  "chooseOne": "Choose one",
+  "yourFullName": "Your full name",
+  "phoneNumber": "Phone number",
+  "enterPhoneNumber": "Enter your phone number",
+  "cnicNumber": "CNIC number",
+  "enterAll13Digits": "Enter all 13 digits",
+  "phoneCnicPrivacy": "Your phone number and CNIC are used only to verify you. Neither is ever shown in the app, and the Al Islaah team calls the number before approving.",
+  "proofOfRole": "Proof of role",
+  "addADocument": "Add a document",
+  "addADocumentSubtitle": "Appointment letter, committee resolution, or CNIC",
+  "verificationOnly": "For verification only — never shown in the app, and deleted once verified.",
+  "worshipperCnicNote": "A regular worshipper can upload their CNIC here instead. The mosque is still listed either way — only an Imam or committee member can later edit its Jama’at times.",
+  "mosqueContact": "Mosque contact",
+  "mosquePhoneNumber": "Mosque phone number",
+  "enterMosquePhone": "Enter the mosque phone number",
+  "auqafOptional": "Auqaf registration number — optional",
+  "leaveBlankIfNone": "Leave blank if none",
+  "reviewName": "Name",
+  "reviewAddress": "Address",
+  "reviewLocation": "Location",
+  "reviewPhoto": "Photo",
+  "reviewMosquePhone": "Mosque phone",
+  "reviewConnection": "Connection",
+  "reviewPhone": "Phone",
+  "reviewCnic": "CNIC",
+  "reviewProof": "Proof",
+  "notShownPublicly": "{value} · not shown publicly",
+  "@notShownPublicly": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "addressJoin": "{street}, {city}",
+  "@addressJoin": {
+    "placeholders": {
+      "street": {
+        "type": "String"
+      },
+      "city": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmInfoCorrect": "I confirm this information is correct and that this mosque really exists.",
+  "submitForRegistration": "Submit for registration",
+  "submittedStepForm": "Form submitted",
+  "submittedStepPhone": "Phone verification — a call within 2–3 days",
+  "submittedStepDocs": "Photo and documents reviewed",
+  "submittedStepListed": "Listed in search once approved",
+  "requestSubmitted": "Request submitted",
+  "requestWithTeam": "{mosque}’s details are now with the Al Islaah team.",
+  "@requestWithTeam": {
+    "placeholders": {
+      "mosque": {
+        "type": "String"
+      }
+    }
+  },
+  "notifiedWhenApproved": "You’ll be notified as soon as it’s approved.",
+  "backToMosques": "Back to Mosques",
+  "noPinYet": "No pin yet",
+  "gpsButton": "GPS",
+  "familyRemindersIntro": "You are nudged only while a prayer can still be prayed — never after the window has closed.",
+  "notificationNow": "now",
+  "previewChildName": "Bilal",
+  "childHasntMarked": "{name} hasn’t marked {prayer}",
+  "@childHasntMarked": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "prayer": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesLeftInWindow": "{count} minutes left in the window",
+  "@minutesLeftInWindow": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "whatAlertLooksLike": "What the alert looks like",
+  "whenYouAreAlerted": "When you are alerted",
+  "beforeWindowCloses": "Before a window closes",
+  "oneNudgePerPrayer": "One nudge per prayer, per child",
+  "whichPrayers": "Which prayers",
+  "whichPrayersBody": "Turn off the ones your children pray at the madrasa — you won’t be nudged about those.",
+  "eveningSummary": "Evening summary",
+  "eveningSummarySubtitle": "One message after Isha with everyone’s day",
+  "summaryTime": "Summary time",
+  "keepingItQuiet": "Keeping it quiet",
+  "quietHours": "Quiet hours",
+  "quietHoursSubtitle": "No alerts 8:00 AM – 2:00 PM and after 10:00 PM",
+  "dailyLimit": "Daily limit",
+  "dailyLimitSubtitle": "Extra nudges are rolled into the evening summary",
+  "childrenMuteBody": "Turn a child off to stop every alert about them.",
+  "addChildToSetUp": "Add a child to set this up.",
+  "ageYears": "{count, plural, =1{1 year} other{{count} years}}",
+  "@ageYears": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "streakBreakAlert": "Tell me when a streak breaks",
+  "onceADayAtMost": "Once a day at most",
+  "ownRemindersHint": "Your own prayer reminders are under More → Notifications & widgets.",
+  "addAChild": "Add a child",
+  "noChildrenYet": "No children added yet",
+  "noChildrenYetBody": "Add a child to mark and track their Salah.",
+  "barToday": "Today",
+  "barWeek": "Week",
+  "streakLabel": "Streak",
+  "qazaToMakeUp": "Qaza to make up",
+  "none": "None",
+  "me": "Me",
+  "childAdded": "{name} added.",
+  "@childAdded": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotAddChild": "Could not add child.",
+  "addChildBody": "A child gets no account of their own — you mark their prayers.",
+  "genderLabel": "Gender",
+  "genderBoy": "Boy",
+  "genderGirl": "Girl",
+  "childQazaIntro": "Jaiza counts this child's missed prayers from the day they were added. Mark each Qaza as it is made up.",
+  "studentsAdded": "{count, plural, =1{1 student added.} other{{count} students added.}}",
+  "@studentsAdded": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "couldNotAddStudents": "Could not add students.",
+  "oneByOne": "One by one",
+  "pasteAList": "Paste a list",
+  "studentNameLabel": "Student's name",
+  "addStudent": "Add student",
+  "pasteListNote": "One name per line. Thirty students take about a minute this way instead of thirty separate forms.",
+  "namesSection": "Names",
+  "namesFound": "{count, plural, =1{1 name found} other{{count} names found}}",
+  "@namesFound": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "addNStudents": "{count, plural, =1{Add 1 student} other{Add {count} students}}",
+  "@addNStudents": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "removeFromOrgTitle": "Remove from organization?",
+  "removeFromOrgBody": "{name} will lose access to this organization's classes and students. Their classes stay; you can reassign them.",
+  "@removeFromOrgBody": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "organizationNotFound": "Organization not found.",
+  "teacherNotFound": "Teacher not found.",
+  "emailJoined": "{email} · joined {date}",
+  "@emailJoined": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "readOnlyTeacherNote": "Read-only. Marking attendance stays with the teacher.",
+  "teacherNoClasses": "This teacher has no classes yet.",
+  "studentsCount": "{count, plural, =1{1 student} other{{count} students}}",
+  "@studentsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "percent": "{value}%",
+  "@percent": {
+    "placeholders": {
+      "value": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "removeFromOrg": "Remove from organization",
+  "removeFromOrgSubtitle": "Their classes stay; you can reassign them",
+  "notAttachedToOrg": "Not attached to an organization yet.",
+  "classReport": "Class report",
+  "slashTotal": " / {total}",
+  "@slashTotal": {
+    "placeholders": {
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "markAllPresent": "Mark all present",
+  "unmarkedFilter": "Unmarked",
+  "noStudentsAddBelow": "No students yet. Add some below.",
+  "savedAsYouTap": "Saved as you tap — there is no submit button.",
+  "thisWeek": "This week",
+  "thisMonth": "This month",
+  "classAverage": "Class average",
+  "classReportSummary": "{students} · {month} · {done} of {possible} prayers",
+  "@classReportSummary": {
+    "placeholders": {
+      "students": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "possible": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "byStudent": "By student",
+  "noStudentsYet": "No students yet.",
+  "sharingComingSoon": "Sharing arrives with the reports backend — for now, tell families the numbers directly.",
+  "shareReport": "Share report",
+  "pdfComingSoon": "PDF export is coming soon.",
+  "pdfButton": "PDF",
+  "statTeachers": "Teachers",
+  "statStudents": "Students",
+  "todayAcrossMadrasa": "Today across the madrasa",
+  "inviteTeacher": "Invite teacher",
+  "noTeachersYet": "No teachers yet — invite one above.",
+  "allClasses": "All classes",
+  "unassigned": "Unassigned",
+  "classesStudents": "{classes} · {students}",
+  "@classesStudents": {
+    "placeholders": {
+      "classes": {
+        "type": "String"
+      },
+      "students": {
+        "type": "String"
+      }
+    }
+  },
+  "classesCount": "{count, plural, =1{1 class} other{{count} classes}}",
+  "@classesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "accessRemoved": "Your access to this organization has been removed.",
+  "residentialStudentsNote": "Residential students — all five prayers are marked here.",
+  "newClass": "New class",
+  "noClassesCreateOne": "No classes yet — create one above.",
+  "inviteSent": "Invite sent. They'll get teacher access when they sign up or log in with {email}.",
+  "@inviteSent": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotSendInvite": "Could not send invite.",
+  "inviteATeacher": "Invite a teacher",
+  "inviteTeacherBody": "They get teacher access the moment they sign up or log in with this email.",
+  "teacherEmailHint": "teacher@example.com",
+  "teacherPermissionsNote": "A teacher can create classes, add students and mark attendance. They cannot invite other teachers or see classes that are not theirs.",
+  "sendInvite": "Send invite",
+  "enterClassName": "Enter a class name",
+  "couldNotCreateClass": "Could not create the class.",
+  "newClassBody": "Students living at the madrasa — all five prayers are marked for them.",
+  "classNameLabel": "Class name",
+  "classNameHint": "e.g. Batch C",
+  "sectionOptional": "Section — optional",
+  "sectionHint": "e.g. Dars-e-Nizami year 1",
+  "createClass": "Create class",
+  "addedRecently": "Added recently",
+  "addedOn": "Added {date}",
+  "@addedOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "doneSlashTotalSpaced": "{done} / {total}",
+  "@doneSlashTotalSpaced": {
+    "placeholders": {
+      "done": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "total": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "pctOnTimeComplete": "{pct}% on time · {days}",
+  "@pctOnTimeComplete": {
+    "placeholders": {
+      "pct": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "completeDays": "{count, plural, =1{1 complete day} other{{count} complete days}}",
+  "@completeDays": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "fullHistory": "Full history",
+  "nameFullHistory": "{name} — full history",
+  "@nameFullHistory": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noPrayersLoggedYet": "No prayers logged yet.",
+  "qazaCompletedCount": "{count} completed",
+  "@qazaCompletedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "monthSummary": "{month} summary",
+  "@monthSummary": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "pctPrayedComplete": "{pct}% prayed · {days}",
+  "@pctPrayedComplete": {
+    "placeholders": {
+      "pct": {
+        "type": "int",
+        "format": "decimalPattern"
+      },
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "teacherAlreadyActive": "This person is already a teacher here.",
+  "anOrganization": "an organization",
+  "studentNamesHint": "Abdullah Khan\nIbrahim Siddiqui\nYusuf Malik"
+}

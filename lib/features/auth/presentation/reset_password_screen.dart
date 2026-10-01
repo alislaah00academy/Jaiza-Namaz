@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/errors/firebase_auth_messages.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/auth_text_field.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
@@ -38,8 +39,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           .sendPasswordResetEmail(_email.text);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Check your inbox for reset instructions.'),
+          SnackBar(
+            content: Text(context.l10n.resetCheckInbox),
           ),
         );
         context.pop();
@@ -47,7 +48,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? mapGenericError(e))),
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
         );
       }
     } finally {
@@ -76,13 +77,13 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       children: [
                         const SizedBox(height: 12),
                         Text(
-                          'Reset Password',
+                          context.l10n.resetTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Enter the email for your account. We\'ll send a link to choose a new password.',
+                          context.l10n.resetIntro,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: scheme.onSurfaceVariant),
@@ -97,16 +98,16 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                               children: [
                                 AuthTextField(
                                   controller: _email,
-                                  label: 'Email',
+                                  label: context.l10n.emailLabel,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.done,
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
-                                      return 'Enter your email';
+                                      return context.l10n.validationEnterEmail;
                                     }
                                     if (!v.contains('@')) {
-                                      return 'Enter a valid email';
+                                      return context.l10n.validationValidEmail;
                                     }
                                     return null;
                                   },
@@ -123,7 +124,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                                             color: onPrimary,
                                           ),
                                         )
-                                      : const Text('Send reset link'),
+                                      : Text(context.l10n.resetSendLink),
                                 ),
                                 const SizedBox(height: 16),
                               ],

@@ -7,6 +7,7 @@ import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../data/mosque_data.dart';
 import 'mosque_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Mosques tab: search, register, the primary mosque with its Jama'at
 /// times, then saved and nearby lists.
@@ -29,7 +30,7 @@ class MosquesScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const JzPageTitle('Mosques'),
+        JzPageTitle(context.l10n.titleMosques),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
           child: JzSearchBar(
@@ -46,31 +47,30 @@ class MosquesScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const JzSectionLabel('Your mosque'),
+              JzSectionLabel(context.l10n.yourMosque),
               if (primary != null)
                 _PrimaryCard(mosque: primary)
               else
                 JzCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No primary mosque yet. Open any mosque below and turn on '
-                    '“My primary mosque” to see its Jama\'at times on Today.',
+                    context.l10n.noPrimaryMosqueYet,
                     style: t.bodyMedium,
                   ),
                 ),
               if (saved.isNotEmpty) ...[
                 const SizedBox(height: 20),
-                const JzSectionLabel(
-                  'Saved',
-                  trailing: 'Tap the star to remove',
+                JzSectionLabel(
+                  context.l10n.savedSection,
+                  trailing: context.l10n.tapStarToRemove,
                 ),
                 MosqueListCard(mosques: saved),
               ],
               if (nearby.isNotEmpty) ...[
                 const SizedBox(height: 20),
-                const JzSectionLabel(
-                  'Nearby',
-                  trailing: 'Tap the star to save',
+                JzSectionLabel(
+                  context.l10n.nearbySection,
+                  trailing: context.l10n.tapStarToSave,
                 ),
                 MosqueListCard(mosques: nearby),
               ],
@@ -110,16 +110,16 @@ class _PrimaryCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(mosque.name, style: t.titleMedium),
-                    Text(mosque.subtitle, style: t.bodySmall),
+                    Text(mosque.subtitle(context.l10n), style: t.bodySmall),
                   ],
                 ),
               ),
-              const JzChip('Primary', gold: true),
+              JzChip(context.l10n.primaryBadge, gold: true),
             ],
           ),
           const SizedBox(height: 10),
           Text(
-            "Jama'at times from this mosque show on your Today screen.",
+            context.l10n.primaryMosqueTimesNote,
             style: t.bodySmall,
           ),
           const JzDivider(),
@@ -129,7 +129,7 @@ class _PrimaryCard extends StatelessWidget {
                 Expanded(
                   child: Column(
                     children: [
-                      Text(def.label, style: t.labelSmall),
+                      Text(def.label(context.l10n), style: t.labelSmall),
                       const SizedBox(height: 2),
                       Text(
                         mosque.shortTime(def.name),

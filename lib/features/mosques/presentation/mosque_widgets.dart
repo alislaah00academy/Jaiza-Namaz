@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../data/mosque_data.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// `.mrow` for a mosque: avatar, name, area · distance, and a star that
 /// saves/unsaves it (or [trailing] to replace the star).
@@ -34,7 +35,7 @@ class MosqueRow extends ConsumerWidget {
         iconSize: 20,
       ),
       title: mosque.name,
-      subtitle: mosque.subtitle,
+      subtitle: mosque.subtitle(context.l10n),
       showDivider: showDivider,
       onTap: onTap ?? () => context.push('/app/mosques/${mosque.id}'),
       trailing:
@@ -42,7 +43,9 @@ class MosqueRow extends ConsumerWidget {
           (isPrimary
               ? Icon(Icons.check_circle_rounded, color: c.tertiary)
               : IconButton(
-                  tooltip: saved ? 'Remove from saved' : 'Save',
+                  tooltip: saved
+                      ? context.l10n.removeFromSaved
+                      : context.l10n.saveTooltip,
                   icon: Icon(
                     saved ? Icons.star_rounded : Icons.star_outline_rounded,
                     color: saved ? c.tertiary : c.onSurfaceVariant,
@@ -93,8 +96,8 @@ class RegisterMosqueAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) => JzDashedAction(
     icon: Icons.add_location_alt_outlined,
-    title: 'Register a new mosque',
-    subtitle: "If yours isn't listed yet",
+    title: context.l10n.registerNewMosque,
+    subtitle: context.l10n.registerNewMosqueSubtitle,
     onTap: () => context.push('/app/mosques/register'),
   );
 }

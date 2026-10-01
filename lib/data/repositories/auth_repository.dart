@@ -1,10 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/analytics/analytics.dart';
-import '../../core/errors/firebase_auth_messages.dart';
 import '../../core/logging/app_log.dart';
 
-/// Firebase Authentication — maps errors to friendly messages at call sites.
+/// Firebase Authentication. Errors are rethrown as-is; screens show them
+/// with `mapGenericError(e, context.l10n)`.
 class AuthRepository {
   AuthRepository(this._auth, {Analytics? analytics}) : _analytics = analytics;
 
@@ -37,10 +37,7 @@ class AuthRepository {
       return credential;
     } on FirebaseAuthException catch (e, st) {
       appLog('signUp', error: e, stackTrace: st);
-      throw FirebaseAuthException(
-        code: e.code,
-        message: mapFirebaseAuthMessage(e),
-      );
+      rethrow;
     }
   }
 
@@ -57,10 +54,7 @@ class AuthRepository {
       return credential;
     } on FirebaseAuthException catch (e, st) {
       appLog('signIn', error: e, stackTrace: st);
-      throw FirebaseAuthException(
-        code: e.code,
-        message: mapFirebaseAuthMessage(e),
-      );
+      rethrow;
     }
   }
 
@@ -71,10 +65,7 @@ class AuthRepository {
       await _auth.sendPasswordResetEmail(email: email.trim());
     } on FirebaseAuthException catch (e, st) {
       appLog('sendPasswordResetEmail', error: e, stackTrace: st);
-      throw FirebaseAuthException(
-        code: e.code,
-        message: mapFirebaseAuthMessage(e),
-      );
+      rethrow;
     }
   }
 
@@ -94,10 +85,7 @@ class AuthRepository {
   }) async {
     final user = _auth.currentUser;
     if (user?.email == null) {
-      throw FirebaseAuthException(
-        code: 'no-email',
-        message: 'No email associated with this account.',
-      );
+      throw FirebaseAuthException(code: 'no-email');
     }
     try {
       final cred = EmailAuthProvider.credential(
@@ -108,10 +96,7 @@ class AuthRepository {
       await user.updatePassword(newPassword);
     } on FirebaseAuthException catch (e, st) {
       appLog('updatePassword', error: e, stackTrace: st);
-      throw FirebaseAuthException(
-        code: e.code,
-        message: mapFirebaseAuthMessage(e),
-      );
+      rethrow;
     }
   }
 }

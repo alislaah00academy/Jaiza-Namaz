@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Urdu introduction document for Al Islaah Academy (RTL).
 class AcademyIntroScreen extends StatelessWidget {
@@ -8,6 +9,7 @@ class AcademyIntroScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final c = _Content(context.l10n);
     final theme = Theme.of(context);
     return Directionality(
       textDirection: TextDirection.rtl,
@@ -17,7 +19,7 @@ class AcademyIntroScreen extends StatelessWidget {
           JaizaSurfaceCard(
             padding: const EdgeInsets.all(20),
             child: Text(
-              _Content.title,
+              c.title,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
@@ -31,13 +33,13 @@ class AcademyIntroScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  _Content.introParagraph,
+                  c.introParagraph,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _Content.sectionAghaz,
+                  c.sectionAghaz,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -45,19 +47,19 @@ class AcademyIntroScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _Content.aghazBody1,
+                  c.aghazBody1,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  _Content.aghazBody2,
+                  c.aghazBody2,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  _Content.aghazBody3,
+                  c.aghazBody3,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
@@ -71,13 +73,13 @@ class AcademyIntroScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  _Content.departmentsLead,
+                  c.departmentsLead,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  _Content.educationDeptTitle,
+                  c.educationDeptTitle,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -85,7 +87,7 @@ class AcademyIntroScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _Content.educationDeptBody,
+                  c.educationDeptBody,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyLarge,
                 ),
@@ -99,14 +101,14 @@ class AcademyIntroScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  _Content.detailedCoursesHeading,
+                  c.detailedCoursesHeading,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 12),
-                ..._Content.detailedCourses.map(
+                ...c.detailedCourses.map(
                   (line) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Text(
@@ -126,7 +128,7 @@ class AcademyIntroScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  _Content.shortCoursesHeading,
+                  c.shortCoursesHeading,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.w600,
@@ -134,7 +136,7 @@ class AcademyIntroScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 ...List.generate(
-                  _Content.shortCourses.length,
+                  c.shortCourses.length,
                   (i) => Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
@@ -152,7 +154,7 @@ class AcademyIntroScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            _Content.shortCourses[i],
+                            c.shortCourses[i],
                             textAlign: TextAlign.right,
                             style: theme.textTheme.bodyLarge,
                           ),
@@ -163,7 +165,7 @@ class AcademyIntroScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  _Content.closingLine,
+                  c.closingLine,
                   textAlign: TextAlign.right,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
@@ -178,55 +180,24 @@ class AcademyIntroScreen extends StatelessWidget {
   }
 }
 
-abstract final class _Content {
-  static const title = 'الاصلاح اکیڈمی کا مختصر تعارف';
+/// Urdu-first content (17 §4): the Academy's text is Urdu in every app
+/// language, so both ARB files carry the same Urdu strings.
+class _Content {
+  const _Content(this.l);
+  final L10n l;
 
-  static const introParagraph =
-      'الاصلاح اکیڈمی ایک ایسا تعلیمی ادارہ ہے جو مختلف شعبہ جات میں اپنی خدمات انجام دے رہا ہے۔ اس کا نصب العین یہی ہے کہ لوگوں کی جاری زندگیوں میں بہتری لائی جائے۔ معاشرے میں ہر ممکن مثبت تبدیلیاں پیدا ہوں، اور مسلمان اپنی حقیقی پہچان کو سمجھیں اور اپنے اسلام پر عمل کرنے والے بنیں۔';
-
-  static const sectionAghaz = 'آغاز:';
-
-  static const aghazBody1 =
-      'الحمدللہ! ابتدا کا کام الاصلاح اکیڈمی نے نہایت سادگی سے کیا۔ یہ چند دوستوں کی خواہش تھی کہ عام مسلمانوں کے لیے سستا مگر معیاری دینی کورس کروایا جائے۔ اس کورس کے دوران سب مشکلات کا سامنا کرنا پڑا، لیکن الحمدللہ آہستہ آہستہ کام آگے بڑھتا گیا۔ کچھ عرصہ کے بعد ایک مستقل ادارہ قائم کیا گیا، اور اس کا نام الاصلاح اکیڈمی رکھا گیا اور اس کی بنیاد پر اساتذہ کرام نے دین کی تعلیم کو عام کرنے کا عزم کیا۔ اس دوران حضرت عثمان غنی رضی اللہ عنہ کی خدمات کو سامنے رکھا گیا اور اس نام کو چننے کا مقصد بھی یہی تھا کہ معاشرے میں اصلاح کا کام عام ہو۔';
-
-  static const aghazBody2 =
-      'الاصلاح اکیڈمی کا باقاعدہ نظام قائم کرنے کے لیے حافظ محمد فاروق صاحب نے نمایاں کردار ادا کیا، اور پھر ان کے ساتھ دیگر اساتذہ بھی شامل ہوتے گئے۔ الاصلاح اکیڈمی میں اس وقت قرآن، حدیث، فقہ اور دیگر علوم کی تعلیم دی جا رہی ہے۔';
-
-  static const aghazBody3 =
-      'الاصلاح اکیڈمی کے قیام میں ہمیں اساتذہ کرام کا تعاون حاصل رہا، اور پھر حضرت استاد محترم مولانا مشتاق صاحب کی نگرانی میں یہ ادارہ ترقی کرتا گیا۔';
-
-  static const departmentsLead =
-      'الاصلاح اکیڈمی کے چند ایک شعبہ جات درج ذیل ہیں:';
-
-  static const educationDeptTitle = '☆ تعلیمی شعبہ';
-
-  static const educationDeptBody =
-      'اس شعبہ میں علومِ شرعیہ وغیرہ کی تعلیم دی جاتی ہے۔ الاصلاح اکیڈمی میں مختلف کورسز کا انعقاد مختلف اوقات میں ہوتا رہتا ہے جن میں کثیر تعداد میں طلبہ شریک ہوتے ہیں۔';
-
-  static const detailedCoursesHeading = 'تفصیلی کورسز:';
-
-  static const detailedCourses = <String>[
-    'آٹھ سالہ درسِ نظامی (وفاق المدارس العربیہ پاکستان)',
-    'آن لائن چھ سالہ درسِ نظامی (وفاق المدارس العربیہ پاکستان)',
-    'دو سالہ درسِ حدیث للبنات',
-  ];
-
-  static const shortCoursesHeading = 'مختصر کورسز:';
-
-  static const shortCourses = <String>[
-    'سیرت النبی ﷺ کورس',
-    'مثالی اسلامی کورس',
-    'منتخب احادیث',
-    'آسان تفسیر کورس',
-    'تجوید کورس',
-    'آسان عربی',
-    'عقیدہ کورس',
-    'ترجمہ قرآن کورس',
-    'حفظِ قرآن کورس',
-    'عقائد و ایمانیات کورس',
-    'تصوف و اصلاحی تربیت',
-  ];
-
-  static const closingLine =
-      'ان کے علاوہ بھی کئی کورسز کی کلاسز جاری ہیں';
+  String get title => l.academyIntroTitle;
+  String get introParagraph => l.academyIntroIntroParagraph;
+  String get sectionAghaz => l.academyIntroSectionAghaz;
+  String get aghazBody1 => l.academyIntroAghazBody1;
+  String get aghazBody2 => l.academyIntroAghazBody2;
+  String get aghazBody3 => l.academyIntroAghazBody3;
+  String get departmentsLead => l.academyIntroDepartmentsLead;
+  String get educationDeptTitle => l.academyIntroEducationDeptTitle;
+  String get educationDeptBody => l.academyIntroEducationDeptBody;
+  String get detailedCoursesHeading => l.academyIntroDetailedCoursesHeading;
+  String get shortCoursesHeading => l.academyIntroShortCoursesHeading;
+  String get closingLine => l.academyIntroClosingLine;
+  List<String> get detailedCourses => [l.academyIntroDetailedCourses1, l.academyIntroDetailedCourses2, l.academyIntroDetailedCourses3];
+  List<String> get shortCourses => [l.academyIntroShortCourses1, l.academyIntroShortCourses2, l.academyIntroShortCourses3, l.academyIntroShortCourses4, l.academyIntroShortCourses5, l.academyIntroShortCourses6, l.academyIntroShortCourses7, l.academyIntroShortCourses8, l.academyIntroShortCourses9, l.academyIntroShortCourses10, l.academyIntroShortCourses11];
 }

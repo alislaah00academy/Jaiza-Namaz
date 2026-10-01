@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/jz_ui.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -18,13 +18,13 @@ class AboutScreen extends StatelessWidget {
         const Center(child: JzEmblem(icon: Icons.mosque_outlined)),
         const SizedBox(height: 18),
         Text(
-          AppStrings.appName,
+          context.l10n.appName,
           textAlign: TextAlign.center,
           style: t.headlineSmall,
         ),
         const SizedBox(height: 4),
         Text(
-          AppStrings.academyCredit,
+          context.l10n.academyCredit,
           textAlign: TextAlign.center,
           style: t.titleMedium?.copyWith(color: c.primary),
         ),
@@ -32,8 +32,7 @@ class AboutScreen extends StatelessWidget {
         JzCard(
           padding: const EdgeInsets.all(18),
           child: Text(
-            'Jaiza helps Muslims track obligatory prayers, optional nawafil, '
-            'and qaza with gentle motivation — clear progress, no clutter.',
+            context.l10n.aboutBody,
             style: t.bodyLarge,
           ),
         ),
@@ -43,24 +42,24 @@ class AboutScreen extends StatelessWidget {
             children: [
               JzListRow(
                 leading: Icon(Icons.menu_book_outlined, color: c.primary),
-                title: 'الاصلاح اکیڈمی کا مختصر تعارف',
-                subtitle: 'Brief introduction (Urdu)',
+                title: context.l10n.academyIntroTitle,
+                subtitle: context.l10n.aboutAcademyIntroSubtitle,
                 trailing: const JzChevron(),
                 showDivider: true,
                 onTap: () => context.push('/app/academy-intro'),
               ),
               JzListRow(
                 leading: Icon(Icons.school_outlined, color: c.primary),
-                title: 'Al Islaah Academy',
-                subtitle: 'Courses and admissions',
+                title: context.l10n.academyName,
+                subtitle: context.l10n.aboutCoursesSubtitle,
                 trailing: const JzChevron(),
                 showDivider: true,
                 onTap: () => context.push('/app/academy-intro'),
               ),
               JzListRow(
                 leading: Icon(Icons.mail_outline_rounded, color: c.primary),
-                title: 'Contact',
-                subtitle: 'Reach Al Islaah Academy',
+                title: context.l10n.contactTitle,
+                subtitle: context.l10n.aboutContactSubtitle,
                 trailing: const JzChevron(),
                 onTap: () => context.push('/app/contact'),
               ),

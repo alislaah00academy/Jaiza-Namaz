@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../../../services/location_service.dart';
 import '../data/mosque_data.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Three-step mosque registration: mosque details → your details → review,
 /// then a "request submitted" state. Every field is mandatory, and a
@@ -45,13 +46,22 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
   final _mosquePhone = TextEditingController();
   final _auqaf = TextEditingController();
 
+  /// Stable ids for the request; shown with [_connectionLabel].
   static const _connections = [
-    'Imam',
-    'Committee member',
-    'Mutawalli',
-    'Caretaker',
-    'Regular worshipper',
+    'imam',
+    'committee',
+    'mutawalli',
+    'caretaker',
+    'worshipper',
   ];
+
+  String _connectionLabel(String id) => switch (id) {
+    'imam' => context.l10n.connImam,
+    'committee' => context.l10n.connCommittee,
+    'mutawalli' => context.l10n.connMutawalli,
+    'caretaker' => context.l10n.connCaretaker,
+    _ => context.l10n.connWorshipper,
+  };
 
   @override
   void dispose() {
@@ -143,7 +153,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
     if (pos == null) {
       AppSnackBar.error(
         context,
-        'Could not read GPS — a sample pin was placed. Tap the map to move it.',
+        context.l10n.gpsFailedSamplePin,
       );
     }
   }
@@ -165,7 +175,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
     });
     AppSnackBar.success(
       context,
-      'Sample file attached — real uploads arrive with the registration backend.',
+      context.l10n.sampleFileAttached,
     );
   }
 
@@ -193,12 +203,11 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'This mosque is already registered',
+                        ctx.l10n.mosqueAlreadyRegistered,
                         style: t.titleMedium,
                       ),
                       Text(
-                        'A registered mosque with the same name sits '
-                        '${m.distanceLabel} away.',
+                        ctx.l10n.mosqueSameNameAway(m.distanceLabel(ctx.l10n)),
                         style: t.bodySmall,
                       ),
                     ],
@@ -234,7 +243,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
                           ],
                         ),
                         Text(
-                          '${m.address} · ${m.distanceLabel}',
+                          ctx.l10n.dotJoin(m.address, m.distanceLabel(ctx.l10n)),
                           style: t.bodySmall,
                         ),
                       ],
@@ -246,17 +255,16 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
             const SizedBox(height: 18),
             FilledButton(
               onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Yes, that’s it — use this one'),
+              child: Text(ctx.l10n.useThisMosque),
             ),
             const SizedBox(height: 10),
             OutlinedButton(
               onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('No, this is a different mosque'),
+              child: Text(ctx.l10n.differentMosque),
             ),
             const SizedBox(height: 12),
             Text(
-              'Choosing “different” sends your request to the Al Islaah team. '
-              'The same mosque cannot be registered twice.',
+              ctx.l10n.differentMosqueNote,
               textAlign: TextAlign.center,
               style: t.bodySmall,
             ),
@@ -287,7 +295,11 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
   Widget _progress(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    const titles = ['Mosque details', 'Your details', 'Review'];
+    final titles = [
+      context.l10n.stepMosqueDetails,
+      context.l10n.stepYourDetails,
+      context.l10n.stepReview,
+    ];
     return JzCard(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       child: Column(
@@ -312,7 +324,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           Row(
             children: [
               Expanded(child: Text(titles[_step], style: t.titleSmall)),
-              Text('Step ${_step + 1} of 3', style: t.labelMedium),
+              Text(context.l10n.stepOf(_step + 1, 3), style: t.labelMedium),
             ],
           ),
         ],
@@ -381,7 +393,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
             const SizedBox(width: 10),
             Expanded(child: Text(file, style: t.bodyMedium)),
             IconButton(
-              tooltip: 'Remove',
+              tooltip: context.l10n.actionRemove,
               icon: const Icon(Icons.close_rounded),
               onPressed: onRemove,
             ),
@@ -426,11 +438,11 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$_missing1 ${_missing1 == 1 ? 'field' : 'fields'} still needed',
+                      context.l10n.fieldsStillNeeded(_missing1),
                       style: t.titleSmall,
                     ),
                     Text(
-                      'A mosque cannot be registered until every field is filled.',
+                      context.l10n.mosqueNeedsEveryField,
                       style: t.bodySmall,
                     ),
                   ],
@@ -440,36 +452,30 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           ),
         )
       else
-        const JzNoteCard(
-          body: Text(
-            'Every field is required. A mosque cannot be registered until all '
-            'of them are filled — that is what keeps duplicate and fake entries '
-            'out.',
-          ),
-        ),
+        JzNoteCard(body: Text(context.l10n.everyFieldRequired)),
       const SizedBox(height: 18),
-      const JzSectionLabel('Identity'),
+      JzSectionLabel(context.l10n.sectionIdentity),
       const SizedBox(height: 6),
       _field(
         _name,
-        'Full mosque name',
+        context.l10n.fullMosqueName,
         error: err && _empty(_name),
-        errorText: 'Enter the mosque name',
+        errorText: context.l10n.enterMosqueName,
       ),
       _field(
         _street,
-        'Street address',
+        context.l10n.streetAddress,
         error: err && _empty(_street),
-        errorText: 'Enter the street address',
+        errorText: context.l10n.enterStreetAddress,
       ),
       _field(
         _city,
-        'City / area',
+        context.l10n.cityArea,
         error: err && _empty(_city),
-        errorText: 'Enter the city or area',
+        errorText: context.l10n.enterCityArea,
       ),
       const SizedBox(height: 6),
-      const JzSectionLabel('Location', required: true),
+      JzSectionLabel(context.l10n.locationTitle, required: true),
       if (_location == null && err)
         JzDashedBox(
           error: true,
@@ -478,9 +484,9 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
             children: [
               Icon(Icons.location_on_outlined, color: c.error, size: 28),
               const SizedBox(height: 6),
-              Text('Drop a pin on the map', style: t.titleSmall),
+              Text(context.l10n.dropPinOnMap, style: t.titleSmall),
               Text(
-                'Tap GPS, or drag the pin to the mosque',
+                context.l10n.tapGpsOrDrag,
                 style: t.bodySmall,
               ),
             ],
@@ -495,40 +501,33 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
         ),
       const SizedBox(height: 8),
       Text(
-        'Drag the pin, or tap GPS. An accurate location is what stops duplicate '
-        'entries.',
+        context.l10n.dragPinHint,
         style: t.bodySmall,
       ),
       const SizedBox(height: 18),
-      const JzSectionLabel('Sign board photo', required: true),
+      JzSectionLabel(context.l10n.signBoardPhoto, required: true),
       _uploadBox(
         icon: Icons.add_a_photo_outlined,
-        title: 'Add a photo',
-        subtitle: 'One where the mosque’s name is clearly readable',
+        title: context.l10n.addAPhoto,
+        subtitle: context.l10n.addAPhotoSubtitle,
         file: _photo,
         error: err && _photo == null,
         onPick: () => _pickPlaceholder(false),
         onRemove: () => setState(() => _photo = null),
       ),
       const SizedBox(height: 16),
-      const JzNoteCard(
-        body: Text(
-          'Jama’at times are not entered here. The Al Islaah team adds them '
-          'once the mosque is verified, so the times people see are always '
-          'confirmed.',
-        ),
-      ),
+      JzNoteCard(body: Text(context.l10n.jamaatAddedAfterVerify)),
       const SizedBox(height: 18),
       FilledButton.icon(
         onPressed: err && _missing1 > 0 ? null : _continue1,
         iconAlignment: IconAlignment.end,
         icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: const Text('Continue'),
+        label: Text(context.l10n.actionContinue),
       ),
       if (err && _missing1 > 0) ...[
         const SizedBox(height: 8),
         Text(
-          'Continue turns on once every field is filled.',
+          context.l10n.continueTurnsOn,
           textAlign: TextAlign.center,
           style: t.bodySmall,
         ),
@@ -541,7 +540,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
     final t = Theme.of(context).textTheme;
     final err = _showErrors2;
     return [
-      const JzSectionLabel('Your connection'),
+      JzSectionLabel(context.l10n.yourConnection),
       const SizedBox(height: 6),
       Padding(
         padding: const EdgeInsets.only(bottom: 6),
@@ -549,13 +548,13 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           initialValue: _connection,
           items: [
             for (final r in _connections)
-              DropdownMenuItem(value: r, child: Text(r)),
+              DropdownMenuItem(value: r, child: Text(_connectionLabel(r))),
           ],
           onChanged: (v) => setState(() => _connection = v),
           decoration: InputDecoration(
             label: Text.rich(
               TextSpan(
-                text: 'How are you connected to this mosque?',
+                text: context.l10n.howConnected,
                 children: [
                   TextSpan(
                     text: ' *',
@@ -564,52 +563,51 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
                 ],
               ),
             ),
-            errorText: err && _connection == null ? 'Choose one' : null,
+            errorText: err && _connection == null
+                ? context.l10n.chooseOne
+                : null,
           ),
         ),
       ),
       Padding(
         padding: const EdgeInsets.fromLTRB(4, 0, 4, 14),
-        child: Text(_connections.join(' · '), style: t.bodySmall),
+        child: Text(
+          _connections.map(_connectionLabel).join(' · '),
+          style: t.bodySmall,
+        ),
       ),
       _field(
         _fullName,
-        'Your full name',
+        context.l10n.yourFullName,
         error: err && _empty(_fullName),
-        errorText: 'Enter your name',
+        errorText: context.l10n.validationEnterName,
       ),
       _field(
         _phone,
-        'Phone number',
+        context.l10n.phoneNumber,
         hint: '+92 300 1234567',
         keyboard: TextInputType.phone,
         error: err && _empty(_phone),
-        errorText: 'Enter your phone number',
+        errorText: context.l10n.enterPhoneNumber,
         suffix: const Icon(Icons.lock_outline_rounded, size: 20),
       ),
       _field(
         _cnic,
-        'CNIC number',
+        context.l10n.cnicNumber,
         hint: '42101-1234567-1',
         keyboard: TextInputType.number,
         formatters: [_CnicFormatter()],
         error: err && _cnic.text.replaceAll('-', '').length != 13,
-        errorText: 'Enter all 13 digits',
+        errorText: context.l10n.enterAll13Digits,
         suffix: const Icon(Icons.lock_outline_rounded, size: 20),
       ),
-      const JzNoteCard(
-        body: Text(
-          'Your phone number and CNIC are used only to verify you. Neither is '
-          'ever shown in the app, and the Al Islaah team calls the number '
-          'before approving.',
-        ),
-      ),
+      JzNoteCard(body: Text(context.l10n.phoneCnicPrivacy)),
       const SizedBox(height: 18),
-      const JzSectionLabel('Proof of role', required: true),
+      JzSectionLabel(context.l10n.proofOfRole, required: true),
       _uploadBox(
         icon: Icons.upload_file_outlined,
-        title: 'Add a document',
-        subtitle: 'Appointment letter, committee resolution, or CNIC',
+        title: context.l10n.addADocument,
+        subtitle: context.l10n.addADocumentSubtitle,
         file: _proof,
         error: err && _proof == null,
         onPick: () => _pickPlaceholder(true),
@@ -626,8 +624,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'For verification only — never shown in the app, and deleted once '
-              'verified.',
+              context.l10n.verificationOnly,
               style: t.bodySmall,
             ),
           ),
@@ -635,33 +632,31 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
       ),
       const SizedBox(height: 8),
       Text(
-        'A regular worshipper can upload their CNIC here instead. The mosque is '
-        'still listed either way — only an Imam or committee member can later '
-        'edit its Jama’at times.',
+        context.l10n.worshipperCnicNote,
         style: t.bodySmall,
       ),
       const SizedBox(height: 18),
-      const JzSectionLabel('Mosque contact', required: true),
+      JzSectionLabel(context.l10n.mosqueContact, required: true),
       const SizedBox(height: 6),
       _field(
         _mosquePhone,
-        'Mosque phone number',
+        context.l10n.mosquePhoneNumber,
         keyboard: TextInputType.phone,
         error: err && _empty(_mosquePhone),
-        errorText: 'Enter the mosque phone number',
+        errorText: context.l10n.enterMosquePhone,
       ),
       _field(
         _auqaf,
-        'Auqaf registration number — optional',
+        context.l10n.auqafOptional,
         required: false,
-        hint: 'Leave blank if none',
+        hint: context.l10n.leaveBlankIfNone,
       ),
       const SizedBox(height: 6),
       FilledButton.icon(
         onPressed: _continue2,
         iconAlignment: IconAlignment.end,
         icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-        label: const Text('Continue'),
+        label: Text(context.l10n.actionContinue),
       ),
     ];
   }
@@ -699,37 +694,48 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
               Expanded(child: Text(title, style: t.titleMedium)),
               TextButton(
                 onPressed: () => setState(() => _step = step),
-                child: const Text('Edit'),
+                child: Text(context.l10n.actionEdit),
               ),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: Column(children: rows),
           ),
         ],
       ),
     );
     final loc = _location;
+    final l10n = context.l10n;
     return [
-      section('Mosque details', 0, [
-        row('Name', _name.text.trim()),
-        row('Address', '${_street.text.trim()}, ${_city.text.trim()}'),
+      section(l10n.stepMosqueDetails, 0, [
+        row(l10n.reviewName, _name.text.trim()),
         row(
-          'Location',
+          l10n.reviewAddress,
+          l10n.addressJoin(_street.text.trim(), _city.text.trim()),
+        ),
+        row(
+          l10n.reviewLocation,
           loc == null
               ? '—'
               : '${loc.$1.toStringAsFixed(4)}, ${loc.$2.toStringAsFixed(4)}',
         ),
-        row('Photo', _photo ?? '—'),
-        row('Mosque phone', _mosquePhone.text.trim(), last: true),
+        row(l10n.reviewPhoto, _photo ?? '—'),
+        row(l10n.reviewMosquePhone, _mosquePhone.text.trim(), last: true),
       ]),
-      section('Your details', 1, [
-        row('Connection', _connection ?? '—'),
-        row('Name', _fullName.text.trim()),
-        row('Phone', _phone.text.trim()),
-        row('CNIC', '${_cnic.text} · not shown publicly'),
-        row('Proof', '${_proof ?? '—'} · not shown publicly', last: true),
+      section(l10n.stepYourDetails, 1, [
+        row(
+          l10n.reviewConnection,
+          _connection == null ? '—' : _connectionLabel(_connection!),
+        ),
+        row(l10n.reviewName, _fullName.text.trim()),
+        row(l10n.reviewPhone, _phone.text.trim()),
+        row(l10n.reviewCnic, l10n.notShownPublicly(_cnic.text)),
+        row(
+          l10n.reviewProof,
+          l10n.notShownPublicly(_proof ?? '—'),
+          last: true,
+        ),
       ]),
       JzCard(
         padding: const EdgeInsets.all(16),
@@ -740,8 +746,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                'I confirm this information is correct and that this mosque '
-                'really exists.',
+                l10n.confirmInfoCorrect,
                 style: t.bodyMedium,
               ),
             ),
@@ -751,7 +756,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
       const SizedBox(height: 18),
       FilledButton(
         onPressed: _confirmed ? () => setState(() => _step = 3) : null,
-        child: const Text('Submit for registration'),
+        child: Text(l10n.submitForRegistration),
       ),
     ];
   }
@@ -759,11 +764,12 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
   Widget _submitted(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    const steps = [
-      'Form submitted',
-      'Phone verification — a call within 2–3 days',
-      'Photo and documents reviewed',
-      'Listed in search once approved',
+    final l10n = context.l10n;
+    final steps = [
+      l10n.submittedStepForm,
+      l10n.submittedStepPhone,
+      l10n.submittedStepDocs,
+      l10n.submittedStepListed,
     ];
     return Column(
       children: [
@@ -776,13 +782,13 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
               ),
               const SizedBox(height: 18),
               Text(
-                'Request submitted',
+                l10n.requestSubmitted,
                 textAlign: TextAlign.center,
                 style: t.headlineSmall,
               ),
               const SizedBox(height: 6),
               Text(
-                '${_name.text.trim()}’s details are now with the Al Islaah team.',
+                l10n.requestWithTeam(_name.text.trim()),
                 textAlign: TextAlign.center,
                 style: t.bodyMedium,
               ),
@@ -841,7 +847,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'You’ll be notified as soon as it’s approved.',
+                l10n.notifiedWhenApproved,
                 textAlign: TextAlign.center,
                 style: t.bodySmall,
               ),
@@ -855,7 +861,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
             child: FilledButton.tonal(
               style: AppTheme.tonalButtonStyle(context),
               onPressed: () => context.go('/app/mosques'),
-              child: const Text('Back to Mosques'),
+              child: Text(l10n.backToMosques),
             ),
           ),
         ),
@@ -912,17 +918,17 @@ class _MapPicker extends StatelessWidget {
                         ),
                       ),
                     ),
-                  Positioned(
-                    left: 10,
+                  PositionedDirectional(
+                    start: 10,
                     bottom: 10,
                     child: JzChip(
                       loc == null
-                          ? 'No pin yet'
+                          ? context.l10n.noPinYet
                           : '${loc.$1.toStringAsFixed(4)}, ${loc.$2.toStringAsFixed(4)}',
                     ),
                   ),
-                  Positioned(
-                    right: 10,
+                  PositionedDirectional(
+                    end: 10,
                     bottom: 10,
                     child: FilledButton.icon(
                       style: FilledButton.styleFrom(
@@ -937,7 +943,7 @@ class _MapPicker extends StatelessWidget {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.my_location_rounded, size: 16),
-                      label: const Text('GPS'),
+                      label: Text(context.l10n.gpsButton),
                     ),
                   ),
                 ],

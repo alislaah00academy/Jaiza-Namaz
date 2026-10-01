@@ -8,6 +8,7 @@ import '../../../core/widgets/jz_ui.dart';
 import '../data/qaza_plan.dart';
 import '../data/qaza_tracker.dart';
 import 'qaza_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// `/app/qaza`. First visit: one explainer ending in a choice (enter an
 /// estimate, or let Jaiza count from today). After that: the dashboard that
@@ -67,10 +68,10 @@ class _QazaIntro extends ConsumerWidget {
         const SizedBox(height: 8),
         Text.rich(
           TextSpan(
-            text: 'CALCULATE YOUR\n',
+            text: context.l10n.qazaCalculateYour,
             children: [
               TextSpan(
-                text: 'QAZA PRAYERS',
+                text: context.l10n.qazaPrayersCaps,
                 style: TextStyle(color: c.primary),
               ),
             ],
@@ -95,31 +96,25 @@ class _QazaIntro extends ConsumerWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Work out the prayers you missed from the time you reached Bulugh '
-          '(puberty) until today.',
+          context.l10n.qazaIntroBody,
           textAlign: TextAlign.center,
           style: t.bodyMedium,
         ),
         const SizedBox(height: 24),
-        const JaizaFlourishDivider(label: 'CHOOSE HOW TO START'),
+        JaizaFlourishDivider(label: context.l10n.chooseHowToStart),
         const SizedBox(height: 18),
         option(
           icon: Icons.edit_note_rounded,
           tone: JzAvatarTone.primary,
-          title: 'I will enter my own estimate',
-          body:
-              'Type how much you missed before Jaiza — the same figure for all '
-              'five prayers, or each prayer separately.',
+          title: context.l10n.qazaOptionEstimateTitle,
+          body: context.l10n.qazaOptionEstimateBody,
           onTap: () => context.push('/app/qaza/estimate'),
         ),
         option(
           icon: Icons.auto_mode_rounded,
           tone: JzAvatarTone.secondary,
-          title: 'Let Jaiza count from today',
-          body:
-              'From now on, every prayer you do not mark becomes Qaza by '
-              'itself, with its date. Nothing to type — and you can still add '
-              'an estimate later.',
+          title: context.l10n.qazaOptionCountTitle,
+          body: context.l10n.qazaOptionCountBody,
           onTap: () => ref.read(qazaIntroDoneProvider.notifier).set(true),
         ),
         const SizedBox(height: 4),
@@ -143,12 +138,8 @@ class _QazaDashboard extends ConsumerWidget {
       children: [
         Text(
           overview.hasEstimate
-              ? 'Everything you still owe, in one place — what Jaiza counted '
-                    'for you since install, plus the backlog you estimated. '
-                    'Tap any prayer to mark some as prayed.'
-              : 'Jaiza has been counting missed prayers for you since the day '
-                    'you installed it. If you also have Qaza from before that, '
-                    'add an estimate once and both are kept in one list.',
+              ? context.l10n.qazaDashboardWithEstimate
+              : context.l10n.qazaDashboardNoEstimate,
           style: t.bodyMedium,
         ),
         const SizedBox(height: 14),
@@ -163,20 +154,25 @@ class _QazaDashboard extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text('Daily goal', style: t.titleMedium)),
-                    JzChip('${overview.dailyGoal} a day', gold: true),
+                    Expanded(
+                      child: Text(context.l10n.dailyGoal, style: t.titleMedium),
+                    ),
+                    JzChip(context.l10n.perDay(overview.dailyGoal), gold: true),
                   ],
                 ),
                 const SizedBox(height: 6),
                 Text.rich(
                   TextSpan(
-                    text: 'At this pace you will finish in about ',
+                    text: context.l10n.qazaPacePrefix,
                     children: [
                       TextSpan(
-                        text: qazaDurationLabel(overview.daysToFinish),
+                        text: qazaDurationLabel(
+                          overview.daysToFinish,
+                          context.l10n,
+                        ),
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
-                      const TextSpan(text: '.'),
+                      TextSpan(text: context.l10n.qazaPaceSuffix),
                     ],
                   ),
                   style: t.bodySmall,
@@ -193,7 +189,7 @@ class _QazaDashboard extends ConsumerWidget {
                     ),
                     const SizedBox(width: 10),
                     Text(
-                      '${jzCount(overview.completed)} done',
+                      context.l10n.countDone(jzCount(overview.completed)),
                       style: t.labelSmall,
                     ),
                   ],
@@ -203,7 +199,7 @@ class _QazaDashboard extends ConsumerWidget {
           ),
           const SizedBox(height: 14),
         ],
-        const JzSectionLabel('By prayer'),
+        JzSectionLabel(context.l10n.byPrayer),
         for (final p in kQazaPrayerNames)
           QazaPrayerCard(summary: overview.byPrayer[p]!),
         const SizedBox(height: 4),
@@ -217,7 +213,7 @@ class _QazaDashboard extends ConsumerWidget {
               children: [
                 Icon(Icons.help_outline_rounded, size: 18, color: c.primary),
                 const SizedBox(width: 8),
-                Text('How Qaza works in Jaiza', style: t.bodyMedium),
+                Text(context.l10n.qazaHowTitle, style: t.bodyMedium),
               ],
             ),
           ),

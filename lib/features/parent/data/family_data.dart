@@ -11,6 +11,7 @@ import '../../../data/models/child_profile.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../../qaza/data/qaza_tracker.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// All Fard / Nawafil / Qaza logs for any tracked person — the signed-in
 /// user or one of their children (children's logs use the child id as
@@ -121,10 +122,10 @@ class ChildExtra {
   /// 'boy' or 'girl'.
   final String? gender;
 
-  String get label => [
-    if (age != null) '$age ${age == 1 ? 'year' : 'years'}',
-    if (gender == 'boy') 'Boy',
-    if (gender == 'girl') 'Girl',
+  String label(L10n l) => [
+    if (age != null) l.ageYears(age!),
+    if (gender == 'boy') l.genderBoy,
+    if (gender == 'girl') l.genderGirl,
   ].join(' · ');
 
   Map<String, dynamic> toJson() => {'age': age, 'gender': gender};

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/animations/jaiza_motion.dart';
 import '../../../core/constants/prayer_catalog.dart';
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/formatters.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 import '../../../core/utils/jaiza_dates.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jz_ui.dart';
@@ -21,8 +22,6 @@ import '../../parent/presentation/family_widgets.dart';
 import '../../qaza/data/qaza_tracker.dart';
 import 'prayer_marking.dart';
 
-String _hm(DateTime t) => DateFormat('h:mm a').format(t.toLocal());
-String _hhm(DateTime t) => DateFormat('hh:mm a').format(t.toLocal());
 
 /// Today — the landing screen. The primary mosque's Jama'at time is the
 /// hero, and the five Fard prayers are ticked straight from the list.
@@ -99,18 +98,18 @@ class _HomeHubScreenState extends ConsumerState<HomeHubScreen> {
         _PrayerListCard(data: card, logs: fard).jaizaEnter(index: 2),
         JzStripCard(
           icon: Icons.front_hand_outlined,
-          title: 'Nawafil',
+          title: context.l10n.titleNawafil,
           subtitle: nawafilOn
-              ? '$nawafilDone of ${kNawafilDefs.length} done today'
-              : 'Tracking off — tap to turn on',
+              ? context.l10n.nawafilDoneToday(nawafilDone, kNawafilDefs.length)
+              : context.l10n.nawafilTrackingOff,
           onTap: () => context.push('/app/nawafil'),
         ).jaizaEnter(index: 3),
         JzStripCard(
           icon: Icons.history_edu_outlined,
-          title: 'Qaza',
+          title: context.l10n.titleQaza,
           subtitle: qaza.remaining == 0
-              ? 'Nothing to make up'
-              : '${jzCount(qaza.remaining)} prayers to make up',
+              ? context.l10n.qazaNothingToMakeUp
+              : context.l10n.qazaPrayersToMakeUp(jzCount(qaza.remaining)),
           onTap: () => context.push('/app/qaza'),
         ).jaizaEnter(index: 4),
         if (isParent && children.isNotEmpty) _FamilyCard(children: children),
@@ -138,7 +137,9 @@ class _HeaderCard extends ConsumerWidget {
     final window = d == null || activeKey == null
         ? null
         : d.today.fardWindows.firstWhere((w) => w.key == activeKey);
-    final label = window?.label ?? d?.status.nextLabel ?? '—';
+    final l10n = context.l10n;
+    final label =
+        (window?.prayer ?? d?.status.nextPrayer)?.label(l10n) ?? '—';
     final key = window?.key ?? d?.status.nextKey;
     final start = window?.start ?? d?.status.nextTime;
     final end =
@@ -174,13 +175,13 @@ class _HeaderCard extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      formatHijriDate(now),
+                      formatHijriDate(now, l10n),
                       style: t.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: 3),
-                    Text(formatGregorianFull(now), style: t.bodySmall),
+                    Text(formatGregorianFull(now, l10n), style: t.bodySmall),
                   ],
                 ),
               ),
@@ -189,7 +190,7 @@ class _HeaderCard extends ConsumerWidget {
           Padding(
             padding: const EdgeInsets.only(top: 9),
             child: Text(
-              AppStrings.academyCredit,
+              l10n.academyCredit,
               style: t.labelSmall?.copyWith(letterSpacing: 0.3),
             ),
           ),
@@ -215,7 +216,7 @@ class _HeaderCard extends ConsumerWidget {
                 ),
                 const Spacer(),
                 Text(
-                  window != null ? 'Current prayer' : 'Next prayer',
+                  window != null ? l10n.currentPrayer : l10n.nextPrayer,
                   style: t.bodySmall?.copyWith(
                     color: window != null
                         ? jzGreen(context)
@@ -233,11 +234,11 @@ class _HeaderCard extends ConsumerWidget {
               gold: false,
               radius: 16,
               icon: Icons.mosque_outlined,
-              title: 'Set your primary mosque',
-              subtitle: "To see Jama'at times for every prayer",
+              title: l10n.setPrimaryMosqueTitle,
+              subtitle: l10n.setPrimaryMosqueSubtitle,
               trailing: TextButton(
                 onPressed: () => context.go('/app/mosques'),
-                child: const Text('Find'),
+                child: Text(l10n.findButton),
               ),
               onTap: () => context.go('/app/mosques'),
             ),
@@ -248,16 +249,16 @@ class _HeaderCard extends ConsumerWidget {
                 Expanded(
                   child: _TimeCell(
                     icon: Icons.wb_twilight_outlined,
-                    label: 'Starts',
-                    time: start == null ? '—' : _hhm(start),
+                    label: l10n.startsLabel,
+                    time: start == null ? '—' : formatTimePadded(start, l10n),
                   ),
                 ),
                 VerticalDivider(width: 1, color: c.outlineVariant),
                 Expanded(
                   child: _TimeCell(
                     icon: Icons.nights_stay_outlined,
-                    label: 'Ends',
-                    time: end == null ? '—' : _hhm(end),
+                    label: l10n.endsLabel,
+                    time: end == null ? '—' : formatTimePadded(end, l10n),
                   ),
                 ),
               ],
@@ -297,9 +298,11 @@ class _JamaatBox extends StatelessWidget {
     if (at != null) {
       final diff = at.difference(now);
       if (diff.inMinutes > 0) {
-        when = ' · starts in ${PrayerTimesService.compactDuration(diff)}';
+        when = context.l10n.jamaatStartsIn(
+          formatDurationShort(diff, context.l10n),
+        );
       } else if (diff.inMinutes > -30) {
-        when = ' · started ${-diff.inMinutes} min ago';
+        when = context.l10n.jamaatStartedAgo(-diff.inMinutes);
       }
     }
     return Material(
@@ -327,12 +330,12 @@ class _JamaatBox extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      "Jama'at",
+                      context.l10n.jamaat,
                       style: t.titleSmall?.copyWith(letterSpacing: 0.3),
                     ),
                   ),
                   Text(
-                    mosque.longTime(prayer),
+                    mosque.longTime(prayer, context.l10n),
                     style: t.titleLarge?.copyWith(
                       fontSize: 21,
                       fontFeatures: const [FontFeature.tabularFigures()],
@@ -341,7 +344,7 @@ class _JamaatBox extends StatelessWidget {
                 ],
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 46, top: 3),
+                padding: const EdgeInsetsDirectional.only(start: 46, top: 3),
                 child: Row(
                   children: [
                     Expanded(
@@ -422,15 +425,15 @@ class _StreakStrip extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       icon: Icons.local_fire_department_outlined,
       iconColor: c.tertiary,
-      title: '$current-day streak',
+      title: context.l10n.streakDays(current),
       subtitle: best > 0
-          ? 'Best so far — $best ${best == 1 ? 'day' : 'days'}'
-          : 'Pray all five to start one',
+          ? context.l10n.streakBestSoFar(best)
+          : context.l10n.streakStartHint,
       trailing: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Text(
-            '$done of $total today',
+            context.l10n.doneOfTotalToday(done, total),
             style: t.labelSmall?.copyWith(color: c.onSurface),
           ),
           const SizedBox(height: 5),
@@ -459,6 +462,7 @@ class _PrayerListCard extends ConsumerWidget {
     final mosque = ref.watch(primaryMosqueProvider);
     final now = DateTime.now();
     final d = data;
+    final l10n = context.l10n;
     return JzCard(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       child: Column(
@@ -482,18 +486,21 @@ class _PrayerListCard extends ConsumerWidget {
                     ? JzRowState.missed
                     : JzRowState.normal;
                 final range = window == null
-                    ? '${def.startHint} — ${def.endHint}'
-                    : '${_hm(window.start)} – ${_hm(window.end)}';
+                    ? l10n.hintRange(def.startHint(l10n), def.endHint(l10n))
+                    : l10n.timeRange(
+                        formatTime(window.start, l10n),
+                        formatTime(window.end, l10n),
+                      );
                 Widget? sub;
                 String? subText = range;
-                if (state == JzRowState.current) subText = 'Now · $range';
+                if (state == JzRowState.current) subText = l10n.nowRange(range);
                 if (state == JzRowState.missed) {
                   subText = null;
                   sub = log?.status == PrayerStatus.missed
                       ? Text(
                           personId == null
-                              ? 'Missed · in your Qaza list'
-                              : 'Missed · in the Qaza list',
+                              ? l10n.missedInYourQaza
+                              : l10n.missedInTheQaza,
                           style: Theme.of(context).textTheme.labelSmall
                               ?.copyWith(
                                 color: Theme.of(context).colorScheme.error,
@@ -505,13 +512,13 @@ class _PrayerListCard extends ConsumerWidget {
                             context,
                             ref,
                             name: def.name,
-                            label: def.label,
+                            label: def.label(l10n),
                             personId: personId,
                           ),
                         );
                 }
                 return JzPrayerRow(
-                  name: def.label,
+                  name: def.label(l10n),
                   checked: done,
                   state: state,
                   sub: subText,
@@ -524,7 +531,7 @@ class _PrayerListCard extends ConsumerWidget {
                     context,
                     ref,
                     name: def.name,
-                    label: def.label,
+                    label: def.label(l10n),
                     type: PrayerType.fard,
                     currentlyDone: done,
                     personId: personId,
@@ -549,9 +556,9 @@ class _AddChildrenStrip extends ConsumerWidget {
     return JzStripCard(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       icon: Icons.family_restroom_outlined,
-      title: 'Add children',
+      title: context.l10n.addChildren,
       subtitle: children.isEmpty
-          ? 'Mark their prayers from this same screen'
+          ? context.l10n.addChildrenSubtitle
           : children.map((k) => k.name).join(' · '),
       onTap: () => showAddChildSheet(context),
       trailing: Container(
@@ -608,11 +615,11 @@ class _ChildView extends ConsumerWidget {
                     Text(
                       extra?.age == null
                           ? child.name
-                          : '${child.name} · ${extra!.age} years',
+                          : context.l10n.childNameAge(child.name, extra!.age!),
                       style: t.titleSmall,
                     ),
                     Text(
-                      'Today $done of $total · this week $week of ${total * 7}',
+                      context.l10n.childTodayWeek(done, total, week, total * 7),
                       style: t.bodySmall,
                     ),
                   ],
@@ -620,7 +627,7 @@ class _ChildView extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () => context.go('/app/history'),
-                child: const Text('History'),
+                child: Text(context.l10n.historyButton),
               ),
             ],
           ),
@@ -629,15 +636,15 @@ class _ChildView extends ConsumerWidget {
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
           icon: Icons.local_fire_department_outlined,
           iconColor: c.tertiary,
-          title: '${child.name} — $streak-day streak',
+          title: context.l10n.childStreak(child.name, streak),
           subtitle: best > 0
-              ? 'Best so far — $best ${best == 1 ? 'day' : 'days'}'
-              : 'All five in a day starts a streak',
+              ? context.l10n.streakBestSoFar(best)
+              : context.l10n.childStreakStartHint,
           trailing: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '$done of $total today',
+                context.l10n.doneOfTotalToday(done, total),
                 style: t.labelSmall?.copyWith(color: c.onSurface),
               ),
               const SizedBox(height: 5),
@@ -648,17 +655,22 @@ class _ChildView extends ConsumerWidget {
         _PrayerListCard(data: data, logs: todayMap, personId: child.id),
         JzStripCard(
           icon: Icons.front_hand_outlined,
-          title: 'Nawafil',
-          subtitle: '$nawafilDone of ${kNawafilDefs.length} done today',
+          title: context.l10n.titleNawafil,
+          subtitle: context.l10n.nawafilDoneToday(
+            nawafilDone,
+            kNawafilDefs.length,
+          ),
           onTap: () => context.push('/app/nawafil'),
         ),
         JzStripCard(
           icon: Icons.history_edu_outlined,
-          title: 'Qaza',
+          title: context.l10n.titleQaza,
           subtitle: qaza.remaining == 0
-              ? 'Nothing to make up'
-              : '${jzCount(qaza.remaining)} to make up · since '
-                    '${DateFormat('d MMMM').format(qaza.since)}',
+              ? context.l10n.qazaNothingToMakeUp
+              : context.l10n.qazaToMakeUpSince(
+                  jzCount(qaza.remaining),
+                  formatDayMonth(qaza.since, context.l10n),
+                ),
           onTap: () => context.push('/app/family/qaza/${child.id}'),
         ),
       ],
@@ -684,10 +696,10 @@ class _FamilyCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Family', style: t.titleMedium)),
+              Expanded(child: Text(context.l10n.titleFamily, style: t.titleMedium)),
               TextButton(
                 onPressed: () => context.push('/app/family'),
-                child: const Text('See all'),
+                child: Text(context.l10n.seeAll),
               ),
             ],
           ),
@@ -734,7 +746,7 @@ class _FamilyCard extends ConsumerWidget {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          '$done/$total',
+                          context.l10n.doneSlashTotal(done, total),
                           style: t.titleSmall?.copyWith(
                             color: done == total
                                 ? c.primary

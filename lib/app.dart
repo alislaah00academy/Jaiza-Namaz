@@ -4,6 +4,8 @@ import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/l10n/l10n.dart';
+import 'core/l10n/locale_provider.dart';
 import 'core/local/local_prefs.dart';
 import 'core/theme/app_theme.dart';
 import 'core/utils/date_utils.dart';
@@ -59,15 +61,24 @@ class _JaizaNamazAppState extends ConsumerState<JaizaNamazApp>
   @override
   Widget build(BuildContext context) {
     final router = ref.watch(goRouterProvider);
+    // Device Preview (web debug only) may force a locale to test Urdu/RTL.
+    final locale =
+        DevicePreview.locale(context) ?? ref.watch(appLanguageProvider).locale;
     return MaterialApp.router(
-      title: 'Jaiza',
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      onGenerateTitle: (context) => context.l10n.appName,
+      theme: AppTheme.light(locale: locale),
+      darkTheme: AppTheme.dark(locale: locale),
       themeMode: ref.watch(themeModeProvider),
       routerConfig: router,
       debugShowCheckedModeBanner: false,
-      locale: DevicePreview.locale(context),
-      builder: DevicePreview.appBuilder,
+      locale: locale,
+      localizationsDelegates: L10n.localizationsDelegates,
+      supportedLocales: L10n.supportedLocales,
+      builder: (context, child) => DevicePreview.appBuilder(
+        context,
+        // Support system text scaling up to 2.0 (16 §3.2 rule 8).
+        MediaQuery.withClampedTextScaling(maxScaleFactor: 2.0, child: child!),
+      ),
     );
   }
 }

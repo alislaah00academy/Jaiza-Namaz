@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:jaiza_core/jaiza_core.dart' show PrayerLogSource;
 
 import '../../bootstrap/firebase_bootstrap.dart';
+import '../../core/l10n/l10n.dart';
 import '../../core/utils/date_utils.dart';
 import '../../core/utils/jaiza_dates.dart';
 import '../../data/models/prayer_log.dart';
@@ -116,10 +117,11 @@ abstract final class HomeWidgetBridge {
 
       String fmt(DateTime t) => DateFormat('HH:mm').format(t.toLocal());
 
+      final l10n = L10nLookup.current;
       final payload = jsonEncode({
-        'title': 'Jaiza · Prayer Times',
+        'title': l10n.widgetPrayerTimesTitle,
         'location': loc.$3,
-        'dateLine': formatGregHijriLine(now),
+        'dateLine': formatGregHijriLine(now, l10n),
         'times': {
           'fajr': fmt(today.fajr),
           'zuhr': fmt(today.zuhr),
@@ -213,10 +215,14 @@ abstract final class HomeWidgetBridge {
 
       String fmt(DateTime t) => DateFormat('HH:mm').format(t.toLocal());
 
+      final l10n = L10nLookup.current;
       final payload = jsonEncode({
-        'title': 'Jaiza · Prayer times',
-        'subtitle':
-            '${PrayerSettingsParsed.calcMethodLabel(settings.calcMethod)} · ${settings.madhab == 'hanafi' ? 'Hanafi' : 'Shafi’i'} · $label',
+        'title': l10n.widgetPrayerTimesTitle,
+        'subtitle': l10n.widgetTimesSubtitle(
+          PrayerSettingsParsed.calcMethodLabel(settings.calcMethod, l10n),
+          PrayerSettingsParsed.madhabLabel(settings.madhab, l10n),
+          label,
+        ),
         'dateKey': today.dateKey,
         'times': {
           'fajr': fmt(today.fajr),
@@ -390,12 +396,12 @@ abstract final class BackgroundWidgetWriter {
         ..addEntries(kJaizaStripPrayerNames.map((p) => MapEntry(p.name, '')));
       today
         ..clear()
-        ..addAll({'dateKey': todayKey, 'dateLine': formatGregHijriLine(now)});
+        ..addAll({'dateKey': todayKey, 'dateLine': formatGregHijriLine(now, L10nLookup.current)});
       tomorrowMap
         ..clear()
         ..addAll({
           'dateKey': jaizaWidgetDateKey(tomorrow),
-          'dateLine': formatGregHijriLine(tomorrow),
+          'dateLine': formatGregHijriLine(tomorrow, L10nLookup.current),
         });
     }
 

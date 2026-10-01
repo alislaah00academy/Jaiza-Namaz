@@ -6,6 +6,7 @@ import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../data/mosque_data.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// One mosque: address, Jama'at times, and the primary / favourite /
 /// alert switches.
@@ -20,7 +21,7 @@ class MosqueDetailScreen extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final mosque = mosqueById(mosqueId);
     if (mosque == null) {
-      return const Center(child: Text('Mosque not found'));
+      return Center(child: Text(context.l10n.mosqueNotFound));
     }
     final isPrimary = ref.watch(primaryMosqueIdProvider) == mosque.id;
     final saved = ref.watch(savedMosqueIdsProvider).contains(mosque.id);
@@ -47,7 +48,10 @@ class MosqueDetailScreen extends ConsumerWidget {
                   children: [
                     Text(mosque.name, style: t.titleMedium),
                     Text(
-                      '${mosque.address} · ${mosque.distanceLabel}',
+                      context.l10n.dotJoin(
+                        mosque.address,
+                        mosque.distanceLabel(context.l10n),
+                      ),
                       style: t.bodySmall,
                     ),
                   ],
@@ -64,8 +68,10 @@ class MosqueDetailScreen extends ConsumerWidget {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('Jama’at times', style: t.titleMedium)),
-                  JzChip(mosque.fiqh),
+                  Expanded(
+                    child: Text(context.l10n.jamaatTimes, style: t.titleMedium),
+                  ),
+                  JzChip(mosque.fiqhLabel(context.l10n)),
                 ],
               ),
               const SizedBox(height: 8),
@@ -74,10 +80,12 @@ class MosqueDetailScreen extends ConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Row(
                     children: [
-                      Expanded(child: Text(def.label, style: t.bodyLarge)),
+                      Expanded(
+                        child: Text(def.label(context.l10n), style: t.bodyLarge),
+                      ),
                       Text(
                         mosque
-                            .longTime(def.name)
+                            .longTime(def.name, context.l10n)
                             .replaceFirst(RegExp('^0'), ''),
                         style: t.titleSmall?.copyWith(
                           fontFeatures: const [FontFeature.tabularFigures()],
@@ -97,7 +105,7 @@ class MosqueDetailScreen extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Text.rich(
                     TextSpan(
-                      text: 'Times wrong? ',
+                      text: context.l10n.timesWrong,
                       children: [
                         WidgetSpan(
                           alignment: PlaceholderAlignment.baseline,
@@ -105,10 +113,10 @@ class MosqueDetailScreen extends ConsumerWidget {
                           child: GestureDetector(
                             onTap: () => AppSnackBar.success(
                               context,
-                              'Thanks — the Al Islaah team will check these times.',
+                              context.l10n.reportThanks,
                             ),
                             child: Text(
-                              'Report them',
+                              context.l10n.reportThem,
                               style: t.bodySmall?.copyWith(
                                 color: c.primary,
                                 decoration: TextDecoration.underline,
@@ -132,8 +140,8 @@ class MosqueDetailScreen extends ConsumerWidget {
           child: Column(
             children: [
               JzSwitchRow(
-                title: 'My primary mosque',
-                subtitle: 'Its times show on your Today screen',
+                title: context.l10n.myPrimaryMosque,
+                subtitle: context.l10n.myPrimaryMosqueSubtitle,
                 value: isPrimary,
                 onChanged: (v) {
                   ref
@@ -148,7 +156,7 @@ class MosqueDetailScreen extends ConsumerWidget {
               ),
               const JzDivider(),
               JzSwitchRow(
-                title: 'In favourites',
+                title: context.l10n.inFavourites,
                 value: saved,
                 onChanged: (v) => ref
                     .read(savedMosqueIdsProvider.notifier)
@@ -156,8 +164,8 @@ class MosqueDetailScreen extends ConsumerWidget {
               ),
               const JzDivider(),
               JzSwitchRow(
-                title: 'Alert before Jama’at',
-                subtitle: '$minutes minutes before',
+                title: context.l10n.alertBeforeJamaat,
+                subtitle: context.l10n.minutesBefore(minutes),
                 value: alertOn,
                 onChanged: (v) => ref
                     .read(jamaatAlertMosquesProvider.notifier)

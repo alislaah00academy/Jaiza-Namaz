@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Static content: spiritual benefits of Salah (expand later / translations).
 class BenefitsScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class BenefitsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       children: [
         Text(
-          'Fazail of Prayers',
+          context.l10n.fazailTitle,
           style: Theme.of(
             context,
           ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
@@ -20,27 +21,23 @@ class BenefitsScreen extends StatelessWidget {
         const SizedBox(height: 16),
         _BenefitTile(
           icon: Icons.self_improvement,
-          title: 'Closeness to Allah',
-          body:
-              'Salah is a direct link between the servant and the Lord. It reminds us that we turn to Him in every state.',
+          title: context.l10n.fazailClosenessTitle,
+          body: context.l10n.fazailClosenessBody,
         ),
         _BenefitTile(
           icon: Icons.balance,
-          title: 'Discipline & structure',
-          body:
-              'Praying on time builds patience, order, and mindfulness throughout the day.',
+          title: context.l10n.fazailDisciplineTitle,
+          body: context.l10n.fazailDisciplineBody,
         ),
         _BenefitTile(
           icon: Icons.favorite_outline,
-          title: 'Purification',
-          body:
-              'Regular prayer washes away slips, renews intention, and keeps the heart soft.',
+          title: context.l10n.fazailPurificationTitle,
+          body: context.l10n.fazailPurificationBody,
         ),
         _BenefitTile(
           icon: Icons.groups_2_outlined,
-          title: 'Community',
-          body:
-              'Congregational prayer strengthens brotherhood and sisterhood in faith.',
+          title: context.l10n.fazailCommunityTitle,
+          body: context.l10n.fazailCommunityBody,
         ),
       ],
     );

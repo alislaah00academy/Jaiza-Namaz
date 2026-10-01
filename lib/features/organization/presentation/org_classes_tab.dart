@@ -9,6 +9,8 @@ import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../data/org_extras.dart';
 import 'org_widgets.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 /// The "Classes" tab — an org admin's dashboard, or a teacher's class list,
 /// decided by [AppUser.orgMemberRole]. Same tab position in the shell for
@@ -34,7 +36,7 @@ class _AdminDashboard extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final org = ref.watch(myOrgProvider).value;
     if (org == null) {
-      return const Center(child: Text('Organization not found.'));
+      return Center(child: Text(context.l10n.organizationNotFound));
     }
     final teachers =
         ref.watch(allTeachersForOrgProvider(org.id)).value ?? const [];
@@ -77,7 +79,7 @@ class _AdminDashboard extends ConsumerWidget {
                           Expanded(
                             child: _Stat(
                               value: '${teachers.length}',
-                              label: 'Teachers',
+                              label: context.l10n.statTeachers,
                             ),
                           ),
                           VerticalDivider(
@@ -87,7 +89,7 @@ class _AdminDashboard extends ConsumerWidget {
                           Expanded(
                             child: _Stat(
                               value: '${classes.length}',
-                              label: 'Classes',
+                              label: context.l10n.titleClasses,
                             ),
                           ),
                           VerticalDivider(
@@ -97,7 +99,7 @@ class _AdminDashboard extends ConsumerWidget {
                           Expanded(
                             child: _Stat(
                               value: '$totalStudents',
-                              label: 'Students',
+                              label: context.l10n.statStudents,
                             ),
                           ),
                         ],
@@ -108,11 +110,11 @@ class _AdminDashboard extends ConsumerWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            'Today across the madrasa',
+                            context.l10n.todayAcrossMadrasa,
                             style: t.bodyMedium,
                           ),
                         ),
-                        Text('$todayPct%', style: t.titleSmall),
+                        Text(context.l10n.percent(todayPct), style: t.titleSmall),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -123,7 +125,7 @@ class _AdminDashboard extends ConsumerWidget {
               const SizedBox(height: 18),
               Row(
                 children: [
-                  const Expanded(child: JzSectionLabel('Teachers')),
+                  Expanded(child: JzSectionLabel(context.l10n.statTeachers)),
                   FilledButton.icon(
                     style: FilledButton.styleFrom(
                       minimumSize: const Size(0, 36),
@@ -132,7 +134,7 @@ class _AdminDashboard extends ConsumerWidget {
                     onPressed: () =>
                         showInviteTeacherSheet(context, ref, org.id),
                     icon: const Icon(Icons.person_add_alt_1_outlined, size: 16),
-                    label: const Text('Invite teacher'),
+                    label: Text(context.l10n.inviteTeacher),
                   ),
                 ],
               ),
@@ -141,7 +143,7 @@ class _AdminDashboard extends ConsumerWidget {
                 JzCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No teachers yet — invite one above.',
+                    context.l10n.noTeachersYet,
                     style: t.bodyMedium,
                   ),
                 )
@@ -149,14 +151,14 @@ class _AdminDashboard extends ConsumerWidget {
                 for (final teacher in teachers)
                   _TeacherRow(org: org, teacher: teacher, classes: classes),
               const SizedBox(height: 18),
-              const JzSectionLabel('All classes'),
+              JzSectionLabel(context.l10n.allClasses),
               JzCard(
                 child: Column(
                   children: [
                     if (classes.isEmpty)
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Text('No classes yet.', style: t.bodyMedium),
+                        child: Text(context.l10n.noClassesYet, style: t.bodyMedium),
                       )
                     else
                       for (var i = 0; i < classes.length; i++)
@@ -194,9 +196,14 @@ class _AdminDashboard extends ConsumerWidget {
                               ),
                               title: c.name,
                               subtitle:
-                                  '${sections[c.id] ?? teacherName ?? 'Unassigned'} · ${students.length}',
+                                  context.l10n.dotJoin(
+                                    sections[c.id] ??
+                                        teacherName ??
+                                        context.l10n.unassigned,
+                                    '${students.length}',
+                                  ),
                               trailing: Text(
-                                pct == null ? '—' : '$pct%',
+                                pct == null ? '—' : context.l10n.percent(pct),
                                 style: t.titleSmall?.copyWith(
                                   color: pct == null
                                       ? Theme.of(
@@ -277,7 +284,10 @@ class _TeacherRow extends ConsumerWidget {
                 Text(teacher.name, style: t.titleSmall),
                 Text(teacher.email, style: t.bodySmall),
                 Text(
-                  '${mine.length} ${mine.length == 1 ? 'class' : 'classes'} · $students students',
+                  context.l10n.classesStudents(
+                    context.l10n.classesCount(mine.length),
+                    context.l10n.studentsCount(students),
+                  ),
                   style: t.labelSmall,
                 ),
               ],
@@ -302,7 +312,7 @@ class _TeacherClasses extends ConsumerWidget {
     final membership = ref.watch(myTeacherMembershipProvider);
 
     if (uid == null || orgId == null) {
-      return const Center(child: Text('Not attached to an organization yet.'));
+      return Center(child: Text(context.l10n.notAttachedToOrg));
     }
     if (membership.hasValue && membership.value == null) {
       return Center(
@@ -317,8 +327,8 @@ class _TeacherClasses extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.error,
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Your access to this organization has been removed.',
+              Text(
+                context.l10n.accessRemoved,
                 textAlign: TextAlign.center,
               ),
             ],
@@ -334,11 +344,11 @@ class _TeacherClasses extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const JzPageTitle('Classes'),
+        JzPageTitle(context.l10n.titleClasses),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(
-            'Residential students — all five prayers are marked here.',
+            context.l10n.residentialStudentsNote,
             style: t.bodyMedium,
           ),
         ),
@@ -355,7 +365,7 @@ class _TeacherClasses extends ConsumerWidget {
                 onCreated: (id) => context.push('/app/org/teacher/class/$id'),
               ),
               icon: const Icon(Icons.add_rounded, size: 18),
-              label: const Text('New class'),
+              label: Text(context.l10n.newClass),
             ),
           ),
         ),
@@ -369,7 +379,7 @@ class _TeacherClasses extends ConsumerWidget {
                 JzCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No classes yet — create one above.',
+                    context.l10n.noClassesCreateOne,
                     style: t.bodyMedium,
                   ),
                 )
@@ -412,11 +422,11 @@ class _ClassCard extends ConsumerWidget {
     final schedule = ref.watch(currentPrayerCardProvider).value;
     final activeKey =
         schedule?.status.activePrayerKey ?? schedule?.status.nextKey;
-    final activeLabel = schedule?.status.activePrayerKey != null
-        ? schedule!.today.fardWindows
-              .firstWhere((w) => w.key == activeKey)
-              .label
-        : (schedule?.status.nextLabel ?? 'Fajr');
+    final activeLabel =
+        (schedule?.status.activePrayer ??
+                schedule?.status.nextPrayer ??
+                PrayerName.fajr)
+            .label(context.l10n);
     final prayer = activeKey == null
         ? null
         : PrayerNameX.fromFirestore(activeKey);
@@ -445,7 +455,12 @@ class _ClassCard extends ConsumerWidget {
                   children: [
                     Text(schoolClass.name, style: t.titleMedium),
                     Text(
-                      '${students.length} students${section == null ? '' : ' · $section'}',
+                      section == null
+                          ? context.l10n.studentsCount(students.length)
+                          : context.l10n.dotJoin(
+                              context.l10n.studentsCount(students.length),
+                              section!,
+                            ),
                       style: t.bodySmall,
                     ),
                   ],
@@ -461,7 +476,7 @@ class _ClassCard extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(child: JzBar(value: total == 0 ? 0 : done / total)),
               const SizedBox(width: 10),
-              Text('$done/$total', style: t.titleSmall),
+              Text(context.l10n.doneSlashTotal(done, total), style: t.titleSmall),
             ],
           ),
         ],

@@ -7,6 +7,7 @@ import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import 'role_card.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Safety net for legacy accounts only: shown once, right after auth, when
 /// the signed-in user has no [UserRole] set yet (because they signed up
@@ -71,13 +72,13 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'How will you use Jaiza?',
+                        context.l10n.roleSelectTitle,
                         style: Theme.of(context).textTheme.headlineSmall,
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Pick the setup that fits you. You can\'t change this later.',
+                        context.l10n.roleSelectSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
@@ -86,26 +87,24 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                       const SizedBox(height: 24),
                       RoleCard(
                         icon: Icons.person_outline,
-                        title: 'Individual',
-                        subtitle: 'Track your own daily prayers, streaks and badges.',
+                        title: context.l10n.roleIndividual,
+                        subtitle: context.l10n.roleIndividualSelectSubtitle,
                         loading: _loading,
                         onTap: () => _choose(UserRole.individual),
                       ),
                       const SizedBox(height: 12),
                       RoleCard(
                         icon: Icons.family_restroom_outlined,
-                        title: 'Parent',
-                        subtitle:
-                            'Mark and track prayer attendance for your children.',
+                        title: context.l10n.roleParent,
+                        subtitle: context.l10n.roleParentSelectSubtitle,
                         loading: _loading,
                         onTap: () => _choose(UserRole.parent),
                       ),
                       const SizedBox(height: 12),
                       RoleCard(
                         icon: Icons.school_outlined,
-                        title: 'Madarsa / Organization',
-                        subtitle:
-                            'Run a school or institute: teachers, classes and student attendance.',
+                        title: context.l10n.roleOrganization,
+                        subtitle: context.l10n.roleOrganizationSelectSubtitle,
                         loading: _loading,
                         onTap: () => _choose(UserRole.organization),
                       ),

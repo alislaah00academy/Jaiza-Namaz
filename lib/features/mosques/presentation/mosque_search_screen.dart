@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/widgets/jz_ui.dart';
 import '../data/mosque_data.dart';
 import 'mosque_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Search: back arrow + live search field in place of a title.
 class MosqueSearchScreen extends ConsumerStatefulWidget {
@@ -59,14 +60,13 @@ class _MosqueSearchScreenState extends ConsumerState<MosqueSearchScreen> {
               const RegisterMosqueAction(),
               const SizedBox(height: 20),
               JzSectionLabel(
-                '${results.length} ${results.length == 1 ? 'result' : 'results'}',
+                context.l10n.resultsCount(results.length),
               ),
               if (results.isEmpty)
                 JzCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No mosque matches “${_query.text.trim()}”. You can '
-                    'register it above.',
+                    context.l10n.noMosqueMatches(_query.text.trim()),
                     style: t.bodyMedium,
                   ),
                 )

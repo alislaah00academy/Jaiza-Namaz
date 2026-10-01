@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Tappable Individual/Parent/Organization card, shared by the pre-auth
 /// "Get Started" picker and the post-auth legacy-user `/select-role` screen.
@@ -76,20 +77,20 @@ Future<String?> askOrgName(BuildContext context) async {
   return showDialog<String>(
     context: context,
     builder: (context) => AlertDialog(
-      title: const Text('Name your organization'),
+      title: Text(context.l10n.nameYourOrganization),
       content: TextField(
         controller: controller,
         autofocus: true,
-        decoration: const InputDecoration(hintText: 'e.g. Al Falah Madarsa'),
+        decoration: InputDecoration(hintText: context.l10n.instituteNameHint),
       ),
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(context.l10n.actionCancel),
         ),
         FilledButton(
           onPressed: () => Navigator.pop(context, controller.text),
-          child: const Text('Continue'),
+          child: Text(context.l10n.actionContinue),
         ),
       ],
     ),

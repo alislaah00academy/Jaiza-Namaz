@@ -11,6 +11,7 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../data/mosque_data.dart';
 import 'mosque_widgets.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// The skippable step right after email verification: pick a primary
 /// mosque so its Jama'at times show on Today.
@@ -57,12 +58,12 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
             child: ListView(
               children: [
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(8, 4, 8, 0),
                     child: TextButton(
                       onPressed: _finish,
-                      child: const Text('Not now'),
+                      child: Text(context.l10n.notNow),
                     ),
                   ),
                 ),
@@ -71,11 +72,10 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Link Your Mosque', style: t.headlineMedium),
+                      Text(context.l10n.linkYourMosque, style: t.headlineMedium),
                       const SizedBox(height: 8),
                       Text(
-                        "Jama'at times will show on your Today screen, with a "
-                        'reminder before each prayer.',
+                        context.l10n.linkMosqueBody,
                         style: t.bodyMedium,
                       ),
                       const SizedBox(height: 20),
@@ -88,8 +88,7 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
                         JzCard(
                           padding: const EdgeInsets.all(16),
                           child: Text(
-                            'No mosque found. You can register it later from '
-                            'the Mosques tab.',
+                            context.l10n.noMosqueFoundRegisterLater,
                             style: t.bodyMedium,
                           ),
                         )
@@ -98,7 +97,7 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
                           mosques: results,
                           onTap: _finish,
                           trailingFor: (m) => IconButton(
-                            tooltip: 'Set as my mosque',
+                            tooltip: context.l10n.setAsMyMosque,
                             icon: Icon(
                               Icons.add_circle_outline_rounded,
                               color: c.primary,

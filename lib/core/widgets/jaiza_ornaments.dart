@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../l10n/l10n.dart';
+
 /// Compact arch + wordmark header with an optional back button overlay,
 /// shared by auth screens (Login, Signup, Reset Password, Verify Email) so
 /// they all open with the same immersive look as Welcome/Get Started
@@ -474,7 +476,7 @@ class JaizaQuoteBlock extends StatelessWidget {
             const SizedBox(width: 10),
             Flexible(
               child: Text(
-                '“$quote”',
+                context.l10n.quoteFormat(quote),
                 textAlign: TextAlign.center,
                 style: GoogleFonts.playfairDisplay(
                   fontStyle: FontStyle.italic,
@@ -489,7 +491,7 @@ class JaizaQuoteBlock extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          '($source)',
+          context.l10n.quoteSource(source),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: scheme.onSurfaceVariant,
               ),

@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/constants/jaiza_strip_prayers.dart';
-import '../../core/constants/prayer_catalog.dart';
 import '../../core/feedback/app_snackbar.dart';
-import '../../core/l10n/app_strings.dart';
+import '../../core/l10n/l10n.dart';
+import '../../core/l10n/prayer_labels.dart';
 import '../../data/models/prayer_log.dart';
 import '../../providers/providers.dart';
 import 'home_widget_bridge.dart';
@@ -13,10 +13,6 @@ import 'jaiza_scaffold.dart';
 /// Compact five-prayer strip matching the native home widget layout.
 class JaizaPrayerStrip extends ConsumerWidget {
   const JaizaPrayerStrip({super.key});
-
-  String _label(PrayerName name) {
-    return kFardPrayerDefs.firstWhere((d) => d.name == name).label;
-  }
 
   Future<void> _mark(
     BuildContext context,
@@ -35,13 +31,13 @@ class JaizaPrayerStrip extends ConsumerWidget {
       await HomeWidgetBridge.syncWidget(ref);
       if (!context.mounted) return;
       if (status == PrayerStatus.completed) {
-        AppSnackBar.success(context, AppStrings.namazMarkedSuccess);
+        AppSnackBar.success(context, context.l10n.namazMarkedSuccess);
       } else {
-        AppSnackBar.success(context, 'Recorded as missed. Stay steadfast.');
+        AppSnackBar.success(context, context.l10n.recordedAsMissed);
       }
     } catch (_) {
       if (context.mounted) {
-        AppSnackBar.error(context, 'Could not save. Try again.');
+        AppSnackBar.error(context, context.l10n.errorSaveFailed);
       }
     }
   }
@@ -55,6 +51,7 @@ class JaizaPrayerStrip extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
+    final l10n = context.l10n;
     return mapAsync.when(
       loading: () => const Padding(
         padding: EdgeInsets.symmetric(vertical: 8),
@@ -74,7 +71,7 @@ class JaizaPrayerStrip extends ConsumerWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Jaiza · Today\'s Prayers',
+                      l10n.stripTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),
@@ -93,7 +90,7 @@ class JaizaPrayerStrip extends ConsumerWidget {
                       Expanded(
                         flex: 2,
                         child: Text(
-                          _label(name),
+                          name.label(l10n),
                           style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
@@ -103,10 +100,10 @@ class JaizaPrayerStrip extends ConsumerWidget {
                         flex: 3,
                         child: Text(
                           status == PrayerStatus.completed
-                              ? 'Prayed'
+                              ? l10n.statusPrayed
                               : status == PrayerStatus.missed
-                                  ? 'Missed'
-                                  : 'Not recorded',
+                                  ? l10n.statusMissed
+                                  : l10n.statusNotRecorded,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                 color: status == PrayerStatus.completed
@@ -123,7 +120,7 @@ class JaizaPrayerStrip extends ConsumerWidget {
                           foregroundColor: scheme.primary,
                         ),
                         icon: const Icon(Icons.check_rounded, size: 20),
-                        tooltip: 'Mark as prayed',
+                        tooltip: l10n.markAsPrayed,
                         onPressed: () => _mark(context, ref, uid, name, PrayerStatus.completed),
                       ),
                       const SizedBox(width: 6),
@@ -133,7 +130,7 @@ class JaizaPrayerStrip extends ConsumerWidget {
                           foregroundColor: scheme.onSecondaryContainer,
                         ),
                         icon: const Icon(Icons.close_rounded, size: 20),
-                        tooltip: 'Missed',
+                        tooltip: l10n.statusMissed,
                         onPressed: () => _mark(context, ref, uid, name, PrayerStatus.missed),
                       ),
                     ],

@@ -4,11 +4,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/analytics/analytics.dart';
+import '../../../core/errors/firebase_auth_messages.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
+import '../../../core/widgets/language_card.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
+import '../../../core/l10n/l10n.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -54,9 +57,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             city: _city.text.trim(),
             phone: _phone.text.trim(),
           );
-      if (mounted) AppSnackBar.success(context, 'Profile saved.');
+      if (mounted) AppSnackBar.success(context, context.l10n.profileSaved);
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not save profile.');
+      if (mounted) AppSnackBar.error(context, context.l10n.profileSaveFailed);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -68,12 +71,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final appUserAsync = ref.watch(appUserStreamProvider);
 
     if (uid == null) {
-      return const Center(child: Text('Sign in required'));
+      return Center(child: Text(context.l10n.signInRequired));
     }
 
     return appUserAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (e, _) => Center(child: Text('$e')),
+      error: (e, _) => Center(child: Text(mapGenericError(e, context.l10n))),
       data: (u) {
         if (u != null && !_seeded) {
           _name.text = u.name;
@@ -103,8 +106,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       size: 92,
                       iconSize: 46,
                     ),
-                    Positioned(
-                      right: -2,
+                    PositionedDirectional(
+                      end: -2,
                       bottom: -2,
                       child: Container(
                         width: 30,
@@ -127,12 +130,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              _name.text.isEmpty ? 'Your profile' : _name.text,
+              _name.text.isEmpty ? context.l10n.yourProfile : _name.text,
               textAlign: TextAlign.center,
               style: t.titleMedium,
             ),
             Text(
-              'Tap the camera to change your photo',
+              context.l10n.tapCameraToChangePhoto,
               textAlign: TextAlign.center,
               style: t.bodySmall,
             ),
@@ -140,36 +143,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             TextField(
               controller: _name,
               onChanged: (_) => setState(() {}),
-              decoration: const InputDecoration(labelText: 'Name'),
+              decoration: InputDecoration(labelText: context.l10n.nameLabel),
             ),
             gap(),
             TextField(
               controller: _email,
               readOnly: true,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(labelText: context.l10n.emailLabel),
             ),
             gap(),
             TextField(
               controller: _age,
               keyboardType: TextInputType.number,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(labelText: 'Age'),
+              decoration: InputDecoration(labelText: context.l10n.ageLabel),
             ),
             gap(),
             TextField(
               controller: _city,
-              decoration: const InputDecoration(labelText: 'City'),
+              decoration: InputDecoration(labelText: context.l10n.cityLabel),
             ),
             gap(),
             TextField(
               controller: _phone,
               keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(labelText: 'Phone'),
+              decoration: InputDecoration(labelText: context.l10n.phoneLabel),
             ),
             if (u == null) ...[
               const SizedBox(height: 12),
               Text(
-                'Complete your profile — your document will be created on save.',
+                context.l10n.completeProfileHint,
                 style: t.bodySmall,
               ),
             ],
@@ -185,7 +188,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         color: c.onPrimary,
                       ),
                     )
-                  : const Text('Save'),
+                  : Text(context.l10n.actionSave),
             ),
             const SizedBox(height: 24),
             JzCard(
@@ -193,19 +196,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Appearance', style: t.titleMedium),
+                  Text(context.l10n.appearanceTitle, style: t.titleMedium),
                   const SizedBox(height: 2),
                   Text(
-                    'Switch between light and dark to check both — this '
-                    'overrides your device setting.',
+                    context.l10n.appearanceSubtitle,
                     style: t.bodySmall,
                   ),
                   const SizedBox(height: 12),
                   JzSegmented<ThemeMode>(
-                    options: const {
-                      ThemeMode.light: 'Light',
-                      ThemeMode.dark: 'Dark',
-                      ThemeMode.system: 'System',
+                    options: {
+                      ThemeMode.light: context.l10n.themeLight,
+                      ThemeMode.dark: context.l10n.themeDark,
+                      ThemeMode.system: context.l10n.themeSystem,
                     },
                     selected: ref.watch(themeModeProvider),
                     onChanged: (m) =>
@@ -215,18 +217,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            const LanguageCard(),
+            const SizedBox(height: 24),
             JzCard(
               padding: const EdgeInsets.all(18),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Privacy', style: t.titleMedium),
+                  Text(context.l10n.privacyTitle, style: t.titleMedium),
                   const SizedBox(height: 8),
                   JzSwitchRow(
-                    title: 'Share anonymous usage data',
-                    subtitle:
-                        'Helps us improve Jaiza. Never includes your name, '
-                        'email, phone or location.',
+                    title: context.l10n.privacyAnalyticsTitle,
+                    subtitle: context.l10n.privacyAnalyticsSubtitle,
                     value: ref.watch(analyticsEnabledProvider),
                     onChanged: (v) =>
                         ref.read(analyticsEnabledProvider.notifier).set(v),
@@ -246,14 +248,14 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         Icons.lock_reset_outlined,
                         color: c.primary,
                       ),
-                      title: 'Change password',
+                      title: context.l10n.titleChangePassword,
                       trailing: const JzChevron(),
                       showDivider: true,
                       onTap: () => context.push('/app/change-password'),
                     ),
                     JzListRow(
                       leading: Icon(Icons.logout_rounded, color: c.error),
-                      title: 'Sign out',
+                      title: context.l10n.actionSignOut,
                       titleColor: c.error,
                       onTap: _signOut,
                     ),
@@ -273,7 +275,7 @@ Future<void> showProfilePhotoSheet(BuildContext context) {
   void notYet(BuildContext ctx) {
     AppSnackBar.success(
       ctx,
-      'Profile photos arrive with photo storage — coming soon.',
+      ctx.l10n.profilePhotosComingSoon,
     );
     Navigator.pop(ctx);
   }
@@ -287,37 +289,37 @@ Future<void> showProfilePhotoSheet(BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Profile photo', style: t.headlineSmall),
+          Text(ctx.l10n.profilePhotoTitle, style: t.headlineSmall),
           const SizedBox(height: 4),
-          Text('Choose where the picture comes from.', style: t.bodyMedium),
+          Text(ctx.l10n.profilePhotoSubtitle, style: t.bodyMedium),
           const SizedBox(height: 12),
           JzListRow(
             leading: const JzAvatar(icon: Icons.photo_camera_outlined),
-            title: 'Take a photo',
-            subtitle: 'Open the camera',
+            title: ctx.l10n.takePhoto,
+            subtitle: ctx.l10n.openCamera,
             trailing: const JzChevron(),
             onTap: () => notYet(ctx),
           ),
           divider,
           JzListRow(
             leading: const JzAvatar(icon: Icons.photo_library_outlined),
-            title: 'Choose from gallery',
-            subtitle: 'Pick an existing picture',
+            title: ctx.l10n.chooseFromGallery,
+            subtitle: ctx.l10n.pickExistingPicture,
             trailing: const JzChevron(),
             onTap: () => notYet(ctx),
           ),
           divider,
           JzListRow(
             leading: const JzAvatar(icon: Icons.no_photography_outlined),
-            title: 'Remove current photo',
-            subtitle: 'Go back to the default avatar',
+            title: ctx.l10n.removeCurrentPhoto,
+            subtitle: ctx.l10n.backToDefaultAvatar,
             trailing: const JzChevron(),
             onTap: () => Navigator.pop(ctx),
           ),
           const SizedBox(height: 16),
           FilledButton.tonal(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.actionCancel),
           ),
         ],
       );

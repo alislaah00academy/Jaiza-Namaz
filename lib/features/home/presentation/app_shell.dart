@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/layout/app_breakpoints.dart';
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/role_home_route.dart';
 import '../../../core/widgets/home_widget_syncer.dart';
 import '../../../data/models/app_user.dart';
 import '../../../data/models/organization.dart';
+import '../../../data/models/prayer_log.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../../mosques/data/mosque_data.dart';
@@ -21,49 +23,47 @@ class AppShell extends ConsumerWidget {
   final Widget child;
   final String location;
 
-  static String titleForPath(String path) {
-    if (path.contains('/family/reminders')) return 'Family reminders';
-    if (path.contains('/family/qaza/')) return 'Qaza';
-    if (path.contains('/family')) return 'Family';
-    if (path.contains('/qaza/estimate')) return 'My estimate';
-    if (path.contains('/qaza/plan')) return 'Add past Qaza';
+  static String titleForPath(String path, L10n l) {
+    if (path.contains('/family/reminders')) return l.titleFamilyReminders;
+    if (path.contains('/family/qaza/')) return l.titleQaza;
+    if (path.contains('/family')) return l.titleFamily;
+    if (path.contains('/qaza/estimate')) return l.titleMyEstimate;
+    if (path.contains('/qaza/plan')) return l.titleAddPastQaza;
     if (path.contains('/qaza/prayer/')) {
-      final name = path.split('/').last;
-      return name.isEmpty
-          ? 'Qaza'
-          : 'Qaza ${name[0].toUpperCase()}${name.substring(1)}';
+      final prayer = PrayerNameX.fromFirestore(path.split('/').last);
+      return prayer == null ? l.titleQaza : l.titleQazaPrayer(prayer.label(l));
     }
-    if (path.contains('/mosques/register')) return 'Register a mosque';
+    if (path.contains('/mosques/register')) return l.titleRegisterMosque;
     if (path.startsWith('/app/mosques/')) {
-      return mosqueById(path.split('/').last)?.name ?? 'Mosque';
+      return mosqueById(path.split('/').last)?.name ?? l.titleMosque;
     }
-    if (path.contains('/mosques')) return 'Mosques';
-    if (path.contains('/history')) return 'Records';
-    if (path.contains('/more')) return 'More';
-    if (path.contains('/home')) return 'Today';
-    if (path.contains('/fard')) return 'Faraiz';
-    if (path.contains('/nawafil')) return 'Nawafil';
-    if (path.contains('/qaza')) return 'Qaza';
-    if (path.contains('/benefits')) return 'Fazail of Prayers';
-    if (path.contains('/academy-intro')) return 'Al Islaah Academy';
-    if (path.contains('/about')) return 'About Jaiza';
-    if (path.contains('/contact')) return 'Contact';
-    if (path.contains('/donation')) return 'Donation';
-    if (path.contains('/widget-settings')) return 'Notifications & widgets';
-    if (path.contains('/profile')) return 'Profile';
-    if (path.contains('/change-password')) return 'Change password';
-    if (path.contains('/coming-soon')) return AppStrings.comingSoonTitle;
-    if (path.contains('/org/admin/teacher/')) return 'Teacher';
+    if (path.contains('/mosques')) return l.titleMosques;
+    if (path.contains('/history')) return l.titleRecords;
+    if (path.contains('/more')) return l.titleMore;
+    if (path.contains('/home')) return l.titleToday;
+    if (path.contains('/fard')) return l.titleFaraiz;
+    if (path.contains('/nawafil')) return l.titleNawafil;
+    if (path.contains('/qaza')) return l.titleQaza;
+    if (path.contains('/benefits')) return l.fazailTitle;
+    if (path.contains('/academy-intro')) return l.academyName;
+    if (path.contains('/about')) return l.titleAboutJaiza;
+    if (path.contains('/contact')) return l.contactTitle;
+    if (path.contains('/donation')) return l.titleDonation;
+    if (path.contains('/widget-settings')) return l.titleNotificationsWidgets;
+    if (path.contains('/profile')) return l.titleProfile;
+    if (path.contains('/change-password')) return l.titleChangePassword;
+    if (path.contains('/coming-soon')) return l.comingSoonTitle;
+    if (path.contains('/org/admin/teacher/')) return l.titleTeacher;
     if (path.contains('/org/teacher/class/') && path.contains('/student/')) {
-      return 'Student';
+      return l.titleStudent;
     }
     if (path.contains('/org/teacher/class/') &&
         path.contains('/add-students')) {
-      return 'Add students';
+      return l.titleAddStudents;
     }
-    if (path.contains('/org/teacher/class/')) return 'Class';
-    if (path.contains('/parent')) return 'Children';
-    return AppStrings.appName;
+    if (path.contains('/org/teacher/class/')) return l.titleClass;
+    if (path.contains('/parent')) return l.titleChildren;
+    return l.appName;
   }
 
   static int? _railIndexForLocation(String location, UserRole? role) {
@@ -132,57 +132,58 @@ class AppShell extends ConsumerWidget {
 
   static List<NavigationRailDestination> _railDestinationsForRole(
     UserRole? role,
+    L10n l,
   ) {
     // Parent is remapped to individual before reaching here (see build()).
     if (role == UserRole.organization) {
-      return const [
+      return [
         NavigationRailDestination(
           icon: Icon(Icons.calendar_today_outlined),
           selectedIcon: Icon(Icons.calendar_today),
-          label: Text('Today'),
+          label: Text(l.titleToday),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.school_outlined),
           selectedIcon: Icon(Icons.school),
-          label: Text('Classes'),
+          label: Text(l.titleClasses),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.mosque_outlined),
           selectedIcon: Icon(Icons.mosque),
-          label: Text('Mosques'),
+          label: Text(l.titleMosques),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.history_outlined),
           selectedIcon: Icon(Icons.history),
-          label: Text('Records'),
+          label: Text(l.titleRecords),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.menu_rounded),
           selectedIcon: Icon(Icons.menu_rounded),
-          label: Text('More'),
+          label: Text(l.titleMore),
         ),
       ];
     }
-    return const [
+    return [
       NavigationRailDestination(
         icon: Icon(Icons.calendar_today_outlined),
         selectedIcon: Icon(Icons.calendar_today),
-        label: Text('Today'),
+        label: Text(l.titleToday),
       ),
       NavigationRailDestination(
         icon: Icon(Icons.mosque_outlined),
         selectedIcon: Icon(Icons.mosque),
-        label: Text('Mosques'),
+        label: Text(l.titleMosques),
       ),
       NavigationRailDestination(
         icon: Icon(Icons.history_outlined),
         selectedIcon: Icon(Icons.history),
-        label: Text('Records'),
+        label: Text(l.titleRecords),
       ),
       NavigationRailDestination(
         icon: Icon(Icons.menu_rounded),
         selectedIcon: Icon(Icons.menu_rounded),
-        label: Text('More'),
+        label: Text(l.titleMore),
       ),
     ];
   }
@@ -190,12 +191,12 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appUser = ref.watch(appUserStreamProvider).value;
-    var title = titleForPath(location);
+    var title = titleForPath(location, context.l10n);
     if (location.startsWith('/app/family/qaza/')) {
       final id = location.split('/').last;
       final kids = ref.watch(childrenStreamProvider).value ?? const [];
       for (final k in kids) {
-        if (k.id == id) title = '${k.name}’s Qaza';
+        if (k.id == id) title = context.l10n.titleChildQaza(k.name);
       }
     }
     if (location.startsWith('/app/org/admin/teacher/')) {
@@ -217,7 +218,9 @@ class AppShell extends ConsumerWidget {
           ref.watch(classesForTeacherProvider).value ?? const [];
       for (final cl in classes) {
         if (cl.id == classId) {
-          title = location.endsWith('/report') ? '${cl.name} report' : cl.name;
+          title = location.endsWith('/report')
+              ? context.l10n.titleClassReport(cl.name)
+              : cl.name;
         }
       }
     }
@@ -285,14 +288,14 @@ class AppShell extends ConsumerWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: IconButton(
-                      tooltip: 'Sign out',
+                      tooltip: context.l10n.actionSignOut,
                       icon: const Icon(Icons.logout),
                       onPressed: () => _signOut(context, ref),
                     ),
                   ),
                 ),
               ),
-              destinations: _railDestinationsForRole(role),
+              destinations: _railDestinationsForRole(role, context.l10n),
             ),
             const VerticalDivider(width: 1),
             Expanded(
@@ -412,8 +415,8 @@ class AppShell extends ConsumerWidget {
                     scheme.secondaryContainer,
                     scheme.surfaceContainerHigh,
                   ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
                 ),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: Radius.circular(AppTokens.radiusCard),
@@ -427,7 +430,7 @@ class AppShell extends ConsumerWidget {
                   Icon(Icons.mosque_rounded, size: 40, color: scheme.primary),
                   const SizedBox(height: 10),
                   Text(
-                    AppStrings.appName,
+                    context.l10n.appName,
                     style: textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.w600,
                       color: scheme.onSecondaryContainer,
@@ -435,7 +438,7 @@ class AppShell extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    AppStrings.academyCredit,
+                    context.l10n.academyCredit,
                     style: textTheme.bodySmall?.copyWith(
                       color: scheme.onSurfaceVariant,
                     ),
@@ -447,7 +450,7 @@ class AppShell extends ConsumerWidget {
             if (role == UserRole.organization)
               navTile(
                 icon: Icons.school_outlined,
-                label: 'Classes',
+                label: context.l10n.titleClasses,
                 onTap: () {
                   Navigator.pop(context);
                   context.go('/app/org');
@@ -456,7 +459,7 @@ class AppShell extends ConsumerWidget {
             else ...[
               navTile(
                 icon: Icons.home_outlined,
-                label: 'Home',
+                label: context.l10n.navHome,
                 onTap: () {
                   Navigator.pop(context);
                   context.go('/app/home');
@@ -464,7 +467,7 @@ class AppShell extends ConsumerWidget {
               ),
               navTile(
                 icon: Icons.widgets_outlined,
-                label: 'Widgets & Notifications',
+                label: context.l10n.navWidgetsNotifications,
                 onTap: () {
                   Navigator.pop(context);
                   context.go('/app/widget-settings');
@@ -473,7 +476,7 @@ class AppShell extends ConsumerWidget {
             ],
             navTile(
               icon: Icons.person_outline,
-              label: 'Profile',
+              label: context.l10n.titleProfile,
               onTap: () {
                 Navigator.pop(context);
                 context.go('/app/profile');
@@ -481,7 +484,7 @@ class AppShell extends ConsumerWidget {
             ),
             navTile(
               icon: Icons.lock_reset_outlined,
-              label: 'Change password',
+              label: context.l10n.titleChangePassword,
               onTap: () {
                 Navigator.pop(context);
                 context.go('/app/change-password');
@@ -502,7 +505,7 @@ class AppShell extends ConsumerWidget {
                 child: ListTile(
                   leading: Icon(Icons.logout, color: scheme.error),
                   title: Text(
-                    'Sign out',
+                    context.l10n.actionSignOut,
                     style: textTheme.titleSmall?.copyWith(
                       color: scheme.onErrorContainer,
                     ),
@@ -535,12 +538,16 @@ Set<String> _tabRootPaths(bool showClasses) => {
 /// Screens that draw their own top bar (search field in place of a title).
 const _selfHeadedPaths = <String>{'/app/mosques/search'};
 
-List<(IconData, IconData, String, String)> _tabsFor(bool showClasses) => [
-  (Icons.calendar_today_outlined, Icons.calendar_today, 'Today', '/app/home'),
-  if (showClasses) (Icons.school_outlined, Icons.school, 'Classes', '/app/org'),
-  (Icons.mosque_outlined, Icons.mosque, 'Mosques', '/app/mosques'),
-  (Icons.history_outlined, Icons.history, 'Records', '/app/history'),
-  (Icons.menu_rounded, Icons.menu_rounded, 'More', '/app/more'),
+List<(IconData, IconData, String, String)> _tabsFor(
+  bool showClasses,
+  L10n l,
+) => [
+  (Icons.calendar_today_outlined, Icons.calendar_today, l.titleToday, '/app/home'),
+  if (showClasses)
+    (Icons.school_outlined, Icons.school, l.titleClasses, '/app/org'),
+  (Icons.mosque_outlined, Icons.mosque, l.titleMosques, '/app/mosques'),
+  (Icons.history_outlined, Icons.history, l.titleRecords, '/app/history'),
+  (Icons.menu_rounded, Icons.menu_rounded, l.titleMore, '/app/more'),
 ];
 
 /// Phone layout: the bottom bar from the redesign (Today · Mosques ·
@@ -565,7 +572,7 @@ class _BottomNavScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    final tabs = _tabsFor(showClasses);
+    final tabs = _tabsFor(showClasses, context.l10n);
     final isRoot = _tabRootPaths(showClasses).contains(location);
     final noAppBar = isRoot || _selfHeadedPaths.contains(location);
     int? selected;

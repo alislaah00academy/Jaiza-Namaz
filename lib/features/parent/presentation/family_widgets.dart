@@ -7,6 +7,7 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../data/family_data.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// True when the signed-in account is a Parent.
 final isParentProvider = Provider<bool>(
@@ -78,7 +79,7 @@ class PersonChipRow extends ConsumerWidget {
     }) {
       final c = Theme.of(context).colorScheme;
       return Padding(
-        padding: const EdgeInsets.only(right: 8),
+        padding: const EdgeInsetsDirectional.only(end: 8),
         child: Material(
           color: on ? c.primary : c.surface,
           shape: StadiumBorder(
@@ -129,8 +130,8 @@ class PersonChipRow extends ConsumerWidget {
       child: Row(
         children: [
           chip(
-            label: 'Me',
-            avatarName: me?.name ?? 'Me',
+            label: context.l10n.me,
+            avatarName: me?.name ?? context.l10n.me,
             on: current == null,
             onTap: () => ref.read(selectedChildIdProvider.notifier).state = null,
           ),
@@ -190,10 +191,10 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
           .read(childExtrasProvider.notifier)
           .set(id, ChildExtra(age: int.tryParse(_age.text), gender: _gender));
       if (!mounted) return;
-      AppSnackBar.success(context, '$name added.');
+      AppSnackBar.success(context, context.l10n.childAdded(name));
       Navigator.pop(context);
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not add child.');
+      if (mounted) AppSnackBar.error(context, context.l10n.couldNotAddChild);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -205,10 +206,10 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Add a child', style: t.headlineSmall),
+        Text(context.l10n.addAChild, style: t.headlineSmall),
         const SizedBox(height: 4),
         Text(
-          'A child gets no account of their own — you mark their prayers.',
+          context.l10n.addChildBody,
           style: t.bodyMedium,
         ),
         const SizedBox(height: 20),
@@ -217,7 +218,7 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
           autofocus: true,
           textCapitalization: TextCapitalization.words,
           onChanged: (_) => setState(() {}),
-          decoration: const InputDecoration(labelText: 'Name'),
+          decoration: InputDecoration(labelText: context.l10n.nameLabel),
         ),
         const SizedBox(height: 16),
         Row(
@@ -232,7 +233,7 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
                   FilteringTextInputFormatter.digitsOnly,
                   LengthLimitingTextInputFormatter(2),
                 ],
-                decoration: const InputDecoration(labelText: 'Age'),
+                decoration: InputDecoration(labelText: context.l10n.ageLabel),
               ),
             ),
             const SizedBox(width: 14),
@@ -240,9 +241,12 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const JzSectionLabel('Gender'),
+                  JzSectionLabel(context.l10n.genderLabel),
                   JzSegmented<String>(
-                    options: const {'boy': 'Boy', 'girl': 'Girl'},
+                    options: {
+                      'boy': context.l10n.genderBoy,
+                      'girl': context.l10n.genderGirl,
+                    },
                     selected: _gender,
                     onChanged: (g) => setState(() => _gender = g),
                   ),
@@ -254,7 +258,7 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
         const SizedBox(height: 22),
         FilledButton(
           onPressed: _saving || _name.text.trim().isEmpty ? null : _add,
-          child: const Text('Add'),
+          child: Text(context.l10n.actionAdd),
         ),
       ],
     );

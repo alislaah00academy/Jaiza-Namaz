@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:jaiza_core/jaiza_core.dart' show Validators;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/errors/firebase_auth_messages.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/widgets/auth_text_field.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
@@ -70,14 +72,14 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? mapGenericError(e))),
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(mapGenericError(e))));
+        ).showSnackBar(SnackBar(content: Text(mapGenericError(e, context.l10n))));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -157,13 +159,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       children: [
                         const SizedBox(height: 12),
                         Text(
-                          'Create Your Account',
+                          context.l10n.signupTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Start tracking your Salah with Jaiza.',
+                          context.l10n.signupSubtitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: scheme.onSurfaceVariant),
@@ -178,11 +180,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                               children: [
                                 AuthTextField(
                                   controller: _name,
-                                  label: 'Full name',
+                                  label: context.l10n.fullNameLabel,
                                   textInputAction: TextInputAction.next,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
-                                      return 'Enter your name';
+                                      return context.l10n.validationEnterName;
                                     }
                                     return null;
                                   },
@@ -191,12 +193,12 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   const SizedBox(height: 16),
                                   AuthTextField(
                                     controller: _institutionName,
-                                    label: 'Institute name',
-                                    hint: 'e.g. Al Falah Madarsa',
+                                    label: context.l10n.instituteNameLabel,
+                                    hint: context.l10n.instituteNameHint,
                                     textInputAction: TextInputAction.next,
                                     validator: (v) {
                                       if (v == null || v.trim().isEmpty) {
-                                        return 'Enter your institute name';
+                                        return context.l10n.validationEnterInstitute;
                                       }
                                       return null;
                                     },
@@ -205,16 +207,16 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 const SizedBox(height: 16),
                                 AuthTextField(
                                   controller: _email,
-                                  label: 'Email',
+                                  label: context.l10n.emailLabel,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
-                                      return 'Enter your email';
+                                      return context.l10n.validationEnterEmail;
                                     }
                                     if (!v.contains('@')) {
-                                      return 'Enter a valid email';
+                                      return context.l10n.validationValidEmail;
                                     }
                                     return null;
                                   },
@@ -222,13 +224,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 const SizedBox(height: 16),
                                 AuthTextField(
                                   controller: _password,
-                                  label: 'Password',
+                                  label: context.l10n.passwordLabel,
                                   obscureText: true,
                                   textInputAction: TextInputAction.next,
                                   autocorrect: false,
                                   validator: (v) {
-                                    if (v == null || v.length < 6) {
-                                      return 'Use at least 6 characters';
+                                    if (v == null || !Validators.isValidPassword(v)) {
+                                      return context.l10n.validationPasswordRule;
                                     }
                                     return null;
                                   },
@@ -236,13 +238,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 const SizedBox(height: 16),
                                 AuthTextField(
                                   controller: _confirm,
-                                  label: 'Confirm password',
+                                  label: context.l10n.confirmPasswordLabel,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v != _password.text) {
-                                      return 'Passwords do not match';
+                                      return context.l10n.validationPasswordsNoMatch;
                                     }
                                     return null;
                                   },
@@ -259,7 +261,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                             color: onPrimary,
                                           ),
                                         )
-                                      : const Text('Sign up'),
+                                      : Text(context.l10n.signUpButton),
                                 ),
                                 const SizedBox(height: 16),
                               ],

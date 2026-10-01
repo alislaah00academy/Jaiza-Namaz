@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
+
 class AuthTextField extends StatefulWidget {
   const AuthTextField({
     super.key,
@@ -55,7 +57,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
                 ),
-                tooltip: _obscured ? 'Show password' : 'Hide password',
+                tooltip: _obscured
+                    ? context.l10n.showPassword
+                    : context.l10n.hidePassword,
                 onPressed: () => setState(() => _obscured = !_obscured),
               )
             : null,

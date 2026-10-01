@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/widgets/jz_ui.dart';
 import '../../../providers/providers.dart';
 import '../data/org_extras.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/formatters.dart';
 
 /// Admin's read-only view of one teacher: contact, their classes with
 /// today's completion, and "Remove from organization".
@@ -23,19 +24,16 @@ class AdminTeacherScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Remove from organization?'),
-        content: Text(
-          '$name will lose access to this organization\'s classes and '
-          'students. Their classes stay; you can reassign them.',
-        ),
+        title: Text(ctx.l10n.removeFromOrgTitle),
+        content: Text(ctx.l10n.removeFromOrgBody(name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Remove'),
+            child: Text(ctx.l10n.actionRemove),
           ),
         ],
       ),
@@ -53,13 +51,15 @@ class AdminTeacherScreen extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final org = ref.watch(myOrgProvider).value;
     if (org == null) {
-      return const Center(child: Text('Organization not found.'));
+      return Center(child: Text(context.l10n.organizationNotFound));
     }
 
     final teachers =
         ref.watch(allTeachersForOrgProvider(org.id)).value ?? const [];
     final matches = teachers.where((tt) => tt.uid == teacherUid);
-    if (matches.isEmpty) return const Center(child: Text('Teacher not found.'));
+    if (matches.isEmpty) {
+      return Center(child: Text(context.l10n.teacherNotFound));
+    }
     final teacher = matches.first;
     final classes =
         (ref.watch(allClassesForOrgProvider(org.id)).value ?? const [])
@@ -91,8 +91,10 @@ class AdminTeacherScreen extends ConsumerWidget {
                         Text(
                           teacher.joinedAt == null
                               ? teacher.email
-                              : '${teacher.email} · joined '
-                                    '${DateFormat('d MMMM').format(teacher.joinedAt!)}',
+                              : context.l10n.emailJoined(
+                                  teacher.email,
+                                  formatDayMonth(teacher.joinedAt!, context.l10n),
+                                ),
                           style: t.bodySmall,
                         ),
                       ],
@@ -102,7 +104,7 @@ class AdminTeacherScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Read-only. Marking attendance stays with the teacher.',
+                context.l10n.readOnlyTeacherNote,
                 style: t.bodySmall,
               ),
             ],
@@ -113,7 +115,7 @@ class AdminTeacherScreen extends ConsumerWidget {
           JzCard(
             padding: const EdgeInsets.all(16),
             child: Text(
-              'This teacher has no classes yet.',
+              context.l10n.teacherNoClasses,
               style: t.bodyMedium,
             ),
           )
@@ -158,14 +160,20 @@ class AdminTeacherScreen extends ConsumerWidget {
                               children: [
                                 Text(cl.name, style: t.titleSmall),
                                 Text(
-                                  '${students.length} students'
-                                  '${sections[cl.id] == null ? '' : ' · ${sections[cl.id]}'}',
+                                  sections[cl.id] == null
+                                      ? context.l10n.studentsCount(students.length)
+                                      : context.l10n.dotJoin(
+                                          context.l10n.studentsCount(
+                                            students.length,
+                                          ),
+                                          sections[cl.id]!,
+                                        ),
                                   style: t.bodySmall,
                                 ),
                               ],
                             ),
                           ),
-                          Text('$pct%', style: t.titleSmall),
+                          Text(context.l10n.percent(pct), style: t.titleSmall),
                           const JzChevron(),
                         ],
                       ),
@@ -181,9 +189,9 @@ class AdminTeacherScreen extends ConsumerWidget {
           onTap: () => _remove(context, ref, org.id, teacher.name),
           child: JzListRow(
             leading: Icon(Icons.person_remove_outlined, color: c.error),
-            title: 'Remove from organization',
+            title: context.l10n.removeFromOrg,
             titleColor: c.error,
-            subtitle: 'Their classes stay; you can reassign them',
+            subtitle: context.l10n.removeFromOrgSubtitle,
           ),
         ),
       ],

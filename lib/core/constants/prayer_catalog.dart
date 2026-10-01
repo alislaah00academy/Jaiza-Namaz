@@ -1,51 +1,39 @@
 import '../../data/models/prayer_log.dart';
+import '../l10n/l10n.dart';
+import '../l10n/prayer_labels.dart';
 
-/// Fard prayers shown on the main tracking screen (informational windows are approximate).
+/// Fard prayers shown on the main tracking screen (informational windows are
+/// approximate). Text comes from ARB: `def.label(l10n)`.
 class FardPrayerDef {
-  const FardPrayerDef({
-    required this.name,
-    required this.label,
-    required this.startHint,
-    required this.endHint,
-  });
+  const FardPrayerDef(this.name);
 
   final PrayerName name;
-  final String label;
-  final String startHint;
-  final String endHint;
+
+  String label(L10n l) => name.label(l);
+
+  String startHint(L10n l) => switch (name) {
+    PrayerName.fajr => l.fardFajrStartHint,
+    PrayerName.zuhr => l.fardZuhrStartHint,
+    PrayerName.asr => l.fardAsrStartHint,
+    PrayerName.maghrib => l.fardMaghribStartHint,
+    _ => l.fardIshaStartHint,
+  };
+
+  String endHint(L10n l) => switch (name) {
+    PrayerName.fajr => l.fardFajrEndHint,
+    PrayerName.zuhr => l.fardZuhrEndHint,
+    PrayerName.asr => l.fardAsrEndHint,
+    PrayerName.maghrib => l.fardMaghribEndHint,
+    _ => l.fardIshaEndHint,
+  };
 }
 
 const List<FardPrayerDef> kFardPrayerDefs = [
-  FardPrayerDef(
-    name: PrayerName.fajr,
-    label: 'Fajr',
-    startHint: 'Begins at dawn',
-    endHint: 'Until sunrise',
-  ),
-  FardPrayerDef(
-    name: PrayerName.zuhr,
-    label: 'Zuhr',
-    startHint: 'After zenith',
-    endHint: 'Before Asr',
-  ),
-  FardPrayerDef(
-    name: PrayerName.asr,
-    label: 'Asr',
-    startHint: 'Afternoon',
-    endHint: 'Before sunset',
-  ),
-  FardPrayerDef(
-    name: PrayerName.maghrib,
-    label: 'Maghrib',
-    startHint: 'Just after sunset',
-    endHint: 'Until Isha',
-  ),
-  FardPrayerDef(
-    name: PrayerName.isha,
-    label: 'Isha',
-    startHint: 'Night begins',
-    endHint: 'Until Fajr',
-  ),
+  FardPrayerDef(PrayerName.fajr),
+  FardPrayerDef(PrayerName.zuhr),
+  FardPrayerDef(PrayerName.asr),
+  FardPrayerDef(PrayerName.maghrib),
+  FardPrayerDef(PrayerName.isha),
   // Witr was removed from individual tracking — the app tracks the five
   // obligatory (Fard) prayers only. `PrayerName.witr` is kept in the enum so
   // any historical Firestore records still parse, but it's no longer shown
@@ -54,17 +42,18 @@ const List<FardPrayerDef> kFardPrayerDefs = [
 
 /// Optional nawafil the user may track when enabled.
 class NawafilDef {
-  const NawafilDef({required this.name, required this.label});
+  const NawafilDef(this.name);
 
   final PrayerName name;
-  final String label;
+
+  String label(L10n l) => name.label(l);
 }
 
 const List<NawafilDef> kNawafilDefs = [
-  NawafilDef(name: PrayerName.tahajjud, label: 'Tahajjud'),
-  NawafilDef(name: PrayerName.ishraq, label: 'Ishraq'),
-  NawafilDef(name: PrayerName.chasht, label: 'Chasht (Duha)'),
-  NawafilDef(name: PrayerName.awwabin, label: 'Salat al-Awwabin'),
-  NawafilDef(name: PrayerName.rawatib, label: 'Rawatib'),
-  NawafilDef(name: PrayerName.taraweeh, label: 'Taraweeh'),
+  NawafilDef(PrayerName.tahajjud),
+  NawafilDef(PrayerName.ishraq),
+  NawafilDef(PrayerName.chasht),
+  NawafilDef(PrayerName.awwabin),
+  NawafilDef(PrayerName.rawatib),
+  NawafilDef(PrayerName.taraweeh),
 ];

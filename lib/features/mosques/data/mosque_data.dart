@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/l10n/formatters.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../data/models/prayer_log.dart';
 
@@ -27,11 +29,18 @@ class Mosque {
   final Map<PrayerName, (int, int)> jamaat;
   final String fiqh;
 
-  String get distanceLabel => distanceKm < 1
-      ? '${(distanceKm * 1000).round()} m'
-      : '${distanceKm.toStringAsFixed(1)} km';
+  String distanceLabel(L10n l) => distanceKm < 1
+      ? l.distanceMeters((distanceKm * 1000).round())
+      : l.distanceKm(distanceKm.toStringAsFixed(1));
 
-  String get subtitle => '$area · $distanceLabel';
+  String subtitle(L10n l) => l.dotJoin(area, distanceLabel(l));
+
+  /// The stored fiqh value (`'Hanafi'`/`'Shafi'`…) in the app language.
+  String fiqhLabel(L10n l) => switch (fiqh.toLowerCase()) {
+    'hanafi' => l.madhabHanafi,
+    'shafi' || 'shafii' || 'shafi’i' => l.madhabShafii,
+    _ => fiqh,
+  };
 
   /// "4:55" — compact 12h time without AM/PM, as on the Today rows.
   String shortTime(PrayerName p) {
@@ -41,13 +50,11 @@ class Mosque {
     return '$h:${t.$2.toString().padLeft(2, '0')}';
   }
 
-  /// "04:45 PM".
-  String longTime(PrayerName p) {
+  /// "04:45 PM" in the app language.
+  String longTime(PrayerName p, L10n l) {
     final t = jamaat[p];
     if (t == null) return '—';
-    final h = t.$1 % 12 == 0 ? 12 : t.$1 % 12;
-    final ap = t.$1 < 12 ? 'AM' : 'PM';
-    return '${h.toString().padLeft(2, '0')}:${t.$2.toString().padLeft(2, '0')} $ap';
+    return formatTimePadded(DateTime(2000, 1, 1, t.$1, t.$2), l);
   }
 
   /// Today's Jama'at [DateTime] for [p].

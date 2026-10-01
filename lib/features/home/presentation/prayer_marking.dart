@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/feedback/app_snackbar.dart';
-import '../../../core/l10n/app_strings.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 
@@ -28,16 +28,16 @@ Future<void> togglePrayer(
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Unmark $label?'),
-        content: const Text('It will be recorded as not prayed.'),
+        title: Text(ctx.l10n.unmarkTitle(label)),
+        content: Text(ctx.l10n.unmarkBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: Text(ctx.l10n.actionCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Unmark'),
+            child: Text(ctx.l10n.unmarkButton),
           ),
         ],
       ),
@@ -56,11 +56,11 @@ Future<void> togglePrayer(
           ownerUid: uid == me ? null : me,
         );
     if (context.mounted && !currentlyDone && type == PrayerType.fard) {
-      AppSnackBar.success(context, AppStrings.namazMarkedSuccess);
+      AppSnackBar.success(context, context.l10n.namazMarkedSuccess);
     }
   } catch (_) {
     if (context.mounted) {
-      AppSnackBar.error(context, 'Could not save. Try again.');
+      AppSnackBar.error(context, context.l10n.errorSaveFailed);
     }
   }
 }
@@ -90,11 +90,16 @@ Future<void> addMissedToQaza(
           ownerUid: uid == me ? null : me,
         );
     if (context.mounted) {
-      AppSnackBar.success(context, uid == me ? '$label added to your Qaza list.' : '$label added to the Qaza list.');
+      AppSnackBar.success(
+        context,
+        uid == me
+            ? context.l10n.addedToYourQaza(label)
+            : context.l10n.addedToQaza(label),
+      );
     }
   } catch (_) {
     if (context.mounted) {
-      AppSnackBar.error(context, 'Could not save. Try again.');
+      AppSnackBar.error(context, context.l10n.errorSaveFailed);
     }
   }
 }
@@ -116,10 +121,10 @@ class MissedAddToQaza extends StatelessWidget {
       onTap: onAdd,
       child: Text.rich(
         TextSpan(
-          text: 'Missed · ',
+          text: context.l10n.missedDot,
           children: [
             TextSpan(
-              text: 'Add to Qaza',
+              text: context.l10n.addToQaza,
               style: TextStyle(
                 color: c.primary,
                 decoration: TextDecoration.underline,

@@ -6,6 +6,7 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../data/repositories/organization_repository.dart';
 import '../../../providers/providers.dart';
 import '../data/org_extras.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// "Invite a teacher" sheet — email only, matching the design.
 Future<void> showInviteTeacherSheet(
@@ -23,7 +24,7 @@ Future<void> showInviteTeacherSheet(
         Future<void> send() async {
           final email = controller.text.trim();
           if (email.isEmpty || !email.contains('@')) {
-            AppSnackBar.error(ctx, 'Enter a valid email');
+            AppSnackBar.error(ctx, ctx.l10n.validationValidEmail);
             return;
           }
           setState(() => sending = true);
@@ -35,14 +36,15 @@ Future<void> showInviteTeacherSheet(
               Navigator.pop(ctx);
               AppSnackBar.success(
                 context,
-                'Invite sent. They\'ll get teacher access when they sign up '
-                'or log in with $email.',
+                ctx.l10n.inviteSent(email),
               );
             }
-          } on TeacherAlreadyActiveException catch (e) {
-            if (ctx.mounted) AppSnackBar.error(ctx, e.toString());
+          } on TeacherAlreadyActiveException {
+            if (ctx.mounted) {
+              AppSnackBar.error(ctx, ctx.l10n.teacherAlreadyActive);
+            }
           } catch (_) {
-            if (ctx.mounted) AppSnackBar.error(ctx, 'Could not send invite.');
+            if (ctx.mounted) AppSnackBar.error(ctx, ctx.l10n.couldNotSendInvite);
           } finally {
             if (ctx.mounted) setState(() => sending = false);
           }
@@ -51,11 +53,10 @@ Future<void> showInviteTeacherSheet(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Invite a teacher', style: t.headlineSmall),
+            Text(ctx.l10n.inviteATeacher, style: t.headlineSmall),
             const SizedBox(height: 4),
             Text(
-              'They get teacher access the moment they sign up or log in '
-              'with this email.',
+              ctx.l10n.inviteTeacherBody,
               style: t.bodyMedium,
             ),
             const SizedBox(height: 18),
@@ -63,18 +64,16 @@ Future<void> showInviteTeacherSheet(
               controller: controller,
               autofocus: true,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'teacher@example.com',
+              decoration: InputDecoration(
+                labelText: ctx.l10n.emailLabel,
+                hintText: ctx.l10n.teacherEmailHint,
               ),
               onSubmitted: (_) => send(),
             ),
             const SizedBox(height: 14),
-            const JzNoteCard(
+            JzNoteCard(
               body: Text(
-                'A teacher can create classes, add students and mark '
-                'attendance. They cannot invite other teachers or see '
-                'classes that are not theirs.',
+                ctx.l10n.teacherPermissionsNote,
               ),
             ),
             const SizedBox(height: 18),
@@ -86,7 +85,7 @@ Future<void> showInviteTeacherSheet(
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Send invite'),
+                  : Text(ctx.l10n.sendInvite),
             ),
           ],
         );
@@ -114,7 +113,7 @@ Future<void> showNewClassSheet(
         Future<void> create() async {
           final n = name.text.trim();
           if (n.isEmpty) {
-            AppSnackBar.error(ctx, 'Enter a class name');
+            AppSnackBar.error(ctx, ctx.l10n.enterClassName);
             return;
           }
           setState(() => saving = true);
@@ -133,7 +132,7 @@ Future<void> showNewClassSheet(
             }
           } catch (_) {
             if (ctx.mounted) {
-              AppSnackBar.error(ctx, 'Could not create the class.');
+              AppSnackBar.error(ctx, ctx.l10n.couldNotCreateClass);
             }
           } finally {
             if (ctx.mounted) setState(() => saving = false);
@@ -143,28 +142,27 @@ Future<void> showNewClassSheet(
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('New class', style: t.headlineSmall),
+            Text(ctx.l10n.newClass, style: t.headlineSmall),
             const SizedBox(height: 4),
             Text(
-              'Students living at the madrasa — all five prayers are marked '
-              'for them.',
+              ctx.l10n.newClassBody,
               style: t.bodyMedium,
             ),
             const SizedBox(height: 18),
             TextField(
               controller: name,
               autofocus: true,
-              decoration: const InputDecoration(
-                labelText: 'Class name',
-                hintText: 'e.g. Batch C',
+              decoration: InputDecoration(
+                labelText: ctx.l10n.classNameLabel,
+                hintText: ctx.l10n.classNameHint,
               ),
             ),
             const SizedBox(height: 14),
             TextField(
               controller: section,
-              decoration: const InputDecoration(
-                labelText: 'Section — optional',
-                hintText: 'e.g. Dars-e-Nizami year 1',
+              decoration: InputDecoration(
+                labelText: ctx.l10n.sectionOptional,
+                hintText: ctx.l10n.sectionHint,
               ),
               onSubmitted: (_) => create(),
             ),
@@ -177,7 +175,7 @@ Future<void> showNewClassSheet(
                       height: 22,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text('Create class'),
+                  : Text(ctx.l10n.createClass),
             ),
           ],
         );

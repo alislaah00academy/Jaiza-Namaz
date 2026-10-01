@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/errors/firebase_auth_messages.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/utils/role_home_route.dart';
 import '../../../core/widgets/auth_text_field.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
@@ -58,14 +59,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? mapGenericError(e))),
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text(mapGenericError(e))));
+        ).showSnackBar(SnackBar(content: Text(mapGenericError(e, context.l10n))));
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -97,19 +98,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (context) => AlertDialog(
-          title: const Text('Switch to a teacher account?'),
+          title: Text(context.l10n.teacherSwitchTitle),
           content: Text(
-            '${pending.orgName} has invited you as a teacher. Accepting will '
-            'move your account to the Teacher dashboard for that organization.',
+            context.l10n.teacherSwitchBody(
+              pending.orgName.isEmpty
+                  ? context.l10n.anOrganization
+                  : pending.orgName,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('Not now'),
+              child: Text(context.l10n.notNow),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
-              child: const Text('Switch'),
+              child: Text(context.l10n.switchButton),
             ),
           ],
         ),
@@ -158,13 +162,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       children: [
                         const SizedBox(height: 12),
                         Text(
-                          'Welcome Back',
+                          context.l10n.loginTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          'Log in to continue tracking your Salah.',
+                          context.l10n.loginSubtitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(color: scheme.onSurfaceVariant),
@@ -179,16 +183,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               children: [
                                 AuthTextField(
                                   controller: _email,
-                                  label: 'Email',
+                                  label: context.l10n.emailLabel,
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v == null || v.trim().isEmpty) {
-                                      return 'Enter your email';
+                                      return context.l10n.validationEnterEmail;
                                     }
                                     if (!v.contains('@')) {
-                                      return 'Enter a valid email';
+                                      return context.l10n.validationValidEmail;
                                     }
                                     return null;
                                   },
@@ -196,23 +200,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 const SizedBox(height: 16),
                                 AuthTextField(
                                   controller: _password,
-                                  label: 'Password',
+                                  label: context.l10n.passwordLabel,
                                   obscureText: true,
                                   textInputAction: TextInputAction.done,
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return 'Enter your password';
+                                      return context.l10n.validationEnterPassword;
                                     }
                                     return null;
                                   },
                                 ),
                                 Align(
-                                  alignment: Alignment.centerRight,
+                                  alignment: AlignmentDirectional.centerEnd,
                                   child: TextButton(
                                     onPressed: () =>
                                         context.push('/reset-password'),
-                                    child: const Text('Forgot password?'),
+                                    child: Text(context.l10n.forgotPassword),
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -227,14 +231,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                             color: onPrimary,
                                           ),
                                         )
-                                      : const Text('Log in'),
+                                      : Text(context.l10n.logInLower),
                                 ),
                                 const SizedBox(height: 16),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
-                                      'New here?',
+                                      context.l10n.newHere,
                                       style: Theme.of(
                                         context,
                                       ).textTheme.bodyMedium,
@@ -242,7 +246,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     TextButton(
                                       onPressed: () =>
                                           context.push('/get-started'),
-                                      child: const Text('Create account'),
+                                      child: Text(context.l10n.createAccount),
                                     ),
                                   ],
                                 ),

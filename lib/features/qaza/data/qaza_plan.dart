@@ -19,22 +19,6 @@ enum QazaFrequency { daily, weekly, monthly, yearly, custom }
 extension QazaFrequencyX on QazaFrequency {
   String get firestoreValue => name;
 
-  String get label => switch (this) {
-    QazaFrequency.daily => 'Daily',
-    QazaFrequency.weekly => 'Weekly',
-    QazaFrequency.monthly => 'Monthly',
-    QazaFrequency.yearly => 'Yearly',
-    QazaFrequency.custom => 'Custom',
-  };
-
-  String get hint => switch (this) {
-    QazaFrequency.daily => 'Every day',
-    QazaFrequency.weekly => 'Once a week',
-    QazaFrequency.monthly => 'Once a month',
-    QazaFrequency.yearly => 'Once a year',
-    QazaFrequency.custom => 'Custom days',
-  };
-
   static QazaFrequency? fromFirestore(String? raw) {
     if (raw == null) return null;
     for (final v in QazaFrequency.values) {

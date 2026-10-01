@@ -10,6 +10,9 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../data/org_extras.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/formatters.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 /// Mark one prayer at a time for a whole class — a single tap per student,
 /// no submit button (the design's "Saved as you tap").
@@ -41,7 +44,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
             subject: AnalyticsSubject.student,
           );
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not save. Try again.');
+      if (mounted) AppSnackBar.error(context, context.l10n.errorSaveFailed);
     }
   }
 
@@ -53,7 +56,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
     final orgId = appUser?.orgId;
     final teacherUid = ref.watch(currentUserProvider)?.uid;
     if (orgId == null || teacherUid == null) {
-      return const Center(child: Text('Not attached to an organization yet.'));
+      return Center(child: Text(context.l10n.notAttachedToOrg));
     }
     final students =
         ref
@@ -88,9 +91,9 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                     children: [
                       for (final def in kFardPrayerDefs)
                         Padding(
-                          padding: const EdgeInsets.only(right: 8),
+                          padding: const EdgeInsetsDirectional.only(end: 8),
                           child: JzChip(
-                            def.label,
+                            def.label(context.l10n),
                             selected: def.name == prayer,
                             onTap: () => setState(() => _selected = def.name),
                           ),
@@ -100,7 +103,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                 ),
               ),
               IconButton(
-                tooltip: 'Class report',
+                tooltip: context.l10n.classReport,
                 icon: const Icon(Icons.insights_outlined),
                 onPressed: () => context.push(
                   '/app/org/teacher/class/${widget.classId}/report',
@@ -125,14 +128,15 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                kFardPrayerDefs
-                                    .firstWhere((d) => d.name == prayer)
-                                    .label,
+                                prayer.label(context.l10n),
                                 style: t.titleMedium,
                               ),
                               if (window != null && window.isNotEmpty)
                                 Text(
-                                  '${_fmt(window.first.start)} – ${_fmt(window.first.end)}',
+                                  context.l10n.timeRange(
+                                    formatTime(window.first.start, context.l10n),
+                                    formatTime(window.first.end, context.l10n),
+                                  ),
                                   style: t.bodySmall,
                                 ),
                             ],
@@ -143,7 +147,10 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                             text: '$done',
                             style: t.headlineSmall,
                             children: [
-                              TextSpan(text: ' / $total', style: t.bodySmall),
+                              TextSpan(
+                                text: context.l10n.slashTotal(total),
+                                style: t.bodySmall,
+                              ),
                             ],
                           ),
                         ),
@@ -167,7 +174,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                               }
                             },
                       icon: const Icon(Icons.done_all_rounded, size: 18),
-                      label: const Text('Mark all present'),
+                      label: Text(context.l10n.markAllPresent),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -180,7 +187,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                           : null,
                     ),
                     icon: const Icon(Icons.filter_alt_outlined, size: 18),
-                    label: const Text('Unmarked'),
+                    label: Text(context.l10n.unmarkedFilter),
                   ),
                 ],
               ),
@@ -189,7 +196,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                 JzCard(
                   padding: const EdgeInsets.all(16),
                   child: Text(
-                    'No students yet. Add some below.',
+                    context.l10n.noStudentsAddBelow,
                     style: t.bodyMedium,
                   ),
                 )
@@ -230,7 +237,10 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                                 leading: LetterAvatarLike(s.name),
                                 title: s.name,
                                 subtitle:
-                                    '$doneToday of ${kFardPrayerDefs.length} today',
+                                    context.l10n.doneOfTotalToday(
+                                      doneToday,
+                                      kFardPrayerDefs.length,
+                                    ),
                                 onTap: () => context.push(
                                   '/app/org/teacher/class/${widget.classId}/student/${s.id}',
                                 ),
@@ -254,11 +264,11 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                   '/app/org/teacher/class/${widget.classId}/add-students',
                 ),
                 icon: const Icon(Icons.person_add_alt_1_outlined, size: 18),
-                label: const Text('Add students'),
+                label: Text(context.l10n.titleAddStudents),
               ),
               const SizedBox(height: 10),
               Text(
-                'Saved as you tap — there is no submit button.',
+                context.l10n.savedAsYouTap,
                 textAlign: TextAlign.center,
                 style: t.bodySmall,
               ),
@@ -269,9 +279,6 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
     );
   }
 
-  String _fmt(DateTime t) =>
-      '${t.hour % 12 == 0 ? 12 : t.hour % 12}:${t.minute.toString().padLeft(2, '0')} '
-      '${t.hour < 12 ? 'AM' : 'PM'}';
 }
 
 /// Small round-letter avatar for a roster row (kept local to avoid a

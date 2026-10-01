@@ -8,6 +8,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../providers/providers.dart';
+import '../../../core/l10n/l10n.dart';
 
 class _OnboardPage {
   const _OnboardPage({
@@ -21,29 +22,26 @@ class _OnboardPage {
   final String body;
 }
 
-const _pages = [
+List<_OnboardPage> _pagesFor(L10n l) => [
   _OnboardPage(
     icon: Icons.mosque_outlined,
-    title: 'Track Every Salah',
-    body:
-        'Mark your Fard, Nawafil and Qaza prayers with a tap, and see your '
-        'progress build day by day.',
+    title: l.onboardTrackTitle,
+    body: l.onboardTrackBody,
   ),
   _OnboardPage(
     icon: Icons.groups_2_outlined,
-    title: 'For Families & Institutes',
-    body:
-        'Parents can track their children, and madaris can manage teachers, '
-        'classes and students — all in one place.',
+    title: l.onboardFamiliesTitle,
+    body: l.onboardFamiliesBody,
   ),
   _OnboardPage(
     icon: Icons.notifications_active_outlined,
-    title: 'Stay Consistent',
-    body:
-        'Gentle reminders at the right times help you never miss a prayer and '
-        'stay steadfast on your journey.',
+    title: l.onboardConsistentTitle,
+    body: l.onboardConsistentBody,
   ),
 ];
+
+/// Number of onboarding pages.
+const _pageCount = 3;
 
 /// First-launch onboarding: three animated intro pages. Shown once per
 /// install (gated by [OnboardingRepository]); afterwards the splash routes
@@ -71,7 +69,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   void _next() {
-    if (_index >= _pages.length - 1) {
+    if (_index >= _pageCount - 1) {
       _finish();
     } else {
       _controller.nextPage(
@@ -85,7 +83,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    final isLast = _index == _pages.length - 1;
+    final isLast = _index == _pageCount - 1;
+    final pages = _pagesFor(context.l10n);
 
     return Scaffold(
       body: JaizaBackground(
@@ -93,13 +92,13 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           child: Column(
             children: [
               Align(
-                alignment: Alignment.centerRight,
+                alignment: AlignmentDirectional.centerEnd,
                 child: AnimatedOpacity(
                   duration: JaizaMotion.fast,
                   opacity: isLast ? 0 : 1,
                   child: TextButton(
                     onPressed: isLast ? null : _finish,
-                    child: const Text('Skip'),
+                    child: Text(context.l10n.actionSkip),
                   ),
                 ),
               ),
@@ -107,9 +106,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                 child: PageView.builder(
                   controller: _controller,
                   onPageChanged: (i) => setState(() => _index = i),
-                  itemCount: _pages.length,
+                  itemCount: pages.length,
                   itemBuilder: (context, i) =>
-                      _OnboardPageView(page: _pages[i]),
+                      _OnboardPageView(page: pages[i]),
                 ),
               ),
               const JaizaMosqueSkyline(height: 70),
@@ -120,7 +119,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        for (var i = 0; i < _pages.length; i++)
+                        for (var i = 0; i < pages.length; i++)
                           AnimatedContainer(
                             duration: JaizaMotion.fast,
                             margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -152,7 +151,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                         onPressed: _next,
                         child: Text(
-                          isLast ? 'Get Started' : 'Next',
+                          isLast ? context.l10n.getStarted : context.l10n.actionNext,
                           style: textTheme.titleMedium?.copyWith(
                             color: scheme.onTertiary,
                             fontWeight: FontWeight.w700,

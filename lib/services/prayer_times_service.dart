@@ -12,38 +12,46 @@ const List<PrayerName> kWidgetFardPrayers = [
   PrayerName.isha,
 ];
 
+/// One prayer's time window. Show its name with `prayer.label(l10n)`.
 @immutable
 class PrayerWindow {
   const PrayerWindow({
-    required this.key,
-    required this.label,
+    required this.prayer,
     required this.start,
     required this.end,
   });
 
-  final String key;
-  final String label;
+  final PrayerName prayer;
   final DateTime start;
   final DateTime end;
+
+  /// `prayer.name`, e.g. `'asr'`.
+  String get key => prayer.name;
 }
 
+/// Where "now" sits among today's Fard windows. Pure data — the UI words it
+/// from ARB (16 §1).
 @immutable
 class PrayerWindowStatus {
   const PrayerWindowStatus({
-    required this.message,
-    required this.nextKey,
-    required this.nextLabel,
+    required this.nextPrayer,
     required this.nextTime,
     required this.targetTime,
-    required this.activePrayerKey,
+    required this.activePrayer,
   });
 
-  final String message;
-  final String nextKey;
-  final String nextLabel;
+  /// The prayer after the current one, or the next one to start.
+  final PrayerName nextPrayer;
   final DateTime nextTime;
+
+  /// When the countdown ends: the active window's end, else the next start.
   final DateTime targetTime;
-  final String? activePrayerKey;
+
+  /// The Fard prayer whose window is open now, if any.
+  final PrayerName? activePrayer;
+
+  String get nextKey => nextPrayer.name;
+  String? get activePrayerKey => activePrayer?.name;
 }
 
 /// One calendar day's computed times (local wall clock).
@@ -97,32 +105,27 @@ class DailyPrayerSchedule {
   List<PrayerWindow> get fardWindows {
     return [
       PrayerWindow(
-        key: PrayerName.fajr.name,
-        label: 'Fajr',
+        prayer: PrayerName.fajr,
         start: fajr,
         end: sunrise,
       ),
       PrayerWindow(
-        key: PrayerName.zuhr.name,
-        label: 'Zuhr',
+        prayer: PrayerName.zuhr,
         start: zuhr,
         end: asr,
       ),
       PrayerWindow(
-        key: PrayerName.asr.name,
-        label: 'Asr',
+        prayer: PrayerName.asr,
         start: asr,
         end: maghrib,
       ),
       PrayerWindow(
-        key: PrayerName.maghrib.name,
-        label: 'Maghrib',
+        prayer: PrayerName.maghrib,
         start: maghrib,
         end: isha,
       ),
       PrayerWindow(
-        key: PrayerName.isha.name,
-        label: 'Isha',
+        prayer: PrayerName.isha,
         start: isha,
         end: nextFajr,
       ),
@@ -132,20 +135,17 @@ class DailyPrayerSchedule {
   List<PrayerWindow> get nawafilWindows {
     return [
       PrayerWindow(
-        key: 'ashraq',
-        label: 'Ashraq',
+        prayer: PrayerName.ishraq,
         start: sunrise.add(const Duration(minutes: 20)),
         end: zuhr,
       ),
       PrayerWindow(
-        key: 'chasht',
-        label: 'Chasht',
+        prayer: PrayerName.chasht,
         start: sunrise.add(const Duration(hours: 1)),
         end: zuhr.subtract(const Duration(minutes: 10)),
       ),
       PrayerWindow(
-        key: 'awwabin',
-        label: 'Awwabin',
+        prayer: PrayerName.awwabin,
         start: maghrib.add(const Duration(minutes: 5)),
         end: isha,
       ),
@@ -262,79 +262,39 @@ abstract final class PrayerTimesService {
     required DailyPrayerSchedule today,
     required DailyPrayerSchedule tomorrow,
   }) {
-    final todayWindows = today.fardWindows;
-    for (final window in todayWindows) {
+    for (final window in today.fardWindows) {
       if (!now.isBefore(window.start) && now.isBefore(window.end)) {
         return PrayerWindowStatus(
-          message:
-              '${window.label} ends in ${compactDuration(window.end.difference(now))}',
-          nextKey: _nextKeyAfter(window.key),
-          nextLabel: _nextLabelAfter(window.key),
+          nextPrayer: _nextAfter(window.prayer),
           nextTime: window.end,
           targetTime: window.end,
-          activePrayerKey: window.key,
+          activePrayer: window.prayer,
         );
       }
       if (now.isBefore(window.start)) {
-        final previous = _previousWindow(todayWindows, window.key);
-        final prefix = previous == null
-            ? 'Next'
-            : '${previous.label} time has ended – Next prayer';
         return PrayerWindowStatus(
-          message:
-              '$prefix: ${window.label} in ${compactDuration(window.start.difference(now))}',
-          nextKey: window.key,
-          nextLabel: window.label,
+          nextPrayer: window.prayer,
           nextTime: window.start,
           targetTime: window.start,
-          activePrayerKey: null,
+          activePrayer: null,
         );
       }
     }
 
     final nextFajr = tomorrow.fajr;
     return PrayerWindowStatus(
-      message: 'Next: Fajr in ${compactDuration(nextFajr.difference(now))}',
-      nextKey: PrayerName.fajr.name,
-      nextLabel: 'Fajr',
+      nextPrayer: PrayerName.fajr,
       nextTime: nextFajr,
       targetTime: nextFajr,
-      activePrayerKey: null,
+      activePrayer: null,
     );
   }
 
-  static String compactDuration(Duration duration) {
-    final d = duration.isNegative ? Duration.zero : duration;
-    final hours = d.inHours;
-    final minutes = d.inMinutes.remainder(60);
-    if (hours <= 0) return '${minutes}m';
-    if (minutes == 0) return '${hours}h';
-    return '${hours}h ${minutes}m';
-  }
-
-  static PrayerWindow? _previousWindow(List<PrayerWindow> windows, String key) {
-    final index = windows.indexWhere((w) => w.key == key);
-    if (index <= 0) return null;
-    return windows[index - 1];
-  }
-
-  static String _nextKeyAfter(String key) {
-    return switch (key) {
-      'fajr' => 'zuhr',
-      'zuhr' => 'asr',
-      'asr' => 'maghrib',
-      'maghrib' => 'isha',
-      _ => 'fajr',
-    };
-  }
-
-  static String _nextLabelAfter(String key) {
-    return switch (key) {
-      'fajr' => 'Zuhr',
-      'zuhr' => 'Asr',
-      'asr' => 'Maghrib',
-      'maghrib' => 'Isha',
-      _ => 'Fajr',
-    };
-  }
+  static PrayerName _nextAfter(PrayerName p) => switch (p) {
+    PrayerName.fajr => PrayerName.zuhr,
+    PrayerName.zuhr => PrayerName.asr,
+    PrayerName.asr => PrayerName.maghrib,
+    PrayerName.maghrib => PrayerName.isha,
+    _ => PrayerName.fajr,
+  };
 }

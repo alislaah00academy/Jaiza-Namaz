@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/layout/app_breakpoints.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/errors/firebase_auth_messages.dart';
+import '../../../core/l10n/l10n.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
@@ -36,9 +37,9 @@ class _EmailVerificationScreenState
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              'Email not verified yet. Open the link we sent, then try again.',
+              context.l10n.verifyEmailNotYet,
             ),
           ),
         );
@@ -55,13 +56,13 @@ class _EmailVerificationScreenState
       if (mounted) {
         setState(() => _sent = true);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Verification email sent.')),
+          SnackBar(content: Text(context.l10n.verifyEmailSent)),
         );
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.message ?? mapGenericError(e))),
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
         );
       }
     } finally {
@@ -116,7 +117,7 @@ class _EmailVerificationScreenState
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Verify Your Email',
+                          context.l10n.verifyEmailTitle,
                           textAlign: TextAlign.center,
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
@@ -127,7 +128,7 @@ class _EmailVerificationScreenState
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
-                                'We sent a verification link to:',
+                                context.l10n.verifyEmailSentTo,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
                               const SizedBox(height: 8),
@@ -138,7 +139,7 @@ class _EmailVerificationScreenState
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'Tap the link in the email, then press “I’ve verified” below.',
+                                context.l10n.verifyEmailInstructions,
                                 style: Theme.of(context).textTheme.bodyMedium
                                     ?.copyWith(
                                       color: Theme.of(
@@ -161,18 +162,18 @@ class _EmailVerificationScreenState
                                     color: onPrimary,
                                   ),
                                 )
-                              : const Text('I’ve verified'),
+                              : Text(context.l10n.verifyEmailDone),
                         ),
                         const SizedBox(height: 12),
                         FilledButton.tonal(
                           style: AppTheme.tonalButtonStyle(context),
                           onPressed: _busy ? null : _resend,
-                          child: Text(_sent ? 'Resend again' : 'Resend email'),
+                          child: Text(_sent ? context.l10n.verifyEmailResendAgain : context.l10n.verifyEmailResend),
                         ),
                         const SizedBox(height: 12),
                         TextButton(
                           onPressed: _busy ? null : _signOut,
-                          child: const Text('Sign out'),
+                          child: Text(context.l10n.actionSignOut),
                         ),
                       ],
                     ),

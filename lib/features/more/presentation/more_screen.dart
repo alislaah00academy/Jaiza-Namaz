@@ -5,11 +5,13 @@ import 'package:go_router/go_router.dart';
 import '../../../core/feedback/app_snackbar.dart';
 import '../../../core/local/local_prefs.dart';
 import '../../../core/widgets/jz_ui.dart';
+import '../../../core/widgets/language_card.dart';
 import '../../../data/models/user_role.dart';
 import '../../../providers/providers.dart';
 import '../../nawafil/presentation/nawafil_screen.dart';
 import '../../parent/presentation/family_widgets.dart';
 import '../../qaza/data/qaza_tracker.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// More tab — everything that is not daily: account, app settings, content,
 /// and account actions.
@@ -53,21 +55,25 @@ class MoreScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const JzPageTitle('More'),
+        JzPageTitle(context.l10n.titleMore),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               if (isOrg) ...[
-                JzSectionLabel(isTeacher ? 'Madrasa' : 'Organization'),
+                JzSectionLabel(
+                  isTeacher
+                      ? context.l10n.sectionMadrasa
+                      : context.l10n.sectionOrganization,
+                ),
                 group([
                   JzListRow(
                     leading: icon(Icons.school_outlined),
                     title:
                         ref.watch(myOrgByIdProvider).value?.name ??
-                        'Organization',
-                    subtitle: 'Teachers, classes and reports',
+                        context.l10n.sectionOrganization,
+                    subtitle: context.l10n.moreOrgSubtitle,
                     trailing: const JzChevron(),
                     showDivider: isTeacher,
                     onTap: () => context.go('/app/org'),
@@ -75,9 +81,9 @@ class MoreScreen extends ConsumerWidget {
                   if (isTeacher)
                     JzListRow(
                       leading: icon(Icons.class_outlined),
-                      title: 'My classes',
+                      title: context.l10n.myClasses,
                       subtitle: myClasses.isEmpty
-                          ? 'No classes yet'
+                          ? context.l10n.noClassesYet
                           : myClasses.map((c) => c.name).join(' · '),
                       trailing: const JzChevron(),
                       onTap: () => context.go('/app/org'),
@@ -86,33 +92,33 @@ class MoreScreen extends ConsumerWidget {
                 const SizedBox(height: 20),
               ],
               if (isParent) ...[
-                const JzSectionLabel('Family'),
+                JzSectionLabel(context.l10n.titleFamily),
                 group([
                   JzListRow(
                     leading: icon(Icons.family_restroom_outlined),
-                    title: 'Family',
+                    title: context.l10n.titleFamily,
                     subtitle: children.isEmpty
-                        ? 'Add your children'
-                        : 'Children, progress and their reminders',
+                        ? context.l10n.addYourChildren
+                        : context.l10n.moreFamilySubtitle,
                     trailing: const JzChevron(),
                     showDivider: true,
                     onTap: () => context.push('/app/family'),
                   ),
                   JzListRow(
                     leading: icon(Icons.notifications_active_outlined),
-                    title: 'Family reminders',
-                    subtitle: 'Nudges when a prayer isn’t marked',
+                    title: context.l10n.titleFamilyReminders,
+                    subtitle: context.l10n.moreFamilyRemindersSubtitle,
                     trailing: const JzChevron(),
                     onTap: () => context.push('/app/family/reminders'),
                   ),
                 ]),
                 const SizedBox(height: 20),
               ],
-              const JzSectionLabel('Account'),
+              JzSectionLabel(context.l10n.sectionAccount),
               group([
                 JzListRow(
                   leading: icon(Icons.person_outline_rounded),
-                  title: 'Profile',
+                  title: context.l10n.titleProfile,
                   subtitle: user == null
                       ? null
                       : [
@@ -124,28 +130,30 @@ class MoreScreen extends ConsumerWidget {
                 ),
               ]),
               const SizedBox(height: 20),
-              const JzSectionLabel('App'),
+              JzSectionLabel(context.l10n.sectionApp),
               group([
                 JzListRow(
                   leading: icon(Icons.notifications_none_rounded),
-                  title: 'Notifications & widgets',
+                  title: context.l10n.titleNotificationsWidgets,
                   subtitle: isParent
-                      ? 'Your prayers, Jama’at, widgets'
-                      : 'Reminders, Jama’at alerts, location',
+                      ? context.l10n.moreNotificationsParentSubtitle
+                      : context.l10n.moreNotificationsSubtitle,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/widget-settings'),
                 ),
                 JzListRow(
                   leading: icon(Icons.history_edu_outlined),
-                  title: 'Qaza plan',
-                  subtitle: '${jzCount(qaza.remaining)} remaining',
+                  title: context.l10n.qazaPlan,
+                  subtitle: context.l10n.qazaRemaining(jzCount(qaza.remaining)),
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/qaza'),
                 ),
                 JzListRow(
                   leading: icon(Icons.front_hand_outlined),
-                  title: 'Nawafil',
-                  subtitle: nawafilOn ? 'Tracking on' : 'Tracking off',
+                  title: context.l10n.titleNawafil,
+                  subtitle: nawafilOn
+                      ? context.l10n.trackingOn
+                      : context.l10n.trackingOff,
                   trailing: const JzChevron(),
                   onTap: () => _showNawafilSheet(context, ref),
                 ),
@@ -161,17 +169,17 @@ class MoreScreen extends ConsumerWidget {
                         icon(Icons.dark_mode_outlined),
                         const SizedBox(width: 14),
                         Text(
-                          'Appearance',
+                          context.l10n.appearanceTitle,
                           style: Theme.of(context).textTheme.bodyLarge,
                         ),
                       ],
                     ),
                     const SizedBox(height: 12),
                     JzSegmented<ThemeMode>(
-                      options: const {
-                        ThemeMode.light: 'Light',
-                        ThemeMode.dark: 'Dark',
-                        ThemeMode.system: 'Auto',
+                      options: {
+                        ThemeMode.light: context.l10n.themeLight,
+                        ThemeMode.dark: context.l10n.themeDark,
+                        ThemeMode.system: context.l10n.themeAuto,
                       },
                       selected: ref.watch(themeModeProvider),
                       onChanged: (m) =>
@@ -181,29 +189,31 @@ class MoreScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 20),
-              const JzSectionLabel('About Jaiza'),
+              const LanguageCard(),
+              const SizedBox(height: 20),
+              JzSectionLabel(context.l10n.titleAboutJaiza),
               group([
                 JzListRow(
                   leading: icon(Icons.menu_book_outlined),
-                  title: 'Fazail of prayers',
+                  title: context.l10n.fazailOfPrayers,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/benefits'),
                 ),
                 JzListRow(
                   leading: icon(Icons.info_outline_rounded),
-                  title: 'About Jaiza & Al Islaah Academy',
+                  title: context.l10n.aboutJaizaAndAcademy,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/about'),
                 ),
                 JzListRow(
                   leading: icon(Icons.call_outlined),
-                  title: 'Contact us',
+                  title: context.l10n.contactUs,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/contact'),
                 ),
                 JzListRow(
                   leading: icon(Icons.volunteer_activism_outlined),
-                  title: 'Donation',
+                  title: context.l10n.titleDonation,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/donation'),
                 ),
@@ -212,20 +222,20 @@ class MoreScreen extends ConsumerWidget {
               group([
                 JzListRow(
                   leading: icon(Icons.lock_reset_outlined),
-                  title: 'Change password',
+                  title: context.l10n.titleChangePassword,
                   trailing: const JzChevron(),
                   onTap: () => context.push('/app/change-password'),
                 ),
                 JzListRow(
                   leading: icon(Icons.logout_rounded),
-                  title: 'Sign out',
+                  title: context.l10n.actionSignOut,
                   onTap: () => _signOut(context, ref),
                 ),
                 JzListRow(
                   leading: icon(Icons.delete_outline_rounded, c.error),
-                  title: 'Delete account',
+                  title: context.l10n.deleteAccount,
                   titleColor: c.error,
-                  subtitle: 'Removes your record permanently',
+                  subtitle: context.l10n.deleteAccountSubtitle,
                   trailing: const JzChevron(),
                   onTap: () => showDeleteAccountSheet(context),
                 ),
@@ -249,17 +259,16 @@ class MoreScreen extends ConsumerWidget {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text('Nawafil', style: t.headlineSmall),
+              Text(ctx.l10n.titleNawafil, style: t.headlineSmall),
               const SizedBox(height: 4),
               Text(
-                'Track Tahajjud, Ishraq, Chasht, Awwabin, Rawatib and Taraweeh '
-                'alongside your Fard. Nawafil are never counted as Qaza.',
+                ctx.l10n.nawafilSheetBody,
                 style: t.bodyMedium,
               ),
               const SizedBox(height: 18),
               JzSwitchRow(
-                title: 'Track Nawafil',
-                subtitle: 'Shows a Nawafil card on Today',
+                title: ctx.l10n.trackNawafil,
+                subtitle: ctx.l10n.trackNawafilSubtitle,
                 value: on,
                 onChanged: (v) => setNawafilEnabled(ctx, ref, v),
               ),
@@ -270,7 +279,7 @@ class MoreScreen extends ConsumerWidget {
                     Navigator.pop(ctx);
                     context.push('/app/nawafil');
                   },
-                  child: const Text('Open today’s Nawafil'),
+                  child: Text(ctx.l10n.openTodaysNawafil),
                 ),
             ],
           );
@@ -279,6 +288,10 @@ class MoreScreen extends ConsumerWidget {
     );
   }
 }
+
+/// The word typed to confirm deletion. Kept in Latin letters in every
+/// language so it is the same everywhere (D-024).
+const _kDeleteWord = 'DELETE';
 
 /// "Delete your account?" confirmation sheet.
 Future<void> showDeleteAccountSheet(BuildContext context) {
@@ -308,12 +321,13 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final ready = _confirm.text.trim() == 'DELETE';
-    const lost = [
-      'Your prayer record and streaks',
-      'Your Qaza list',
-      'Saved mosques and Jama’at alerts',
-      'Children you added, and their records',
+    final l10n = context.l10n;
+    final ready = _confirm.text.trim() == _kDeleteWord;
+    final lost = [
+      l10n.deleteLostPrayerRecord,
+      l10n.deleteLostQazaList,
+      l10n.deleteLostMosques,
+      l10n.deleteLostChildren,
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -331,8 +345,8 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Delete your account?', style: t.headlineSmall),
-                  Text('This cannot be undone.', style: t.bodySmall),
+                  Text(l10n.deleteAccountTitle, style: t.headlineSmall),
+                  Text(l10n.cannotBeUndone, style: t.bodySmall),
                 ],
               ),
             ),
@@ -363,14 +377,14 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
         ),
         const SizedBox(height: 16),
         Text.rich(
-          const TextSpan(
-            text: 'Type ',
+          TextSpan(
+            text: l10n.deleteTypePrefix,
             children: [
-              TextSpan(
-                text: 'DELETE',
+              const TextSpan(
+                text: _kDeleteWord,
                 style: TextStyle(fontWeight: FontWeight.w700),
               ),
-              TextSpan(text: ' to confirm.'),
+              TextSpan(text: l10n.deleteTypeSuffix),
             ],
           ),
           style: t.bodySmall,
@@ -380,7 +394,7 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
           controller: _confirm,
           onChanged: (_) => setState(() {}),
           textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(hintText: 'DELETE'),
+          decoration: const InputDecoration(hintText: _kDeleteWord),
         ),
         const SizedBox(height: 18),
         FilledButton(
@@ -392,18 +406,17 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
               ? () {
                   AppSnackBar.error(
                     context,
-                    'Account deletion is not connected yet — please contact '
-                    'Al Islaah Academy to remove your data.',
+                    l10n.deleteNotConnected,
                   );
                   Navigator.pop(context);
                 }
               : null,
-          child: const Text('Delete my account'),
+          child: Text(l10n.deleteMyAccount),
         ),
         const SizedBox(height: 10),
         FilledButton.tonal(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Keep my account'),
+          child: Text(l10n.keepMyAccount),
         ),
       ],
     );

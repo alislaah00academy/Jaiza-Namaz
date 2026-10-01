@@ -8,6 +8,8 @@ import '../../../core/utils/date_utils.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
+import '../../../core/l10n/l10n.dart';
+import 'package:intl/intl.dart';
 
 /// Calendar + per-day status list for all obligatory Fard prayers.
 class FardHistorySection extends ConsumerStatefulWidget {
@@ -31,7 +33,8 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
 
   DateTime _norm(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  String _dateLabel(DateTime d) => AppDateUtils.localDateKey(d);
+  String _dateLabel(DateTime d) =>
+      DateFormat.yMMMd(context.l10n.localeName).format(d);
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +50,12 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Prayer history',
+            context.l10n.prayerHistory,
             style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 4),
           Text(
-            'Select a date (${_dateLabel(_selectedDay)})',
+            context.l10n.selectADate(_dateLabel(_selectedDay)),
             style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
@@ -127,7 +130,7 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Status for ${_dateLabel(_selectedDay)}',
+            context.l10n.statusFor(_dateLabel(_selectedDay)),
             style: textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 10),
@@ -140,10 +143,10 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
                     ? Icon(Icons.nightlight_round, color: scheme.error)
                     : Icon(Icons.circle_outlined, color: scheme.outline);
             final label = status == PrayerStatus.completed
-                ? 'Prayed'
+                ? context.l10n.statusPrayed
                 : status == PrayerStatus.missed
-                    ? 'Missed'
-                    : 'Not recorded';
+                    ? context.l10n.statusMissed
+                    : context.l10n.statusNotRecorded;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
@@ -151,7 +154,7 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
                   SizedBox(width: 36, child: icon),
                   Expanded(
                     child: Text(
-                      def.label,
+                      def.label(context.l10n),
                       style: textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),

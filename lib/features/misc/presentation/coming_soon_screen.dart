@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/l10n/app_strings.dart';
 import '../../../core/widgets/jaiza_hero_emblem.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
+import '../../../core/l10n/l10n.dart';
 
 class ComingSoonScreen extends StatelessWidget {
   const ComingSoonScreen({super.key, this.featureTitle});
@@ -29,7 +29,7 @@ class ComingSoonScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    featureTitle ?? AppStrings.comingSoonTitle,
+                    featureTitle ?? context.l10n.comingSoonTitle,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.bold,
@@ -37,7 +37,7 @@ class ComingSoonScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    AppStrings.comingSoonBody,
+                    context.l10n.comingSoonBody,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color:

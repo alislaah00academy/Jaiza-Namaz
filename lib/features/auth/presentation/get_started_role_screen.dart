@@ -6,6 +6,7 @@ import '../../../core/widgets/jaiza_ornaments.dart';
 import '../../../core/widgets/jaiza_scaffold.dart';
 import '../../../data/models/user_role.dart';
 import '../../role_selection/presentation/role_card.dart';
+import '../../../core/l10n/l10n.dart';
 
 /// Pre-auth: the first thing a new user sees after tapping "Create account"
 /// on the Welcome screen. The chosen role is carried into `/signup` as a
@@ -42,7 +43,7 @@ class GetStartedRoleScreen extends StatelessWidget {
                         children: [
                           const SizedBox(height: 4),
                           Text(
-                            'WELCOME TO JAIZA',
+                            context.l10n.getStartedWelcome,
                             textAlign: TextAlign.center,
                             style: textTheme.headlineMedium?.copyWith(
                               color: scheme.onSurface,
@@ -50,49 +51,45 @@ class GetStartedRoleScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Track your Salah, stay consistent, and earn Allah\'s pleasure.',
+                            context.l10n.getStartedTagline,
                             textAlign: TextAlign.center,
                             style: textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 28),
-                          const JaizaFlourishDivider(
-                            label: 'CHOOSE YOUR ACCOUNT TYPE',
+                          JaizaFlourishDivider(
+                            label: context.l10n.chooseAccountType,
                           ),
                           const SizedBox(height: 20),
                           RoleCard(
                             icon: Icons.person_outline,
-                            title: 'Individual',
-                            subtitle:
-                                'Track and manage your own Salah attendance.',
+                            title: context.l10n.roleIndividual,
+                            subtitle: context.l10n.roleIndividualSubtitle,
                             loading: false,
                             onTap: () => _choose(context, UserRole.individual),
                           ).jaizaEnter(index: 1),
                           const SizedBox(height: 14),
                           RoleCard(
                             icon: Icons.people_alt_outlined,
-                            title: 'Parents',
-                            subtitle:
-                                'Monitor and manage your children\'s Salah attendance.',
+                            title: context.l10n.roleParents,
+                            subtitle: context.l10n.roleParentsSubtitle,
                             loading: false,
                             onTap: () => _choose(context, UserRole.parent),
                           ).jaizaEnter(index: 2),
                           const SizedBox(height: 14),
                           RoleCard(
                             icon: Icons.account_balance_outlined,
-                            title: 'Institute',
-                            subtitle:
-                                'Manage Salah attendance for your school, madrasa or organization.',
+                            title: context.l10n.roleInstitute,
+                            subtitle: context.l10n.roleInstituteSubtitle,
                             loading: false,
                             onTap: () =>
                                 _choose(context, UserRole.organization),
                           ).jaizaEnter(index: 3),
                           const SizedBox(height: 28),
                           JaizaQuoteBlock(
-                            quote:
-                                'Indeed, Salah prohibits from indecency and wrongdoing.',
-                            source: 'Surah Al-Ankaboot 29:45',
+                            quote: context.l10n.quoteAnkaboot,
+                            source: context.l10n.quoteAnkabootSource,
                           ),
                           const SizedBox(height: 16),
                         ],
@@ -110,12 +107,12 @@ class GetStartedRoleScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Have an account?',
+                            context.l10n.haveAccount,
                             style: textTheme.bodyMedium,
                           ),
                           TextButton(
                             onPressed: () => context.push('/login'),
-                            child: const Text('Log In'),
+                            child: Text(context.l10n.logInButton),
                           ),
                         ],
                       ),
@@ -123,9 +120,9 @@ class GetStartedRoleScreen extends StatelessWidget {
                   ],
                 ),
               ),
-              Positioned(
+              PositionedDirectional(
                 top: 4,
-                left: 4,
+                start: 4,
                 child: IconButton(
                   icon: const Icon(Icons.arrow_back_rounded),
                   // Reached via context.go (replaces history), so there's no

@@ -47,7 +47,7 @@ abstract final class AppTokens {
 
 /// Islamic-inspired cream + sage theme with full Material 3 component tuning.
 abstract final class AppTheme {
-  static ThemeData light() {
+  static ThemeData light({Locale? locale}) {
     final scheme = const ColorScheme(
       brightness: Brightness.light,
       primary: AppTokens.lightPrimary,
@@ -151,7 +151,10 @@ abstract final class AppTheme {
       ),
     );
 
-    final textTheme = _withDisplayFont(GoogleFonts.poppinsTextTheme(baseText));
+    final textTheme = forLocale(
+      _withDisplayFont(GoogleFonts.poppinsTextTheme(baseText)),
+      locale,
+    );
 
     return ThemeData(
       colorScheme: scheme,
@@ -313,7 +316,7 @@ abstract final class AppTheme {
     );
   }
 
-  static ThemeData dark() {
+  static ThemeData dark({Locale? locale}) {
     final scheme = const ColorScheme(
       brightness: Brightness.dark,
       primary: AppTokens.darkPrimary,
@@ -417,7 +420,10 @@ abstract final class AppTheme {
       ),
     );
 
-    final textTheme = _withDisplayFont(GoogleFonts.poppinsTextTheme(baseText));
+    final textTheme = forLocale(
+      _withDisplayFont(GoogleFonts.poppinsTextTheme(baseText)),
+      locale,
+    );
 
     return ThemeData(
       colorScheme: scheme,
@@ -615,6 +621,39 @@ abstract final class AppTheme {
   /// Soft shadow list for elevated cards (use with DecoratedBox).
   static List<BoxShadow> softShadow(BuildContext context) =>
       AppTokens.softShadow(context);
+
+  /// Urdu text (16 §1.2): Latin letters and digits stay on the English fonts,
+  /// and Urdu letters fall back to the bundled Noto fonts — Nastaliq for
+  /// reading text, the more compact Naskh for labels (buttons, chips, tabs).
+  /// Nastaliq is tall, so Urdu styles get a taller line height.
+  static TextTheme forLocale(TextTheme base, Locale? locale) {
+    if (locale?.languageCode != 'ur') return base;
+    TextStyle? nastaliq(TextStyle? s) => s?.copyWith(
+      fontFamilyFallback: const ['NotoNastaliqUrdu', 'NotoNaskhArabic'],
+      height: 1.9,
+    );
+    TextStyle? naskh(TextStyle? s) => s?.copyWith(
+      fontFamilyFallback: const ['NotoNaskhArabic'],
+      height: 1.5,
+    );
+    return base.copyWith(
+      displayLarge: nastaliq(base.displayLarge),
+      displayMedium: nastaliq(base.displayMedium),
+      displaySmall: nastaliq(base.displaySmall),
+      headlineLarge: nastaliq(base.headlineLarge),
+      headlineMedium: nastaliq(base.headlineMedium),
+      headlineSmall: nastaliq(base.headlineSmall),
+      titleLarge: nastaliq(base.titleLarge),
+      titleMedium: nastaliq(base.titleMedium),
+      titleSmall: nastaliq(base.titleSmall),
+      bodyLarge: nastaliq(base.bodyLarge),
+      bodyMedium: nastaliq(base.bodyMedium),
+      bodySmall: nastaliq(base.bodySmall),
+      labelLarge: naskh(base.labelLarge),
+      labelMedium: naskh(base.labelMedium),
+      labelSmall: naskh(base.labelSmall),
+    );
+  }
 
   /// Layers the elegant serif (Playfair Display) over display/headline/title
   /// styles only; body/label text stays on Poppins for readability.

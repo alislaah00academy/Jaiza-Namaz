@@ -10,6 +10,8 @@ import 'package:timezone/timezone.dart' as tz;
 import '../data/models/prayer_log.dart';
 import '../features/settings/data/prayer_settings.dart';
 import 'prayer_times_service.dart';
+import '../core/l10n/l10n.dart';
+import '../core/l10n/prayer_labels.dart';
 
 /// Local notifications at end of each Fard prayer window.
 class NotificationsService {
@@ -21,7 +23,6 @@ class NotificationsService {
   bool _initialized = false;
 
   static const _androidChannelId = 'jaiza_prayer_end';
-  static const _androidChannelName = 'Prayer time reminders';
 
   /// Legacy deterministic id kept so previously scheduled end notifications
   /// can be cancelled when users update to the new reminder rules.
@@ -95,10 +96,10 @@ class NotificationsService {
             AndroidFlutterLocalNotificationsPlugin
           >();
       await android?.createNotificationChannel(
-        const AndroidNotificationChannel(
+        AndroidNotificationChannel(
           _androidChannelId,
-          _androidChannelName,
-          description: 'Reminders when a prayer time window ends',
+          L10nLookup.current.notifChannelPrayerName,
+          description: L10nLookup.current.notifChannelPrayerDescription,
           importance: Importance.high,
         ),
       );
@@ -180,6 +181,7 @@ class NotificationsService {
     if (!granted) return;
 
     final now = DateTime.now();
+    final l10n = L10nLookup.current;
     final keys = schedules.map((e) => e.dateKey).toList();
     await cancelKnownRange(
       dateKeys: keys,
@@ -210,20 +212,10 @@ class NotificationsService {
         if (settings.startNotificationFor(prayer) && start.isAfter(now)) {
           await _plugin.zonedSchedule(
             id: startNotificationIdFor(day.dateKey, prayer),
-            title: 'Jaiza',
-            body:
-                '${_prettyPrayer(prayer)} time has begun. Don’t miss your prayer.',
+            title: l10n.appName,
+            body: l10n.notifPrayerStarted(prayer.label(l10n)),
             scheduledDate: tz.TZDateTime.from(start, tz.local),
-            notificationDetails: const NotificationDetails(
-              android: AndroidNotificationDetails(
-                _androidChannelId,
-                _androidChannelName,
-                channelDescription: 'Prayer start and reminder notifications',
-                importance: Importance.high,
-                priority: Priority.high,
-              ),
-              iOS: DarwinNotificationDetails(),
-            ),
+            notificationDetails: _details(),
             androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
           );
         }
@@ -233,19 +225,10 @@ class NotificationsService {
 
         await _plugin.zonedSchedule(
           id: endReminderIdFor(day.dateKey, prayer),
-          title: 'Jaiza',
-          body: '${_prettyPrayer(prayer)} ends in 10 minutes. Have you prayed?',
+          title: l10n.appName,
+          body: l10n.notifPrayerEndsSoon(prayer.label(l10n), 10),
           scheduledDate: tz.TZDateTime.from(endReminder, tz.local),
-          notificationDetails: const NotificationDetails(
-            android: AndroidNotificationDetails(
-              _androidChannelId,
-              _androidChannelName,
-              channelDescription: 'Prayer start and reminder notifications',
-              importance: Importance.high,
-              priority: Priority.high,
-            ),
-            iOS: DarwinNotificationDetails(),
-          ),
+          notificationDetails: _details(),
           androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         );
       }
@@ -271,30 +254,24 @@ class NotificationsService {
     final when = tz.TZDateTime.now(tz.local).add(delay);
     await _plugin.zonedSchedule(
       id: 999999,
-      title: 'Jaiza',
-      body: 'Test notification — prayer reminders are working.',
+      title: L10nLookup.current.appName,
+      body: L10nLookup.current.notifTest,
       scheduledDate: when,
-      notificationDetails: const NotificationDetails(
-        android: AndroidNotificationDetails(
-          _androidChannelId,
-          _androidChannelName,
-          importance: Importance.high,
-          priority: Priority.high,
-        ),
-        iOS: DarwinNotificationDetails(),
-      ),
+      notificationDetails: _details(),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
-  static String _prettyPrayer(PrayerName name) {
-    return switch (name) {
-      PrayerName.fajr => 'Fajr',
-      PrayerName.zuhr => 'Zuhr',
-      PrayerName.asr => 'Asr',
-      PrayerName.maghrib => 'Maghrib',
-      PrayerName.isha => 'Isha',
-      _ => name.name,
-    };
-  }
+  /// Channel texts follow the app language (the channel is created once;
+  /// Android updates its name when it's created again on the next start).
+  static NotificationDetails _details() => NotificationDetails(
+    android: AndroidNotificationDetails(
+      _androidChannelId,
+      L10nLookup.current.notifChannelPrayerName,
+      channelDescription: L10nLookup.current.notifChannelPrayerDescription,
+      importance: Importance.high,
+      priority: Priority.high,
+    ),
+    iOS: const DarwinNotificationDetails(),
+  );
 }

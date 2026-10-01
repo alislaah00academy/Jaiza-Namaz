@@ -7,9 +7,9 @@ import '../../../core/widgets/jz_ui.dart';
 import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../data/qaza_tracker.dart';
-
-String prayerLabel(PrayerName p) =>
-    '${p.name[0].toUpperCase()}${p.name.substring(1)}';
+import '../../../core/l10n/formatters.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 IconData prayerIcon(PrayerName p) => switch (p) {
   PrayerName.fajr => Icons.wb_twilight_outlined,
@@ -44,40 +44,34 @@ Future<void> markQazaDone(
     if (context.mounted) {
       AppSnackBar.success(
         context,
-        'Qaza ${prayerLabel(prayer)} recorded. May Allah accept it.',
+        context.l10n.qazaRecorded(prayer.label(context.l10n)),
       );
     }
   } catch (_) {
-    if (context.mounted) AppSnackBar.error(context, 'Could not save.');
+    if (context.mounted) AppSnackBar.error(context, context.l10n.couldNotSave);
   }
 }
 
 /// "How Qaza works in Jaiza" bottom sheet.
 Future<void> showQazaHowItWorks(BuildContext context) {
+  final l10n = context.l10n;
   final items = <(IconData, String, String)>[
     (
       Icons.merge_type_rounded,
-      'Two kinds, one list',
-      'Prayers you miss while using Jaiza are added for you, with their date. '
-          'Prayers from before Jaiza are whatever estimate you enter.',
+      l10n.qazaHowTwoKindsTitle,
+      l10n.qazaHowTwoKindsBody,
     ),
     (
       Icons.event_available_outlined,
-      'Count from Bulugh',
-      'Your backlog starts the day you became Islamically accountable — not '
-          'from birth.',
+      l10n.qazaHowBulughTitle,
+      l10n.qazaHowBulughBody,
     ),
     (
       Icons.balance_outlined,
-      'An estimate is enough',
-      'If you do not remember exactly, enter your most reasonable guess. Islam '
-          'asks for sincere effort where the exact number is unknown.',
+      l10n.qazaHowEstimateTitle,
+      l10n.qazaHowEstimateBody,
     ),
-    (
-      Icons.looks_5_outlined,
-      'Only the five Fard',
-      'Fajr, Zuhr, Asr, Maghrib and Isha. Nawafil are never counted as Qaza.',
-    ),
+    (Icons.looks_5_outlined, l10n.qazaHowFardTitle, l10n.qazaHowFardBody),
   ];
   return showJzSheet(
     context,
@@ -86,7 +80,7 @@ Future<void> showQazaHowItWorks(BuildContext context) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('How Qaza works in Jaiza', style: t.headlineSmall),
+          Text(l10n.qazaHowTitle, style: t.headlineSmall),
           const SizedBox(height: 20),
           for (final i in items)
             Padding(
@@ -112,7 +106,7 @@ Future<void> showQazaHowItWorks(BuildContext context) {
           const SizedBox(height: 6),
           FilledButton.tonal(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Got it'),
+            child: Text(l10n.gotIt),
           ),
         ],
       );
@@ -138,7 +132,8 @@ class QazaTotalCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final sinceLabel = '${overview.since.day} ${_month(overview.since.month)}';
+    final l10n = context.l10n;
+    final sinceLabel = formatDayMonth(overview.since, l10n);
     Widget line(String title, String sub, String value, {Widget? trailing}) =>
         Row(
           children: [
@@ -161,14 +156,14 @@ class QazaTotalCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text('Total Qaza', style: t.titleMedium)),
+              Expanded(child: Text(l10n.totalQaza, style: t.titleMedium)),
               Text(jzCount(overview.remaining), style: t.headlineSmall),
             ],
           ),
           const JzDivider(),
           line(
-            'Tracked by Jaiza',
-            'Missed since $sinceLabel',
+            l10n.trackedByJaiza,
+            l10n.missedSince(sinceLabel),
             jzCount(overview.trackedTotal),
           ),
           if (allowEstimate) const JzDivider(),
@@ -178,11 +173,11 @@ class QazaTotalCard extends StatelessWidget {
             InkWell(
               onTap: () => context.push('/app/qaza/estimate'),
               child: line(
-                'Your estimate',
-                'Before you installed Jaiza',
+                l10n.yourEstimate,
+                l10n.beforeInstalledJaiza,
                 jzCount(overview.estimateTotal),
                 trailing: Align(
-                  alignment: Alignment.centerRight,
+                  alignment: AlignmentDirectional.centerEnd,
                   child: Icon(
                     Icons.edit_outlined,
                     size: 18,
@@ -202,9 +197,9 @@ class QazaTotalCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Add an estimate', style: t.bodyLarge),
+                        Text(l10n.addAnEstimate, style: t.bodyLarge),
                         Text(
-                          'Have Qaza from before Jaiza? Add it once.',
+                          l10n.addAnEstimateSubtitle,
                           style: t.bodySmall,
                         ),
                       ],
@@ -220,20 +215,6 @@ class QazaTotalCard extends StatelessWidget {
   }
 }
 
-String _month(int m) => const [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-][m - 1];
 
 /// Per-prayer card with progress and the "Mark Qaza done" action.
 class QazaPrayerCard extends ConsumerWidget {
@@ -272,10 +253,10 @@ class QazaPrayerCard extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(prayerLabel(p), style: t.titleSmall),
+                          child: Text(p.label(context.l10n), style: t.titleSmall),
                         ),
                         Text(
-                          '${jzCount(summary.remaining)} left',
+                          context.l10n.qazaLeft(jzCount(summary.remaining)),
                           style: t.titleSmall,
                         ),
                       ],
@@ -288,7 +269,10 @@ class QazaPrayerCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${jzCount(summary.completed)} of ${jzCount(summary.total)} done',
+                      context.l10n.qazaDoneOfTotal(
+                        jzCount(summary.completed),
+                        jzCount(summary.total),
+                      ),
                       style: t.labelSmall,
                     ),
                   ],
@@ -316,7 +300,11 @@ class QazaPrayerCard extends ConsumerWidget {
                         : Icons.check_rounded,
                     size: 18,
                   ),
-                  label: Text(doneToday ? 'Done for today' : 'Mark Qaza done'),
+                  label: Text(
+                    doneToday
+                        ? context.l10n.doneForToday
+                        : context.l10n.markQazaDone,
+                  ),
                 ),
               ),
               const SizedBox(width: 10),

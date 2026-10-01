@@ -12,6 +12,8 @@ import '../../../services/prayer_times_service.dart';
 import '../../home/presentation/prayer_marking.dart';
 import '../../parent/data/family_data.dart';
 import '../../parent/presentation/family_widgets.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/formatters.dart';
 
 /// Prayer schedule for any local day (same location rules as Today, using
 /// the last cached GPS fix instead of asking for a new one).
@@ -99,7 +101,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     return ListView(
       padding: const EdgeInsets.only(bottom: 24),
       children: [
-        const JzPageTitle('Records'),
+        JzPageTitle(context.l10n.titleRecords),
         if (isParent) const PersonChipRow(),
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
@@ -118,7 +120,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         ),
                         Expanded(
                           child: Text(
-                            DateFormat('MMMM y').format(_month),
+                            DateFormat('MMMM y', context.l10n.localeName).format(_month),
                             textAlign: TextAlign.center,
                             style: t.titleSmall,
                           ),
@@ -192,7 +194,14 @@ class _MonthGrid extends StatelessWidget {
     final c = Theme.of(context).colorScheme;
     final days = DateTime(month.year, month.month + 1, 0).day;
     final lead = DateTime(month.year, month.month, 1).weekday - 1; // Mon=0
-    const dows = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+    // Narrow weekday names, Monday first (1 Jan 2024 was a Monday).
+    final dows = [
+      for (var i = 0; i < 7; i++)
+        DateFormat(
+          'EEEEE',
+          context.l10n.localeName,
+        ).format(DateTime(2024, 1, 1 + i)),
+    ];
     final cells = <Widget>[
       for (final d in dows)
         Center(
@@ -307,11 +316,13 @@ class _DayFardCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    DateFormat('EEEE, d MMMM').format(day),
+                    DateFormat('EEEE, d MMMM', context.l10n.localeName).format(day),
                     style: t.titleMedium,
                   ),
                 ),
-                JzChip('$done / ${kFardPrayerDefs.length}'),
+                JzChip(
+                  context.l10n.doneSlashTotalSpaced(done, kFardPrayerDefs.length),
+                ),
               ],
             ),
           ),
@@ -331,21 +342,21 @@ class _DayFardCard extends ConsumerWidget {
                     day.isBefore(today) || (end != null && end.isBefore(now));
                 final missed = !isDone && ended;
                 return JzPrayerRow(
-                  name: def.label,
+                  name: def.label(context.l10n),
                   checked: isDone,
                   state: missed ? JzRowState.missed : JzRowState.normal,
                   sub: missed
                       ? null
                       : start == null
-                      ? def.startHint
-                      : DateFormat('h:mm a').format(start),
+                      ? def.startHint(context.l10n)
+                      : formatTime(start, context.l10n),
                   subWidget: !missed
                       ? null
                       : log?.status == PrayerStatus.missed
                       ? Text(
                           personId == null
-                              ? 'Missed · in your Qaza list'
-                              : 'Missed · in the Qaza list',
+                              ? context.l10n.missedInYourQaza
+                              : context.l10n.missedInTheQaza,
                           style: t.labelSmall?.copyWith(
                             color: Theme.of(context).colorScheme.error,
                             fontWeight: FontWeight.w600,
@@ -356,7 +367,7 @@ class _DayFardCard extends ConsumerWidget {
                             context,
                             ref,
                             name: def.name,
-                            label: def.label,
+                            label: def.label(context.l10n),
                             at: at,
                             personId: personId,
                           ),
@@ -366,7 +377,7 @@ class _DayFardCard extends ConsumerWidget {
                     context,
                     ref,
                     name: def.name,
-                    label: def.label,
+                    label: def.label(context.l10n),
                     type: PrayerType.fard,
                     currentlyDone: isDone,
                     at: at,
@@ -416,8 +427,12 @@ class _DayNawafilCard extends ConsumerWidget {
               children: [
                 Icon(Icons.front_hand_outlined, color: c.primary),
                 const SizedBox(width: 10),
-                Expanded(child: Text('Nawafil', style: t.titleMedium)),
-                JzChip('$done / ${kNawafilDefs.length}'),
+                Expanded(
+                  child: Text(context.l10n.titleNawafil, style: t.titleMedium),
+                ),
+                JzChip(
+                  context.l10n.doneSlashTotalSpaced(done, kNawafilDefs.length),
+                ),
               ],
             ),
           ),
@@ -428,14 +443,14 @@ class _DayNawafilCard extends ConsumerWidget {
                 final def = kNawafilDefs[i];
                 final isDone = map[def.name]?.status == PrayerStatus.completed;
                 return JzPrayerRow(
-                  name: def.label,
+                  name: def.label(context.l10n),
                   checked: isDone,
                   showDivider: i < kNawafilDefs.length - 1,
                   onToggle: () => togglePrayer(
                     context,
                     ref,
                     name: def.name,
-                    label: def.label,
+                    label: def.label(context.l10n),
                     type: PrayerType.nawafil,
                     currentlyDone: isDone,
                     at: at,
@@ -474,8 +489,8 @@ class _DayQazaCard extends StatelessWidget {
         children: [
           Icon(Icons.history_edu_outlined, color: c.primary),
           const SizedBox(width: 12),
-          Expanded(child: Text('Qaza', style: t.titleSmall)),
-          Text('$n completed', style: t.labelMedium),
+          Expanded(child: Text(context.l10n.titleQaza, style: t.titleSmall)),
+          Text(context.l10n.qazaCompletedCount(n), style: t.labelMedium),
         ],
       ),
     );
@@ -520,19 +535,26 @@ class _MonthSummary extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  '${DateFormat('MMMM').format(month)} summary',
+                  context.l10n.monthSummary(
+                  DateFormat('MMMM', context.l10n.localeName).format(month),
+                ),
                   style: t.titleMedium,
                 ),
               ),
-              Text('$prayed / $possible', style: t.titleSmall),
+              Text(
+                context.l10n.doneSlashTotalSpaced(prayed, possible),
+                style: t.titleSmall,
+              ),
             ],
           ),
           const SizedBox(height: 10),
           JzBar(value: possible == 0 ? 0 : prayed / possible, height: 8),
           const SizedBox(height: 8),
           Text(
-            '$pct% prayed · ${fullDays.length} complete '
-            '${fullDays.length == 1 ? 'day' : 'days'}',
+            context.l10n.pctPrayedComplete(
+              pct,
+              context.l10n.completeDays(fullDays.length),
+            ),
             style: t.bodySmall,
           ),
         ],

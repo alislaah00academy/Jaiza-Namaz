@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../l10n/l10n.dart';
 import '../theme/app_theme.dart';
 
 /// Shared building blocks for the redesigned screens. Each widget mirrors
@@ -560,14 +561,10 @@ class JzImportantNote extends StatelessWidget {
   const JzImportantNote({super.key});
 
   @override
-  Widget build(BuildContext context) => const JzNoteCard(
-    title: 'Important Note',
+  Widget build(BuildContext context) => JzNoteCard(
+    title: context.l10n.importantNoteTitle,
     icon: Icons.priority_high_rounded,
-    body: Text(
-      'This calculation is only an estimate. Islam encourages sincere effort '
-      'when the exact number is unknown. Enter your best estimate and remain '
-      'consistent.',
-    ),
+    body: Text(context.l10n.qazaEstimateNote),
   );
 }
 
@@ -763,7 +760,7 @@ class JzSegmented<T> extends StatelessWidget {
                     color: entries[i].key == selected ? c.primary : null,
                     border: i == 0
                         ? null
-                        : Border(left: BorderSide(color: c.outline)),
+                        : BorderDirectional(start: BorderSide(color: c.outline)),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -790,7 +787,7 @@ class JzSearchBar extends StatelessWidget {
   const JzSearchBar({
     super.key,
     this.controller,
-    this.hint = 'Mosque name or area',
+    this.hint,
     this.onTap,
     this.onChanged,
     this.autofocus = false,
@@ -798,7 +795,8 @@ class JzSearchBar extends StatelessWidget {
   });
 
   final TextEditingController? controller;
-  final String hint;
+  /// Defaults to "Mosque name or area".
+  final String? hint;
   final VoidCallback? onTap;
   final ValueChanged<String>? onChanged;
   final bool autofocus;
@@ -821,7 +819,7 @@ class JzSearchBar extends StatelessWidget {
         onChanged: onChanged,
         style: const TextStyle(fontSize: 15),
         decoration: InputDecoration(
-          hintText: hint,
+          hintText: hint ?? context.l10n.mosqueSearchHint,
           prefixIcon: Icon(Icons.search_rounded, color: c.onSurfaceVariant),
           suffixIcon: controller != null && controller!.text.isNotEmpty
               ? IconButton(

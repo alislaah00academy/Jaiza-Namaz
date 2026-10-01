@@ -9,6 +9,7 @@ import '../../../data/models/prayer_log.dart';
 import '../../../providers/providers.dart';
 import '../../parent/data/family_data.dart';
 import 'class_mark_screen.dart' show LetterAvatarLike;
+import '../../../core/l10n/l10n.dart';
 
 enum _Range { week, month }
 
@@ -81,7 +82,10 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
       padding: const EdgeInsets.all(16),
       children: [
         JzSegmented<_Range>(
-          options: const {_Range.week: 'This week', _Range.month: 'This month'},
+          options: {
+            _Range.week: context.l10n.thisWeek,
+            _Range.month: context.l10n.thisMonth,
+          },
           selected: _range,
           onChanged: (r) => setState(() => _range = r),
         ),
@@ -93,30 +97,36 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
             children: [
               Row(
                 children: [
-                  Expanded(child: Text('Class average', style: t.titleMedium)),
-                  Text('$avgPct%', style: t.headlineSmall),
+                  Expanded(
+                    child: Text(context.l10n.classAverage, style: t.titleMedium),
+                  ),
+                  Text(context.l10n.percent(avgPct), style: t.headlineSmall),
                 ],
               ),
               const SizedBox(height: 10),
               JzBar(value: avgPct / 100, height: 8),
               const SizedBox(height: 8),
               Text(
-                '${students.length} students · ${DateFormat('MMMM y').format(now)} · '
-                '$totalDone of $totalPossible prayers',
+                context.l10n.classReportSummary(
+                  context.l10n.studentsCount(students.length),
+                  DateFormat('MMMM y', context.l10n.localeName).format(now),
+                  totalDone,
+                  totalPossible,
+                ),
                 style: t.bodySmall,
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        const JzSectionLabel('By student'),
+        JzSectionLabel(context.l10n.byStudent),
         JzCard(
           child: Column(
             children: [
               if (rows.isEmpty)
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: Text('No students yet.', style: t.bodyMedium),
+                  child: Text(context.l10n.noStudentsYet, style: t.bodyMedium),
                 )
               else
                 for (var i = 0; i < rows.length; i++)
@@ -152,7 +162,7 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          '${(rows[i].$3 * 100).round()}%',
+                          context.l10n.percent((rows[i].$3 * 100).round()),
                           style: t.titleSmall,
                         ),
                       ],
@@ -168,19 +178,18 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
               child: FilledButton.icon(
                 onPressed: () => AppSnackBar.success(
                   context,
-                  'Sharing arrives with the reports backend — for now, tell '
-                  'families the numbers directly.',
+                  context.l10n.sharingComingSoon,
                 ),
                 icon: const Icon(Icons.ios_share_rounded, size: 18),
-                label: const Text('Share report'),
+                label: Text(context.l10n.shareReport),
               ),
             ),
             const SizedBox(width: 10),
             OutlinedButton.icon(
               onPressed: () =>
-                  AppSnackBar.success(context, 'PDF export is coming soon.'),
+                  AppSnackBar.success(context, context.l10n.pdfComingSoon),
               icon: const Icon(Icons.picture_as_pdf_outlined, size: 18),
-              label: const Text('PDF'),
+              label: Text(context.l10n.pdfButton),
             ),
           ],
         ),

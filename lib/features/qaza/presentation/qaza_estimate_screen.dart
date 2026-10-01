@@ -12,6 +12,8 @@ import '../../../providers/providers.dart';
 import '../data/qaza_plan.dart';
 import '../data/qaza_tracker.dart';
 import 'qaza_widgets.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 enum _Mode { same, each }
 
@@ -103,7 +105,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
       await ref.read(qazaIntroDoneProvider.notifier).set(true);
       if (mounted) context.pushReplacement('/app/qaza/plan');
     } catch (_) {
-      if (mounted) AppSnackBar.error(context, 'Could not save. Try again.');
+      if (mounted) AppSnackBar.error(context, context.l10n.errorSaveFailed);
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -123,32 +125,31 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
           body: _mode == _Mode.same
               ? Text.rich(
                   TextSpan(
-                    text: 'This is only for the prayers you missed ',
+                    text: context.l10n.qazaEstimateOnlyMissedPrefix,
                     children: [
-                      const TextSpan(
-                        text: 'before you installed Jaiza',
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                      TextSpan(
+                        text: context.l10n.qazaEstimateBeforeInstalled,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       TextSpan(
-                        text:
-                            ' — ${DateFormat('d MMMM y').format(since)}. '
-                            'Everything after that date is counted for you, so '
-                            'nothing is added twice.',
+                        text: context.l10n.qazaEstimateOnlyMissedSuffix(
+                          DateFormat(
+                            'd MMMM y',
+                            context.l10n.localeName,
+                          ).format(since),
+                        ),
                       ),
                     ],
                   ),
                 )
-              : const Text(
-                  'Enter what you already know. Leave a prayer blank if you are '
-                  'not sure — you can come back and change it any time.',
-                ),
+              : Text(context.l10n.qazaEstimateEachIntro),
         ),
         const SizedBox(height: 16),
-        const JzSectionLabel('How do you want to enter it?'),
+        JzSectionLabel(context.l10n.qazaEstimateHowEnter),
         JzSegmented<_Mode>(
-          options: const {
-            _Mode.same: 'Same for all',
-            _Mode.each: 'Each prayer',
+          options: {
+            _Mode.same: context.l10n.qazaEstimateSameForAll,
+            _Mode.each: context.l10n.qazaEstimateEachPrayer,
           },
           selected: _mode,
           onChanged: (m) => setState(() => _mode = m),
@@ -160,7 +161,9 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [
-              Expanded(child: Text('Total estimate', style: t.titleMedium)),
+              Expanded(
+                child: Text(context.l10n.qazaTotalEstimate, style: t.titleMedium),
+              ),
               Text(jzCount(_total), style: t.headlineSmall),
             ],
           ),
@@ -176,7 +179,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
                   height: 22,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Save estimate'),
+              : Text(context.l10n.qazaSaveEstimate),
         ),
         const SizedBox(height: 16),
       ],
@@ -217,17 +220,17 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('How long were you not praying?', style: t.titleMedium),
+          Text(context.l10n.qazaHowLongNotPraying, style: t.titleMedium),
           const SizedBox(height: 2),
-          Text('Your best guess is enough.', style: t.bodySmall),
+          Text(context.l10n.qazaBestGuessEnough, style: t.bodySmall),
           const SizedBox(height: 16),
           Row(
             children: [
-              _bigField(_years, 'Years'),
+              _bigField(_years, context.l10n.unitYears),
               const SizedBox(width: 10),
-              _bigField(_months, 'Months'),
+              _bigField(_months, context.l10n.unitMonths),
               const SizedBox(width: 10),
-              _bigField(_days, 'Days'),
+              _bigField(_days, context.l10n.unitDays),
             ],
           ),
           const JzDivider(top: 16),
@@ -235,11 +238,11 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
             children: [
               Expanded(
                 child: Text(
-                  'That is about ${jzCount(_sameDays)} days',
+                  context.l10n.qazaThatIsAboutDays(jzCount(_sameDays)),
                   style: t.bodyMedium,
                 ),
               ),
-              JzChip('${jzCount(_sameDays)} each', gold: true),
+              JzChip(context.l10n.qazaEach(jzCount(_sameDays)), gold: true),
             ],
           ),
         ],
@@ -253,7 +256,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Text(
-              'Every prayer gets the same figure',
+              context.l10n.qazaEveryPrayerSame,
               style: t.titleMedium,
             ),
           ),
@@ -264,7 +267,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
                 size: 36,
                 iconSize: 18,
               ),
-              title: prayerLabel(kQazaPrayerNames[i]),
+              title: kQazaPrayerNames[i].label(context.l10n),
               showDivider: i < kQazaPrayerNames.length - 1,
               trailing: Text(jzCount(_sameDays), style: t.titleSmall),
             ),
@@ -278,7 +281,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('How many of each?', style: t.titleMedium),
+        Text(context.l10n.qazaHowManyEach, style: t.titleMedium),
         const SizedBox(height: 8),
         for (var i = 0; i < kQazaPrayerNames.length; i++) ...[
           Padding(
@@ -293,7 +296,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
                 const SizedBox(width: 14),
                 Expanded(
                   child: Text(
-                    prayerLabel(kQazaPrayerNames[i]),
+                    kQazaPrayerNames[i].label(context.l10n),
                     style: t.bodyLarge,
                   ),
                 ),

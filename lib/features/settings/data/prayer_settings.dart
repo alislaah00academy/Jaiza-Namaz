@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../../../data/models/prayer_log.dart';
+import '../../../core/l10n/l10n.dart';
+import '../../../core/l10n/prayer_labels.dart';
 
 /// Firestore key: `users/{uid}.prayerSettings` (map).
 @immutable
@@ -65,22 +67,11 @@ class PrayerSettingsParsed {
     return startPrayerNotifications[k] ?? true;
   }
 
-  String endMessageFor(PrayerName name) {
+  String endMessageFor(PrayerName name, L10n l) {
     final k = name.name;
     final custom = customEndMessages[k];
     if (custom != null && custom.trim().isNotEmpty) return custom.trim();
-    return '${_prettyPrayer(name)} time has ended. Did you pray?';
-  }
-
-  static String _prettyPrayer(PrayerName name) {
-    return switch (name) {
-      PrayerName.fajr => 'Fajr',
-      PrayerName.zuhr => 'Zuhr',
-      PrayerName.asr => 'Asr',
-      PrayerName.maghrib => 'Maghrib',
-      PrayerName.isha => 'Isha',
-      _ => name.name,
-    };
+    return l.notifPrayerEnded(name.label(l));
   }
 
   /// Merge raw Firestore map with defaults (null-safe).
@@ -186,16 +177,19 @@ class PrayerSettingsParsed {
     'singapore',
   ];
 
-  static String calcMethodLabel(String key) {
+  static String calcMethodLabel(String key, L10n l) {
     return switch (key) {
-      'karachi' => 'Karachi (UIS)',
-      'muslimWorldLeague' => 'Muslim World League',
-      'ummAlQura' => 'Umm al-Qura',
-      'northAmerica' => 'ISNA (North America)',
-      'egyptian' => 'Egyptian',
-      'tehran' => 'Tehran',
-      'singapore' => 'Singapore',
+      'karachi' => l.calcMethodKarachi,
+      'muslimWorldLeague' => l.calcMethodMwl,
+      'ummAlQura' => l.calcMethodUmmAlQura,
+      'northAmerica' => l.calcMethodIsna,
+      'egyptian' => l.calcMethodEgyptian,
+      'tehran' => l.calcMethodTehran,
+      'singapore' => l.calcMethodSingapore,
       _ => key,
     };
   }
+
+  static String madhabLabel(String madhab, L10n l) =>
+      madhab == 'hanafi' ? l.madhabHanafi : l.madhabShafii;
 }

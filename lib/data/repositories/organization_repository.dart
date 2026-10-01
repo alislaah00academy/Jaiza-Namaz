@@ -158,7 +158,8 @@ class OrganizationRepository {
       final orgId = query.docs.first.reference.parent.parent?.id;
       if (orgId == null) return null;
       final orgDoc = await _orgs.doc(orgId).get();
-      final orgName = orgDoc.data()?['name'] as String? ?? 'an organization';
+      // Empty when the org has no name; the UI shows "an organization".
+      final orgName = orgDoc.data()?['name'] as String? ?? '';
       return PendingTeacherInvite(orgId: orgId, orgName: orgName);
     } catch (e, st) {
       appLog('findPendingInvite', error: e, stackTrace: st);
