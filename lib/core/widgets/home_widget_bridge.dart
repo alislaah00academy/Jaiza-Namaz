@@ -396,7 +396,10 @@ abstract final class BackgroundWidgetWriter {
         ..addEntries(kJaizaStripPrayerNames.map((p) => MapEntry(p.name, '')));
       today
         ..clear()
-        ..addAll({'dateKey': todayKey, 'dateLine': formatGregHijriLine(now, L10nLookup.current)});
+        ..addAll({
+          'dateKey': todayKey,
+          'dateLine': formatGregHijriLine(now, L10nLookup.current),
+        });
       tomorrowMap
         ..clear()
         ..addAll({

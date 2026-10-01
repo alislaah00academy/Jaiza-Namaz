@@ -108,10 +108,7 @@ class NawafilScreen extends ConsumerWidget {
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 14, 4, 0),
-          child: Text(
-            context.l10n.nawafilTurnOffHint,
-            style: t.bodySmall,
-          ),
+          child: Text(context.l10n.nawafilTurnOffHint, style: t.bodySmall),
         ),
       ],
     );

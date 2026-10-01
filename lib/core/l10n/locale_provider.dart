@@ -34,7 +34,9 @@ final languageChoiceProvider =
     );
 
 /// The device locale; overridable in tests.
-final deviceLocaleProvider = Provider((ref) => PlatformDispatcher.instance.locale);
+final deviceLocaleProvider = Provider(
+  (ref) => PlatformDispatcher.instance.locale,
+);
 
 /// The language the app is shown in right now.
 final appLanguageProvider = Provider<AppLanguage>((ref) {

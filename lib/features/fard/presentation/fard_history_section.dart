@@ -56,7 +56,9 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
           const SizedBox(height: 4),
           Text(
             context.l10n.selectADate(_dateLabel(_selectedDay)),
-            style: textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            style: textTheme.bodySmall?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 12),
           TableCalendar<void>(
@@ -109,7 +111,10 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
               titleCentered: true,
               titleTextStyle: textTheme.titleSmall ?? const TextStyle(),
               leftChevronIcon: Icon(Icons.chevron_left, color: scheme.primary),
-              rightChevronIcon: Icon(Icons.chevron_right, color: scheme.primary),
+              rightChevronIcon: Icon(
+                Icons.chevron_right,
+                color: scheme.primary,
+              ),
             ),
             calendarBuilders: CalendarBuilders(
               markerBuilder: (context, day, events) {
@@ -140,13 +145,13 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
             final icon = status == PrayerStatus.completed
                 ? Icon(Icons.check_circle, color: scheme.primary)
                 : status == PrayerStatus.missed
-                    ? Icon(Icons.nightlight_round, color: scheme.error)
-                    : Icon(Icons.circle_outlined, color: scheme.outline);
+                ? Icon(Icons.nightlight_round, color: scheme.error)
+                : Icon(Icons.circle_outlined, color: scheme.outline);
             final label = status == PrayerStatus.completed
                 ? context.l10n.statusPrayed
                 : status == PrayerStatus.missed
-                    ? context.l10n.statusMissed
-                    : context.l10n.statusNotRecorded;
+                ? context.l10n.statusMissed
+                : context.l10n.statusNotRecorded;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
@@ -161,11 +166,13 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
                       color: scheme.surfaceContainerHighest,
-                      borderRadius:
-                          BorderRadius.circular(AppTokens.radiusChip),
+                      borderRadius: BorderRadius.circular(AppTokens.radiusChip),
                     ),
                     child: Text(
                       label,
@@ -173,8 +180,8 @@ class _FardHistorySectionState extends ConsumerState<FardHistorySection> {
                         color: status == PrayerStatus.completed
                             ? scheme.primary
                             : status == PrayerStatus.missed
-                                ? scheme.error
-                                : scheme.onSurfaceVariant,
+                            ? scheme.error
+                            : scheme.onSurfaceVariant,
                       ),
                     ),
                   ),

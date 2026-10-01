@@ -60,9 +60,11 @@ abstract final class DateKeys {
   static int daysBetween(String from, String to) {
     final a = parse(from);
     final b = parse(to);
-    return DateTime.utc(b.year, b.month, b.day)
-        .difference(DateTime.utc(a.year, a.month, a.day))
-        .inDays;
+    return DateTime.utc(
+      b.year,
+      b.month,
+      b.day,
+    ).difference(DateTime.utc(a.year, a.month, a.day)).inDays;
   }
 
   /// The prayer day a mark made at [now] belongs to (09 §2). The prayer day

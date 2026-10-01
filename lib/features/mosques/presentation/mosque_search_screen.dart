@@ -59,9 +59,7 @@ class _MosqueSearchScreenState extends ConsumerState<MosqueSearchScreen> {
             children: [
               const RegisterMosqueAction(),
               const SizedBox(height: 20),
-              JzSectionLabel(
-                context.l10n.resultsCount(results.length),
-              ),
+              JzSectionLabel(context.l10n.resultsCount(results.length)),
               if (results.isEmpty)
                 JzCard(
                   padding: const EdgeInsets.all(16),

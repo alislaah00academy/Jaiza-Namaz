@@ -31,10 +31,7 @@ class AboutScreen extends StatelessWidget {
         const SizedBox(height: 22),
         JzCard(
           padding: const EdgeInsets.all(18),
-          child: Text(
-            context.l10n.aboutBody,
-            style: t.bodyLarge,
-          ),
+          child: Text(context.l10n.aboutBody, style: t.bodyLarge),
         ),
         const SizedBox(height: 14),
         JzCard(

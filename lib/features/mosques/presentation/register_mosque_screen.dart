@@ -151,10 +151,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
       _location = pos == null ? (24.9215, 67.0910) : (pos.lat, pos.lon);
     });
     if (pos == null) {
-      AppSnackBar.error(
-        context,
-        context.l10n.gpsFailedSamplePin,
-      );
+      AppSnackBar.error(context, context.l10n.gpsFailedSamplePin);
     }
   }
 
@@ -173,10 +170,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
         _photo = 'signboard.jpg';
       }
     });
-    AppSnackBar.success(
-      context,
-      context.l10n.sampleFileAttached,
-    );
+    AppSnackBar.success(context, context.l10n.sampleFileAttached);
   }
 
   Future<bool?> _showDuplicate(Mosque m) {
@@ -243,7 +237,10 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
                           ],
                         ),
                         Text(
-                          ctx.l10n.dotJoin(m.address, m.distanceLabel(ctx.l10n)),
+                          ctx.l10n.dotJoin(
+                            m.address,
+                            m.distanceLabel(ctx.l10n),
+                          ),
                           style: t.bodySmall,
                         ),
                       ],
@@ -485,10 +482,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
               Icon(Icons.location_on_outlined, color: c.error, size: 28),
               const SizedBox(height: 6),
               Text(context.l10n.dropPinOnMap, style: t.titleSmall),
-              Text(
-                context.l10n.tapGpsOrDrag,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.tapGpsOrDrag, style: t.bodySmall),
             ],
           ),
         )
@@ -500,10 +494,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           onTap: _placePin,
         ),
       const SizedBox(height: 8),
-      Text(
-        context.l10n.dragPinHint,
-        style: t.bodySmall,
-      ),
+      Text(context.l10n.dragPinHint, style: t.bodySmall),
       const SizedBox(height: 18),
       JzSectionLabel(context.l10n.signBoardPhoto, required: true),
       _uploadBox(
@@ -623,18 +614,12 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           ),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(
-              context.l10n.verificationOnly,
-              style: t.bodySmall,
-            ),
+            child: Text(context.l10n.verificationOnly, style: t.bodySmall),
           ),
         ],
       ),
       const SizedBox(height: 8),
-      Text(
-        context.l10n.worshipperCnicNote,
-        style: t.bodySmall,
-      ),
+      Text(context.l10n.worshipperCnicNote, style: t.bodySmall),
       const SizedBox(height: 18),
       JzSectionLabel(context.l10n.mosqueContact, required: true),
       const SizedBox(height: 6),
@@ -731,11 +716,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
         row(l10n.reviewName, _fullName.text.trim()),
         row(l10n.reviewPhone, _phone.text.trim()),
         row(l10n.reviewCnic, l10n.notShownPublicly(_cnic.text)),
-        row(
-          l10n.reviewProof,
-          l10n.notShownPublicly(_proof ?? '—'),
-          last: true,
-        ),
+        row(l10n.reviewProof, l10n.notShownPublicly(_proof ?? '—'), last: true),
       ]),
       JzCard(
         padding: const EdgeInsets.all(16),
@@ -744,12 +725,7 @@ class _RegisterMosqueScreenState extends ConsumerState<RegisterMosqueScreen> {
           children: [
             JzCheckBox(checked: _confirmed),
             const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                l10n.confirmInfoCorrect,
-                style: t.bodyMedium,
-              ),
-            ),
+            Expanded(child: Text(l10n.confirmInfoCorrect, style: t.bodyMedium)),
           ],
         ),
       ),

@@ -91,10 +91,7 @@ class _WidgetsNotificationsScreenState
           .requestNotificationPermission();
       if (!mounted) return;
       if (!ok) {
-        AppSnackBar.error(
-          context,
-          context.l10n.notificationsBlocked,
-        );
+        AppSnackBar.error(context, context.l10n.notificationsBlocked);
         return;
       }
       enabled = true;
@@ -114,10 +111,7 @@ class _WidgetsNotificationsScreenState
     final pos = await LocationService.getCurrentPosition();
     if (!mounted) return;
     if (pos == null) {
-      AppSnackBar.error(
-        context,
-        context.l10n.couldNotGetLocation,
-      );
+      AppSnackBar.error(context, context.l10n.couldNotGetLocation);
       return;
     }
     await _apply(
@@ -179,10 +173,7 @@ class _WidgetsNotificationsScreenState
             children: [
               Text(context.l10n.homeWidgets, style: t.titleMedium),
               const SizedBox(height: 4),
-              Text(
-                context.l10n.homeWidgetsBody,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.homeWidgetsBody, style: t.bodySmall),
               const SizedBox(height: 14),
               OutlinedButton.icon(
                 onPressed: () async {
@@ -227,7 +218,9 @@ class _WidgetsNotificationsScreenState
                 const SizedBox(height: 10),
                 TextField(
                   controller: _lon,
-                  decoration: InputDecoration(labelText: context.l10n.longitude),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.longitude,
+                  ),
                   keyboardType: const TextInputType.numberWithOptions(
                     decimal: true,
                     signed: true,
@@ -239,7 +232,9 @@ class _WidgetsNotificationsScreenState
                 const SizedBox(height: 10),
                 TextField(
                   controller: _label,
-                  decoration: InputDecoration(labelText: context.l10n.placeLabel),
+                  decoration: InputDecoration(
+                    labelText: context.l10n.placeLabel,
+                  ),
                   onSubmitted: (_) => _saveManualFromFields(settings),
                 ),
                 const SizedBox(height: 10),
@@ -272,7 +267,9 @@ class _WidgetsNotificationsScreenState
                     )
                     ? settings.calcMethod
                     : PrayerSettingsParsed.calcMethodOptions.first,
-                decoration: InputDecoration(labelText: context.l10n.calcMethodLabel),
+                decoration: InputDecoration(
+                  labelText: context.l10n.calcMethodLabel,
+                ),
                 items: [
                   for (final k in PrayerSettingsParsed.calcMethodOptions)
                     DropdownMenuItem(
@@ -331,10 +328,7 @@ class _WidgetsNotificationsScreenState
         children: [
           Text(context.l10n.prayerReminders, style: t.titleMedium),
           const SizedBox(height: 4),
-          Text(
-                            context.l10n.prayerRemindersBody,
-            style: t.bodySmall,
-          ),
+          Text(context.l10n.prayerRemindersBody, style: t.bodySmall),
           const SizedBox(height: 8),
           for (var i = 0; i < kFardPrayerDefs.length; i++)
             Builder(
@@ -426,16 +420,13 @@ class _JamaatAlertsCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                  child: Text(context.l10n.jamaatAlerts, style: t.titleMedium),
-                ),
-                JzChip(context.l10n.newBadge, gold: true),
+                child: Text(context.l10n.jamaatAlerts, style: t.titleMedium),
+              ),
+              JzChip(context.l10n.newBadge, gold: true),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-                          context.l10n.jamaatAlertsBody,
-            style: t.bodySmall,
-          ),
+          Text(context.l10n.jamaatAlertsBody, style: t.bodySmall),
           const SizedBox(height: 10),
           JzSwitchRow(
             title: context.l10n.jamaatAlertsOn,
@@ -446,7 +437,9 @@ class _JamaatAlertsCard extends ConsumerWidget {
             const JzDivider(),
             Row(
               children: [
-                Expanded(child: Text(context.l10n.howEarly, style: t.bodyLarge)),
+                Expanded(
+                  child: Text(context.l10n.howEarly, style: t.bodyLarge),
+                ),
                 PopupMenuButton<int>(
                   initialValue: minutes,
                   onSelected: (v) =>
@@ -464,17 +457,16 @@ class _JamaatAlertsCard extends ConsumerWidget {
             ),
             const JzDivider(),
             if (mosques.isEmpty)
-              Text(
-                                  context.l10n.jamaatAlertsNoMosque,
-                style: t.bodySmall,
-              )
+              Text(context.l10n.jamaatAlertsNoMosque, style: t.bodySmall)
             else
               for (final m in mosques)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
                   child: JzSwitchRow(
                     title: m.name,
-                    subtitle: m.id == primary?.id ? context.l10n.primaryBadge : null,
+                    subtitle: m.id == primary?.id
+                        ? context.l10n.primaryBadge
+                        : null,
                     value: alertIds.contains(m.id),
                     onChanged: (v) => ref
                         .read(jamaatAlertMosquesProvider.notifier)
@@ -499,8 +491,7 @@ class _ClassRemindersCard extends ConsumerWidget {
     final muted = ref.watch(mutedClassesProvider);
     final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
-    final classes =
-        ref.watch(classesForTeacherProvider).value ?? const [];
+    final classes = ref.watch(classesForTeacherProvider).value ?? const [];
 
     return JzCard(
       padding: const EdgeInsets.all(18),
@@ -510,16 +501,13 @@ class _ClassRemindersCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                  child: Text(context.l10n.classReminders, style: t.titleMedium),
-                ),
-                JzChip(context.l10n.newBadge, gold: true),
+                child: Text(context.l10n.classReminders, style: t.titleMedium),
+              ),
+              JzChip(context.l10n.newBadge, gold: true),
             ],
           ),
           const SizedBox(height: 4),
-          Text(
-                          context.l10n.classRemindersBody,
-            style: t.bodySmall,
-          ),
+          Text(context.l10n.classRemindersBody, style: t.bodySmall),
           const SizedBox(height: 10),
           JzSwitchRow(
             title: context.l10n.unmarkedClassAlerts,
@@ -531,7 +519,9 @@ class _ClassRemindersCard extends ConsumerWidget {
             const JzDivider(),
             Row(
               children: [
-                Expanded(child: Text(context.l10n.howEarly, style: t.bodyLarge)),
+                Expanded(
+                  child: Text(context.l10n.howEarly, style: t.bodyLarge),
+                ),
                 PopupMenuButton<int>(
                   initialValue: minutes,
                   onSelected: (v) =>

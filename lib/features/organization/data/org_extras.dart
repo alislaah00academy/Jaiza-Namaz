@@ -78,8 +78,7 @@ final mutedClassesProvider = StateNotifierProvider<SetPref, Set<String>>(
 ) {
   var done = 0;
   for (final id in studentIds) {
-    final map =
-        ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
+    final map = ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
     if (map[prayer]?.status == PrayerStatus.completed) done++;
   }
   return (done, studentIds.length);
@@ -90,8 +89,7 @@ double classTodayFraction(dynamic ref, List<String> studentIds) {
   if (studentIds.isEmpty) return 0;
   var sum = 0.0;
   for (final id in studentIds) {
-    final map =
-        ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
+    final map = ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
     final done = kFardPrayerDefs
         .where((d) => map[d.name]?.status == PrayerStatus.completed)
         .length;

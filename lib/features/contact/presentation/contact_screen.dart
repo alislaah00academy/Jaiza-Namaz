@@ -14,9 +14,9 @@ class ContactScreen extends StatelessWidget {
       children: [
         Text(
           context.l10n.contactTitle,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Text(

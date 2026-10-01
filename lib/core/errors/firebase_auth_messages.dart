@@ -14,8 +14,8 @@ String mapFirebaseAuthMessage(FirebaseAuthException e, L10n l) {
     'too-many-requests' => l.authErrorTooManyRequests,
     'user-disabled' => l.authErrorUserDisabled,
     'requires-recent-login' => l.authErrorRecentLogin,
-    'weak-password' || 'password-does-not-meet-requirements' =>
-      l.authErrorWeakPassword,
+    'weak-password' ||
+    'password-does-not-meet-requirements' => l.authErrorWeakPassword,
     'no-email' => l.authErrorNoEmail,
     _ => l.errorGeneric,
   };

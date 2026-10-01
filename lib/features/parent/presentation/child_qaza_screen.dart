@@ -21,10 +21,7 @@ class ChildQazaScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text(
-          context.l10n.childQazaIntro,
-          style: t.bodyMedium,
-        ),
+        Text(context.l10n.childQazaIntro, style: t.bodyMedium),
         const SizedBox(height: 14),
         QazaTotalCard(overview: overview, allowEstimate: false),
         const SizedBox(height: 14),

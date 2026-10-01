@@ -162,7 +162,10 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
           child: Row(
             children: [
               Expanded(
-                child: Text(context.l10n.qazaTotalEstimate, style: t.titleMedium),
+                child: Text(
+                  context.l10n.qazaTotalEstimate,
+                  style: t.titleMedium,
+                ),
               ),
               Text(jzCount(_total), style: t.headlineSmall),
             ],
@@ -255,10 +258,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-            child: Text(
-              context.l10n.qazaEveryPrayerSame,
-              style: t.titleMedium,
-            ),
+            child: Text(context.l10n.qazaEveryPrayerSame, style: t.titleMedium),
           ),
           for (var i = 0; i < kQazaPrayerNames.length; i++)
             JzListRow(

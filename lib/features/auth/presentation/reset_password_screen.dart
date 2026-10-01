@@ -38,11 +38,9 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           .read(authRepositoryProvider)
           .sendPasswordResetEmail(_email.text);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(context.l10n.resetCheckInbox),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.resetCheckInbox)));
         context.pop();
       }
     } on FirebaseAuthException catch (e) {

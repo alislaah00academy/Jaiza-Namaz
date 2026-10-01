@@ -69,10 +69,7 @@ class JaizaArchCrown extends StatelessWidget {
               stroke: scheme.tertiary.withValues(alpha: 0.6),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: child,
-          ),
+          Padding(padding: const EdgeInsets.only(top: 12), child: child),
         ],
       ),
     );
@@ -131,7 +128,14 @@ class _ArchCrownPainter extends CustomPainter {
     final innerStart = w * 0.20;
     final inner = Path()
       ..moveTo(innerStart, springY)
-      ..cubicTo(innerStart, h * 0.45, w * 0.35, h * 0.31, w * 0.50, peakY + h * 0.07)
+      ..cubicTo(
+        innerStart,
+        h * 0.45,
+        w * 0.35,
+        h * 0.31,
+        w * 0.50,
+        peakY + h * 0.07,
+      )
       ..cubicTo(
         w * 0.65,
         h * 0.31,
@@ -224,8 +228,9 @@ class JaizaMosqueSkyline extends StatelessWidget {
       width: double.infinity,
       child: CustomPaint(
         painter: _SkylinePainter(
-          color: (isDark ? scheme.secondary : scheme.secondary)
-              .withValues(alpha: isDark ? 0.3 : 0.24),
+          color: (isDark ? scheme.secondary : scheme.secondary).withValues(
+            alpha: isDark ? 0.3 : 0.24,
+          ),
           accent: scheme.tertiary.withValues(alpha: isDark ? 0.22 : 0.18),
         ),
       ),
@@ -252,25 +257,15 @@ class _SkylinePainter extends CustomPainter {
 
     path.moveTo(left, baseY);
     path.lineTo(left, neckY);
-    path.cubicTo(
-      cx - domeW / 2, bulgeY,
-      cx - domeW * 0.12, tipY,
-      cx, tipY,
-    );
-    path.cubicTo(
-      cx + domeW * 0.12, tipY,
-      cx + domeW / 2, bulgeY,
-      right, neckY,
-    );
+    path.cubicTo(cx - domeW / 2, bulgeY, cx - domeW * 0.12, tipY, cx, tipY);
+    path.cubicTo(cx + domeW * 0.12, tipY, cx + domeW / 2, bulgeY, right, neckY);
     path.lineTo(right, baseY);
     path.close();
   }
 
   void _finial(Path path, double cx, double baseY, double h) {
     final stickW = h * 0.06;
-    path.addRect(
-      Rect.fromLTWH(cx - stickW / 2, baseY - h, stickW, h * 0.78),
-    );
+    path.addRect(Rect.fromLTWH(cx - stickW / 2, baseY - h, stickW, h * 0.78));
     path.addOval(
       Rect.fromCircle(center: Offset(cx, baseY - h), radius: h * 0.16),
     );
@@ -315,10 +310,7 @@ class _SkylinePainter extends CustomPainter {
   void _archedWalls(Canvas canvas, Paint paint, Size size, double wallH) {
     final baseY = size.height;
     final wallTop = baseY - wallH;
-    canvas.drawRect(
-      Rect.fromLTRB(0, wallTop, size.width, baseY),
-      paint,
-    );
+    canvas.drawRect(Rect.fromLTRB(0, wallTop, size.width, baseY), paint);
     final archW = size.width / 18;
     final archPaint = Paint()
       ..style = PaintingStyle.fill
@@ -347,13 +339,55 @@ class _SkylinePainter extends CustomPainter {
     final baseY = size.height;
     final domesPath = Path();
 
-    _minaret(domesPath, size.width * 0.05, baseY, size.width * 0.032, size.height * 0.78);
-    _onionDome(domesPath, size.width * 0.19, baseY, size.width * 0.15, size.height * 0.5);
-    _minaret(domesPath, size.width * 0.335, baseY, size.width * 0.028, size.height * 0.92);
-    _onionDome(domesPath, size.width * 0.5, baseY, size.width * 0.24, size.height * 1.0);
-    _minaret(domesPath, size.width * 0.665, baseY, size.width * 0.028, size.height * 0.92);
-    _onionDome(domesPath, size.width * 0.81, baseY, size.width * 0.15, size.height * 0.5);
-    _minaret(domesPath, size.width * 0.95, baseY, size.width * 0.032, size.height * 0.78);
+    _minaret(
+      domesPath,
+      size.width * 0.05,
+      baseY,
+      size.width * 0.032,
+      size.height * 0.78,
+    );
+    _onionDome(
+      domesPath,
+      size.width * 0.19,
+      baseY,
+      size.width * 0.15,
+      size.height * 0.5,
+    );
+    _minaret(
+      domesPath,
+      size.width * 0.335,
+      baseY,
+      size.width * 0.028,
+      size.height * 0.92,
+    );
+    _onionDome(
+      domesPath,
+      size.width * 0.5,
+      baseY,
+      size.width * 0.24,
+      size.height * 1.0,
+    );
+    _minaret(
+      domesPath,
+      size.width * 0.665,
+      baseY,
+      size.width * 0.028,
+      size.height * 0.92,
+    );
+    _onionDome(
+      domesPath,
+      size.width * 0.81,
+      baseY,
+      size.width * 0.15,
+      size.height * 0.5,
+    );
+    _minaret(
+      domesPath,
+      size.width * 0.95,
+      baseY,
+      size.width * 0.032,
+      size.height * 0.78,
+    );
 
     canvas.saveLayer(Offset.zero & size, Paint());
     _archedWalls(canvas, paint, size, size.height * 0.22);
@@ -383,7 +417,10 @@ class JaizaFlourishDivider extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final line = Expanded(
-      child: Container(height: 1, color: scheme.tertiary.withValues(alpha: 0.4)),
+      child: Container(
+        height: 1,
+        color: scheme.tertiary.withValues(alpha: 0.4),
+      ),
     );
     final star = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -400,10 +437,10 @@ class JaizaFlourishDivider extends StatelessWidget {
           child: Text(
             label!,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: scheme.secondary,
-                  letterSpacing: 1.4,
-                  fontWeight: FontWeight.w700,
-                ),
+              color: scheme.secondary,
+              letterSpacing: 1.4,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         line,
@@ -443,10 +480,7 @@ class JaizaWordmark extends StatelessWidget {
     final size = maxSize ?? (compact ? 64 : 170);
     return ConstrainedBox(
       constraints: BoxConstraints(maxHeight: size, maxWidth: size),
-      child: FittedBox(
-        fit: BoxFit.contain,
-        child: Image.asset(asset),
-      ),
+      child: FittedBox(fit: BoxFit.contain, child: Image.asset(asset)),
     );
   }
 }
@@ -492,9 +526,9 @@ class JaizaQuoteBlock extends StatelessWidget {
         const SizedBox(height: 6),
         Text(
           context.l10n.quoteSource(source),
-          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: scheme.onSurfaceVariant,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
         ),
       ],
     );

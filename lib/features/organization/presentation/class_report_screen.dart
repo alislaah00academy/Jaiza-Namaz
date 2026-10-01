@@ -55,8 +55,7 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
     final rows = <(String, int, double)>[];
     var totalDone = 0;
     for (final s in students) {
-      final logs =
-          ref.watch(personFardLogsProvider(s.id)).value ?? const [];
+      final logs = ref.watch(personFardLogsProvider(s.id)).value ?? const [];
       final done = logs.where((l) {
         final d = l.dateTime.toLocal();
         final day = DateTime(d.year, d.month, d.day);
@@ -98,7 +97,10 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: Text(context.l10n.classAverage, style: t.titleMedium),
+                    child: Text(
+                      context.l10n.classAverage,
+                      style: t.titleMedium,
+                    ),
                   ),
                   Text(context.l10n.percent(avgPct), style: t.headlineSmall),
                 ],

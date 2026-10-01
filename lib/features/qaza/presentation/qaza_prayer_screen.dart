@@ -135,10 +135,7 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
         if (tracked.isEmpty)
           JzCard(
             padding: const EdgeInsets.all(16),
-            child: Text(
-              l10n.qazaNoMissedSince(label),
-              style: t.bodyMedium,
-            ),
+            child: Text(l10n.qazaNoMissedSince(label), style: t.bodyMedium),
           )
         else
           JzCard(
@@ -164,9 +161,7 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                   Padding(
                     padding: const EdgeInsets.all(14),
                     child: Text(
-                      l10n.earlierDays(
-                        jzCount(indices.length - _visibleDays),
-                      ),
+                      l10n.earlierDays(jzCount(indices.length - _visibleDays)),
                       style: t.bodySmall,
                     ),
                   ),

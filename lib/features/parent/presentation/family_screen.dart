@@ -54,7 +54,8 @@ class FamilyScreen extends ConsumerWidget {
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
               children: [
-                for (final k in children) _ChildCard(childId: k.id, name: k.name),
+                for (final k in children)
+                  _ChildCard(childId: k.id, name: k.name),
               ],
             ),
     );
@@ -138,7 +139,9 @@ class _ChildCard extends ConsumerWidget {
                 color: c.tertiary,
               ),
               const SizedBox(width: 8),
-              Expanded(child: Text(context.l10n.streakLabel, style: t.bodySmall)),
+              Expanded(
+                child: Text(context.l10n.streakLabel, style: t.bodySmall),
+              ),
               JzChip(context.l10n.spanDays(streak)),
             ],
           ),

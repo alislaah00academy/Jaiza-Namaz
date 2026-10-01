@@ -118,10 +118,7 @@ class _PrimaryCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            context.l10n.primaryMosqueTimesNote,
-            style: t.bodySmall,
-          ),
+          Text(context.l10n.primaryMosqueTimesNote, style: t.bodySmall),
           const JzDivider(),
           Row(
             children: [

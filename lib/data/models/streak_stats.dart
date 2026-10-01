@@ -21,19 +21,22 @@ class StreakStats {
       'userId': userId,
       'currentStreak': currentStreak,
       'longestStreak': longestStreak,
-      if (lastFardPerfectDate != null) 'lastFardPerfectDate': lastFardPerfectDate,
+      if (lastFardPerfectDate != null)
+        'lastFardPerfectDate': lastFardPerfectDate,
       'badgesUnlocked': badgesUnlocked,
     };
   }
 
   static StreakStats empty(String uid) => StreakStats(
-        userId: uid,
-        currentStreak: 0,
-        longestStreak: 0,
-        badgesUnlocked: const [],
-      );
+    userId: uid,
+    currentStreak: 0,
+    longestStreak: 0,
+    badgesUnlocked: const [],
+  );
 
-  static StreakStats? fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snap) {
+  static StreakStats? fromSnapshot(
+    DocumentSnapshot<Map<String, dynamic>> snap,
+  ) {
     final data = snap.data();
     if (data == null) return null;
     final badges = data['badgesUnlocked'];

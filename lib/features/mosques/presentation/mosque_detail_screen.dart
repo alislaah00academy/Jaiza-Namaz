@@ -81,7 +81,10 @@ class MosqueDetailScreen extends ConsumerWidget {
                   child: Row(
                     children: [
                       Expanded(
-                        child: Text(def.label(context.l10n), style: t.bodyLarge),
+                        child: Text(
+                          def.label(context.l10n),
+                          style: t.bodyLarge,
+                        ),
                       ),
                       Text(
                         mosque

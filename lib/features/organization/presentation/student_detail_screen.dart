@@ -41,8 +41,7 @@ class StudentDetailScreen extends ConsumerWidget {
     final matches = students.where((s) => s.id == studentId);
     final student = matches.isEmpty ? null : matches.first;
 
-    final logs =
-        ref.watch(personFardLogsProvider(studentId)).value ?? const [];
+    final logs = ref.watch(personFardLogsProvider(studentId)).value ?? const [];
     final now = DateTime.now();
     final todayMap = logsOnDay(logs, now);
     final doneToday = fardDoneOn(logs, now);
@@ -54,8 +53,7 @@ class StudentDetailScreen extends ConsumerWidget {
     final overview = buildQazaOverview(
       since: since,
       fardLogs: logs,
-      qazaLogs:
-          ref.watch(personQazaLogsProvider(studentId)).value ?? const [],
+      qazaLogs: ref.watch(personQazaLogsProvider(studentId)).value ?? const [],
       schedule: ref.watch(currentPrayerCardProvider).value?.today,
     );
 
@@ -119,7 +117,10 @@ class StudentDetailScreen extends ConsumerWidget {
                 child: Row(
                   children: [
                     Expanded(
-                      child: Text(context.l10n.titleToday, style: t.titleMedium),
+                      child: Text(
+                        context.l10n.titleToday,
+                        style: t.titleMedium,
+                      ),
                     ),
                     JzChip(
                       context.l10n.doneSlashTotalSpaced(
@@ -201,12 +202,11 @@ class StudentDetailScreen extends ConsumerWidget {
         const SizedBox(height: 12),
         JzCard(
           padding: const EdgeInsets.all(16),
-          onTap: () =>
-              _showFullHistory(
-                context,
-                student?.name ?? context.l10n.titleStudent,
-                logs,
-              ),
+          onTap: () => _showFullHistory(
+            context,
+            student?.name ?? context.l10n.titleStudent,
+            logs,
+          ),
           child: Row(
             children: [
               Icon(Icons.calendar_month_outlined, color: c.primary),

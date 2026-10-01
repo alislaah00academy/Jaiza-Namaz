@@ -107,8 +107,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   controller: _controller,
                   onPageChanged: (i) => setState(() => _index = i),
                   itemCount: pages.length,
-                  itemBuilder: (context, i) =>
-                      _OnboardPageView(page: pages[i]),
+                  itemBuilder: (context, i) => _OnboardPageView(page: pages[i]),
                 ),
               ),
               const JaizaMosqueSkyline(height: 70),
@@ -151,7 +150,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                         ),
                         onPressed: _next,
                         child: Text(
-                          isLast ? context.l10n.getStarted : context.l10n.actionNext,
+                          isLast
+                              ? context.l10n.getStarted
+                              : context.l10n.actionNext,
                           style: textTheme.titleMedium?.copyWith(
                             color: scheme.onTertiary,
                             fontWeight: FontWeight.w700,

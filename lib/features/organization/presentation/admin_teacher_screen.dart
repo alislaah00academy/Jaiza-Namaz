@@ -93,7 +93,10 @@ class AdminTeacherScreen extends ConsumerWidget {
                               ? teacher.email
                               : context.l10n.emailJoined(
                                   teacher.email,
-                                  formatDayMonth(teacher.joinedAt!, context.l10n),
+                                  formatDayMonth(
+                                    teacher.joinedAt!,
+                                    context.l10n,
+                                  ),
                                 ),
                           style: t.bodySmall,
                         ),
@@ -103,10 +106,7 @@ class AdminTeacherScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              Text(
-                context.l10n.readOnlyTeacherNote,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.readOnlyTeacherNote, style: t.bodySmall),
             ],
           ),
         ),
@@ -114,10 +114,7 @@ class AdminTeacherScreen extends ConsumerWidget {
         if (classes.isEmpty)
           JzCard(
             padding: const EdgeInsets.all(16),
-            child: Text(
-              context.l10n.teacherNoClasses,
-              style: t.bodyMedium,
-            ),
+            child: Text(context.l10n.teacherNoClasses, style: t.bodyMedium),
           )
         else
           for (final cl in classes)
@@ -161,7 +158,9 @@ class AdminTeacherScreen extends ConsumerWidget {
                                 Text(cl.name, style: t.titleSmall),
                                 Text(
                                   sections[cl.id] == null
-                                      ? context.l10n.studentsCount(students.length)
+                                      ? context.l10n.studentsCount(
+                                          students.length,
+                                        )
                                       : context.l10n.dotJoin(
                                           context.l10n.studentsCount(
                                             students.length,

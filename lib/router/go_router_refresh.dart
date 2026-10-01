@@ -14,8 +14,9 @@ class GoRouterRefreshStream extends ChangeNotifier {
   /// fire as soon as a role is written).
   GoRouterRefreshStream.merged(List<Stream<dynamic>> streams) {
     notifyListeners();
-    _subscriptions =
-        streams.map((s) => s.listen((_) => notifyListeners())).toList();
+    _subscriptions = streams
+        .map((s) => s.listen((_) => notifyListeners()))
+        .toList();
   }
 
   late final List<StreamSubscription<dynamic>> _subscriptions;

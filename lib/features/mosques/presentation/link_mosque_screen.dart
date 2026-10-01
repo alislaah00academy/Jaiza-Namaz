@@ -40,9 +40,7 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
     }
     await ref.read(mosqueSetupSeenProvider.notifier).set(true);
     if (!mounted) return;
-    context.go(
-      homeRouteForAppUser(ref.read(appUserStreamProvider).value),
-    );
+    context.go(homeRouteForAppUser(ref.read(appUserStreamProvider).value));
   }
 
   @override
@@ -72,12 +70,12 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(context.l10n.linkYourMosque, style: t.headlineMedium),
-                      const SizedBox(height: 8),
                       Text(
-                        context.l10n.linkMosqueBody,
-                        style: t.bodyMedium,
+                        context.l10n.linkYourMosque,
+                        style: t.headlineMedium,
                       ),
+                      const SizedBox(height: 8),
+                      Text(context.l10n.linkMosqueBody, style: t.bodyMedium),
                       const SizedBox(height: 20),
                       JzSearchBar(
                         controller: _query,

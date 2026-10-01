@@ -24,9 +24,7 @@ class JaizaBackground extends StatelessWidget {
       fit: StackFit.expand,
       children: [
         DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: AppTheme.heroGradient(context),
-          ),
+          decoration: BoxDecoration(gradient: AppTheme.heroGradient(context)),
         ),
         if (showPattern && !isDark)
           CustomPaint(
@@ -122,10 +120,7 @@ class JaizaSurfaceCard extends StatelessWidget {
         color: Colors.transparent,
         borderRadius: radius,
         clipBehavior: Clip.antiAlias,
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
+        child: Padding(padding: padding, child: child),
       ),
     );
   }

@@ -22,7 +22,6 @@ import '../../parent/presentation/family_widgets.dart';
 import '../../qaza/data/qaza_tracker.dart';
 import 'prayer_marking.dart';
 
-
 /// Today — the landing screen. The primary mosque's Jama'at time is the
 /// hero, and the five Fard prayers are ticked straight from the list.
 class HomeHubScreen extends ConsumerStatefulWidget {
@@ -138,8 +137,7 @@ class _HeaderCard extends ConsumerWidget {
         ? null
         : d.today.fardWindows.firstWhere((w) => w.key == activeKey);
     final l10n = context.l10n;
-    final label =
-        (window?.prayer ?? d?.status.nextPrayer)?.label(l10n) ?? '—';
+    final label = (window?.prayer ?? d?.status.nextPrayer)?.label(l10n) ?? '—';
     final key = window?.key ?? d?.status.nextKey;
     final start = window?.start ?? d?.status.nextTime;
     final end =
@@ -582,8 +580,7 @@ class _ChildView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final logs =
-        ref.watch(personFardLogsProvider(child.id)).value ?? const [];
+    final logs = ref.watch(personFardLogsProvider(child.id)).value ?? const [];
     final nawafil =
         ref.watch(personNawafilLogsProvider(child.id)).value ?? const [];
     final extra = ref.watch(childExtrasProvider)[child.id];
@@ -696,7 +693,9 @@ class _FamilyCard extends ConsumerWidget {
         children: [
           Row(
             children: [
-              Expanded(child: Text(context.l10n.titleFamily, style: t.titleMedium)),
+              Expanded(
+                child: Text(context.l10n.titleFamily, style: t.titleMedium),
+              ),
               TextButton(
                 onPressed: () => context.push('/app/family'),
                 child: Text(context.l10n.seeAll),
@@ -707,8 +706,7 @@ class _FamilyCard extends ConsumerWidget {
             Builder(
               builder: (context) {
                 final logs =
-                    ref.watch(personFardLogsProvider(k.id)).value ??
-                    const [];
+                    ref.watch(personFardLogsProvider(k.id)).value ?? const [];
                 final done = fardDoneOn(logs, DateTime.now());
                 final (streak, _) = fardStreak(logs);
                 return InkWell(

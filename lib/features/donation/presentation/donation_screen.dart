@@ -13,9 +13,9 @@ class DonationScreen extends StatelessWidget {
       children: [
         Text(
           context.l10n.donationTitle,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 12),
         Text(
@@ -33,24 +33,22 @@ class DonationScreen extends StatelessWidget {
             children: [
               Text(
                 context.l10n.donationHowTitle,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
               Text(
                 context.l10n.donationHowBody,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 16),
               FilledButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(context.l10n.donationLinkMissing),
-                    ),
+                    SnackBar(content: Text(context.l10n.donationLinkMissing)),
                   );
                 },
                 child: Text(context.l10n.donationOpenPlaceholder),

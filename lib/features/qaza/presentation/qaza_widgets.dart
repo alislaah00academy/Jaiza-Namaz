@@ -198,10 +198,7 @@ class QazaTotalCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(l10n.addAnEstimate, style: t.bodyLarge),
-                        Text(
-                          l10n.addAnEstimateSubtitle,
-                          style: t.bodySmall,
-                        ),
+                        Text(l10n.addAnEstimateSubtitle, style: t.bodySmall),
                       ],
                     ),
                   ),
@@ -214,7 +211,6 @@ class QazaTotalCard extends StatelessWidget {
     );
   }
 }
-
 
 /// Per-prayer card with progress and the "Mark Qaza done" action.
 class QazaPrayerCard extends ConsumerWidget {
@@ -253,7 +249,10 @@ class QazaPrayerCard extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(p.label(context.l10n), style: t.titleSmall),
+                          child: Text(
+                            p.label(context.l10n),
+                            style: t.titleSmall,
+                          ),
                         ),
                         Text(
                           context.l10n.qazaLeft(jzCount(summary.remaining)),

@@ -254,17 +254,13 @@ class MoreScreen extends ConsumerWidget {
         builder: (ctx, ref, _) {
           final t = Theme.of(ctx).textTheme;
           final on =
-              ref.watch(appUserStreamProvider).value?.nawafilEnabled ??
-              false;
+              ref.watch(appUserStreamProvider).value?.nawafilEnabled ?? false;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(ctx.l10n.titleNawafil, style: t.headlineSmall),
               const SizedBox(height: 4),
-              Text(
-                ctx.l10n.nawafilSheetBody,
-                style: t.bodyMedium,
-              ),
+              Text(ctx.l10n.nawafilSheetBody, style: t.bodyMedium),
               const SizedBox(height: 18),
               JzSwitchRow(
                 title: ctx.l10n.trackNawafil,
@@ -404,10 +400,7 @@ class _DeleteAccountSheetState extends State<_DeleteAccountSheet> {
           ),
           onPressed: ready
               ? () {
-                  AppSnackBar.error(
-                    context,
-                    l10n.deleteNotConnected,
-                  );
+                  AppSnackBar.error(context, l10n.deleteNotConnected);
                   Navigator.pop(context);
                 }
               : null,

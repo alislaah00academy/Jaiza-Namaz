@@ -134,7 +134,10 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                               if (window != null && window.isNotEmpty)
                                 Text(
                                   context.l10n.timeRange(
-                                    formatTime(window.first.start, context.l10n),
+                                    formatTime(
+                                      window.first.start,
+                                      context.l10n,
+                                    ),
                                     formatTime(window.first.end, context.l10n),
                                   ),
                                   style: t.bodySmall,
@@ -236,11 +239,10 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                               child: JzListRow(
                                 leading: LetterAvatarLike(s.name),
                                 title: s.name,
-                                subtitle:
-                                    context.l10n.doneOfTotalToday(
-                                      doneToday,
-                                      kFardPrayerDefs.length,
-                                    ),
+                                subtitle: context.l10n.doneOfTotalToday(
+                                  doneToday,
+                                  kFardPrayerDefs.length,
+                                ),
                                 onTap: () => context.push(
                                   '/app/org/teacher/class/${widget.classId}/student/${s.id}',
                                 ),
@@ -278,7 +280,6 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
       ],
     );
   }
-
 }
 
 /// Small round-letter avatar for a roster row (kept local to avoid a

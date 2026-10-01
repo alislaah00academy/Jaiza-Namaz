@@ -198,6 +198,22 @@ class _Content {
   String get detailedCoursesHeading => l.academyIntroDetailedCoursesHeading;
   String get shortCoursesHeading => l.academyIntroShortCoursesHeading;
   String get closingLine => l.academyIntroClosingLine;
-  List<String> get detailedCourses => [l.academyIntroDetailedCourses1, l.academyIntroDetailedCourses2, l.academyIntroDetailedCourses3];
-  List<String> get shortCourses => [l.academyIntroShortCourses1, l.academyIntroShortCourses2, l.academyIntroShortCourses3, l.academyIntroShortCourses4, l.academyIntroShortCourses5, l.academyIntroShortCourses6, l.academyIntroShortCourses7, l.academyIntroShortCourses8, l.academyIntroShortCourses9, l.academyIntroShortCourses10, l.academyIntroShortCourses11];
+  List<String> get detailedCourses => [
+    l.academyIntroDetailedCourses1,
+    l.academyIntroDetailedCourses2,
+    l.academyIntroDetailedCourses3,
+  ];
+  List<String> get shortCourses => [
+    l.academyIntroShortCourses1,
+    l.academyIntroShortCourses2,
+    l.academyIntroShortCourses3,
+    l.academyIntroShortCourses4,
+    l.academyIntroShortCourses5,
+    l.academyIntroShortCourses6,
+    l.academyIntroShortCourses7,
+    l.academyIntroShortCourses8,
+    l.academyIntroShortCourses9,
+    l.academyIntroShortCourses10,
+    l.academyIntroShortCourses11,
+  ];
 }

@@ -12,18 +12,15 @@ class HomeWidgetSyncer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<AsyncValue<Map<PrayerName, PrayerLog>>>(
-      todayFardMapProvider,
-      (previous, next) {
-        HomeWidgetBridge.syncAllWidgets(ref);
-      },
-    );
-    ref.listen<AsyncValue<AppUser?>>(
-      appUserStreamProvider,
-      (previous, next) {
-        HomeWidgetBridge.syncAllWidgets(ref);
-      },
-    );
+    ref.listen<AsyncValue<Map<PrayerName, PrayerLog>>>(todayFardMapProvider, (
+      previous,
+      next,
+    ) {
+      HomeWidgetBridge.syncAllWidgets(ref);
+    });
+    ref.listen<AsyncValue<AppUser?>>(appUserStreamProvider, (previous, next) {
+      HomeWidgetBridge.syncAllWidgets(ref);
+    });
     return const SizedBox.shrink();
   }
 }

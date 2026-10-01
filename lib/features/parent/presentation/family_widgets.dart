@@ -133,7 +133,8 @@ class PersonChipRow extends ConsumerWidget {
             label: context.l10n.me,
             avatarName: me?.name ?? context.l10n.me,
             on: current == null,
-            onTap: () => ref.read(selectedChildIdProvider.notifier).state = null,
+            onTap: () =>
+                ref.read(selectedChildIdProvider.notifier).state = null,
           ),
           for (final child in children)
             chip(
@@ -208,10 +209,7 @@ class _AddChildSheetState extends ConsumerState<_AddChildSheet> {
       children: [
         Text(context.l10n.addAChild, style: t.headlineSmall),
         const SizedBox(height: 4),
-        Text(
-          context.l10n.addChildBody,
-          style: t.bodyMedium,
-        ),
+        Text(context.l10n.addChildBody, style: t.bodyMedium),
         const SizedBox(height: 20),
         TextField(
           controller: _name,

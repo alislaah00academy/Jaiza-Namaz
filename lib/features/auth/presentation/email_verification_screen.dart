@@ -36,13 +36,9 @@ class _EmailVerificationScreenState
           ref.read(mosqueSetupSeenProvider) ? '/app/home' : '/link-mosque',
         );
       } else if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              context.l10n.verifyEmailNotYet,
-            ),
-          ),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.verifyEmailNotYet)));
       }
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -55,9 +51,9 @@ class _EmailVerificationScreenState
       await ref.read(authRepositoryProvider).sendEmailVerification();
       if (mounted) {
         setState(() => _sent = true);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(context.l10n.verifyEmailSent)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(context.l10n.verifyEmailSent)));
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
@@ -168,7 +164,11 @@ class _EmailVerificationScreenState
                         FilledButton.tonal(
                           style: AppTheme.tonalButtonStyle(context),
                           onPressed: _busy ? null : _resend,
-                          child: Text(_sent ? context.l10n.verifyEmailResendAgain : context.l10n.verifyEmailResend),
+                          child: Text(
+                            _sent
+                                ? context.l10n.verifyEmailResendAgain
+                                : context.l10n.verifyEmailResend,
+                          ),
                         ),
                         const SizedBox(height: 12),
                         TextButton(

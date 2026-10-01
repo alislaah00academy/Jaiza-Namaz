@@ -92,9 +92,7 @@ class PrayerLog {
 
   Map<String, dynamic> toFirestore() => toJson();
 
-  static PrayerLog? fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snap,
-  ) {
+  static PrayerLog? fromFirestore(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data();
     if (data == null) return null;
     final name = PrayerNameX.fromFirestore(data['prayerName'] as String?);

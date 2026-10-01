@@ -171,10 +171,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             if (u == null) ...[
               const SizedBox(height: 12),
-              Text(
-                context.l10n.completeProfileHint,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.completeProfileHint, style: t.bodySmall),
             ],
             const SizedBox(height: 24),
             FilledButton(
@@ -198,10 +195,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 children: [
                   Text(context.l10n.appearanceTitle, style: t.titleMedium),
                   const SizedBox(height: 2),
-                  Text(
-                    context.l10n.appearanceSubtitle,
-                    style: t.bodySmall,
-                  ),
+                  Text(context.l10n.appearanceSubtitle, style: t.bodySmall),
                   const SizedBox(height: 12),
                   JzSegmented<ThemeMode>(
                     options: {
@@ -273,10 +267,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 /// "Profile photo" source picker.
 Future<void> showProfilePhotoSheet(BuildContext context) {
   void notYet(BuildContext ctx) {
-    AppSnackBar.success(
-      ctx,
-      ctx.l10n.profilePhotosComingSoon,
-    );
+    AppSnackBar.success(ctx, ctx.l10n.profilePhotosComingSoon);
     Navigator.pop(ctx);
   }
 

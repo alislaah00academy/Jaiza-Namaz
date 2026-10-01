@@ -17,10 +17,7 @@ class ChildProfile {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  Map<String, dynamic> toJson() => {
-        'parentUid': parentUid,
-        'name': name,
-      };
+  Map<String, dynamic> toJson() => {'parentUid': parentUid, 'name': name};
 
   static ChildProfile? fromFirestore(
     DocumentSnapshot<Map<String, dynamic>> snap,

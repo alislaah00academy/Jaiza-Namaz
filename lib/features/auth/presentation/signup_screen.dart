@@ -77,9 +77,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(mapGenericError(e, context.l10n))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -198,7 +198,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                     textInputAction: TextInputAction.next,
                                     validator: (v) {
                                       if (v == null || v.trim().isEmpty) {
-                                        return context.l10n.validationEnterInstitute;
+                                        return context
+                                            .l10n
+                                            .validationEnterInstitute;
                                       }
                                       return null;
                                     },
@@ -229,8 +231,11 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   textInputAction: TextInputAction.next,
                                   autocorrect: false,
                                   validator: (v) {
-                                    if (v == null || !Validators.isValidPassword(v)) {
-                                      return context.l10n.validationPasswordRule;
+                                    if (v == null ||
+                                        !Validators.isValidPassword(v)) {
+                                      return context
+                                          .l10n
+                                          .validationPasswordRule;
                                     }
                                     return null;
                                   },
@@ -244,7 +249,9 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v != _password.text) {
-                                      return context.l10n.validationPasswordsNoMatch;
+                                      return context
+                                          .l10n
+                                          .validationPasswordsNoMatch;
                                     }
                                     return null;
                                   },

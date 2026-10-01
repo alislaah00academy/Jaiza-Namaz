@@ -120,7 +120,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         ),
                         Expanded(
                           child: Text(
-                            DateFormat('MMMM y', context.l10n.localeName).format(_month),
+                            DateFormat(
+                              'MMMM y',
+                              context.l10n.localeName,
+                            ).format(_month),
                             textAlign: TextAlign.center,
                             style: t.titleSmall,
                           ),
@@ -154,7 +157,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 today: _today,
                 personId: childId,
                 logs: nawafilLogs,
-                trackingOn: childId != null ||
+                trackingOn:
+                    childId != null ||
                     (ref.watch(appUserStreamProvider).value?.nawafilEnabled ??
                         false),
               ),
@@ -316,12 +320,18 @@ class _DayFardCard extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    DateFormat('EEEE, d MMMM', context.l10n.localeName).format(day),
+                    DateFormat(
+                      'EEEE, d MMMM',
+                      context.l10n.localeName,
+                    ).format(day),
                     style: t.titleMedium,
                   ),
                 ),
                 JzChip(
-                  context.l10n.doneSlashTotalSpaced(done, kFardPrayerDefs.length),
+                  context.l10n.doneSlashTotalSpaced(
+                    done,
+                    kFardPrayerDefs.length,
+                  ),
                 ),
               ],
             ),
@@ -536,8 +546,8 @@ class _MonthSummary extends StatelessWidget {
               Expanded(
                 child: Text(
                   context.l10n.monthSummary(
-                  DateFormat('MMMM', context.l10n.localeName).format(month),
-                ),
+                    DateFormat('MMMM', context.l10n.localeName).format(month),
+                  ),
                   style: t.titleMedium,
                 ),
               ),

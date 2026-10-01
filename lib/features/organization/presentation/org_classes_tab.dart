@@ -114,7 +114,10 @@ class _AdminDashboard extends ConsumerWidget {
                             style: t.bodyMedium,
                           ),
                         ),
-                        Text(context.l10n.percent(todayPct), style: t.titleSmall),
+                        Text(
+                          context.l10n.percent(todayPct),
+                          style: t.titleSmall,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -142,10 +145,7 @@ class _AdminDashboard extends ConsumerWidget {
               if (teachers.isEmpty)
                 JzCard(
                   padding: const EdgeInsets.all(16),
-                  child: Text(
-                    context.l10n.noTeachersYet,
-                    style: t.bodyMedium,
-                  ),
+                  child: Text(context.l10n.noTeachersYet, style: t.bodyMedium),
                 )
               else
                 for (final teacher in teachers)
@@ -158,7 +158,10 @@ class _AdminDashboard extends ConsumerWidget {
                     if (classes.isEmpty)
                       Padding(
                         padding: const EdgeInsets.all(16),
-                        child: Text(context.l10n.noClassesYet, style: t.bodyMedium),
+                        child: Text(
+                          context.l10n.noClassesYet,
+                          style: t.bodyMedium,
+                        ),
                       )
                     else
                       for (var i = 0; i < classes.length; i++)
@@ -195,13 +198,12 @@ class _AdminDashboard extends ConsumerWidget {
                                 iconSize: 20,
                               ),
                               title: c.name,
-                              subtitle:
-                                  context.l10n.dotJoin(
-                                    sections[c.id] ??
-                                        teacherName ??
-                                        context.l10n.unassigned,
-                                    '${students.length}',
-                                  ),
+                              subtitle: context.l10n.dotJoin(
+                                sections[c.id] ??
+                                    teacherName ??
+                                    context.l10n.unassigned,
+                                '${students.length}',
+                              ),
                               trailing: Text(
                                 pct == null ? '—' : context.l10n.percent(pct),
                                 style: t.titleSmall?.copyWith(
@@ -327,18 +329,14 @@ class _TeacherClasses extends ConsumerWidget {
                 color: Theme.of(context).colorScheme.error,
               ),
               const SizedBox(height: 12),
-              Text(
-                context.l10n.accessRemoved,
-                textAlign: TextAlign.center,
-              ),
+              Text(context.l10n.accessRemoved, textAlign: TextAlign.center),
             ],
           ),
         ),
       );
     }
 
-    final classes =
-        ref.watch(classesForTeacherProvider).value ?? const [];
+    final classes = ref.watch(classesForTeacherProvider).value ?? const [];
     final sections = ref.watch(classSectionsProvider);
 
     return ListView(
@@ -476,7 +474,10 @@ class _ClassCard extends ConsumerWidget {
               const SizedBox(width: 10),
               Expanded(child: JzBar(value: total == 0 ? 0 : done / total)),
               const SizedBox(width: 10),
-              Text(context.l10n.doneSlashTotal(done, total), style: t.titleSmall),
+              Text(
+                context.l10n.doneSlashTotal(done, total),
+                style: t.titleSmall,
+              ),
             ],
           ),
         ],

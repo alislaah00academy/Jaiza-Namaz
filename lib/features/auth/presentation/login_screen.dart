@@ -64,9 +64,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(mapGenericError(e, context.l10n))));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(mapGenericError(e, context.l10n))),
+        );
       }
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -206,7 +206,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   autocorrect: false,
                                   validator: (v) {
                                     if (v == null || v.isEmpty) {
-                                      return context.l10n.validationEnterPassword;
+                                      return context
+                                          .l10n
+                                          .validationEnterPassword;
                                     }
                                     return null;
                                   },

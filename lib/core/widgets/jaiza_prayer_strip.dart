@@ -22,7 +22,9 @@ class JaizaPrayerStrip extends ConsumerWidget {
     PrayerStatus status,
   ) async {
     try {
-      await ref.read(prayerRepositoryProvider).upsertPrayer(
+      await ref
+          .read(prayerRepositoryProvider)
+          .upsertPrayer(
             userId: uid,
             prayerName: name,
             type: PrayerType.fard,
@@ -73,8 +75,8 @@ class JaizaPrayerStrip extends ConsumerWidget {
                     child: Text(
                       l10n.stripTitle,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ],
@@ -91,9 +93,8 @@ class JaizaPrayerStrip extends ConsumerWidget {
                         flex: 2,
                         child: Text(
                           name.label(l10n),
-                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w600,
-                              ),
+                          style: Theme.of(context).textTheme.labelLarge
+                              ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                       ),
                       Expanded(
@@ -102,15 +103,16 @@ class JaizaPrayerStrip extends ConsumerWidget {
                           status == PrayerStatus.completed
                               ? l10n.statusPrayed
                               : status == PrayerStatus.missed
-                                  ? l10n.statusMissed
-                                  : l10n.statusNotRecorded,
+                              ? l10n.statusMissed
+                              : l10n.statusNotRecorded,
                           textAlign: TextAlign.center,
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          style: Theme.of(context).textTheme.labelMedium
+                              ?.copyWith(
                                 color: status == PrayerStatus.completed
                                     ? scheme.primary
                                     : status == PrayerStatus.missed
-                                        ? scheme.error
-                                        : scheme.onSurfaceVariant,
+                                    ? scheme.error
+                                    : scheme.onSurfaceVariant,
                               ),
                         ),
                       ),
@@ -121,7 +123,13 @@ class JaizaPrayerStrip extends ConsumerWidget {
                         ),
                         icon: const Icon(Icons.check_rounded, size: 20),
                         tooltip: l10n.markAsPrayed,
-                        onPressed: () => _mark(context, ref, uid, name, PrayerStatus.completed),
+                        onPressed: () => _mark(
+                          context,
+                          ref,
+                          uid,
+                          name,
+                          PrayerStatus.completed,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       IconButton.filled(
@@ -131,7 +139,8 @@ class JaizaPrayerStrip extends ConsumerWidget {
                         ),
                         icon: const Icon(Icons.close_rounded, size: 20),
                         tooltip: l10n.statusMissed,
-                        onPressed: () => _mark(context, ref, uid, name, PrayerStatus.missed),
+                        onPressed: () =>
+                            _mark(context, ref, uid, name, PrayerStatus.missed),
                       ),
                     ],
                   ),

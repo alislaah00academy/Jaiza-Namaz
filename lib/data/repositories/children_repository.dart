@@ -48,13 +48,10 @@ class ChildrenRepository {
     required String name,
   }) async {
     try {
-      await _children(parentUid).doc(childId).set(
-        {
-          'name': name.trim(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      await _children(parentUid).doc(childId).set({
+        'name': name.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     } catch (e, st) {
       appLog('renameChild', error: e, stackTrace: st);
       rethrow;

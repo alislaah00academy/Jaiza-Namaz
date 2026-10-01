@@ -92,10 +92,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
             children: [
               Text(context.l10n.qazaSetDailyGoal, style: t.titleMedium),
               const SizedBox(height: 2),
-              Text(
-                context.l10n.qazaSetDailyGoalBody,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.qazaSetDailyGoalBody, style: t.bodySmall),
               const SizedBox(height: 14),
               Row(
                 children: [

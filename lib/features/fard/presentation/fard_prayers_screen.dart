@@ -41,9 +41,7 @@ class FardPrayersScreen extends ConsumerWidget {
           ),
           data: (map) {
             final completedCount = kFardPrayerDefs
-                .where(
-                  (d) => map[d.name]?.status == PrayerStatus.completed,
-                )
+                .where((d) => map[d.name]?.status == PrayerStatus.completed)
                 .length;
             final progress = completedCount / kFardPrayerDefs.length;
 
@@ -58,9 +56,8 @@ class FardPrayersScreen extends ConsumerWidget {
                     children: [
                       Text(
                         context.l10n.todaysFardProgress,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 10),
                       ClipRRect(
@@ -78,10 +75,8 @@ class FardPrayersScreen extends ConsumerWidget {
                           kFardPrayerDefs.length,
                         ),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant,
-                            ),
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                       ),
                     ],
                   ),
@@ -93,10 +88,8 @@ class FardPrayersScreen extends ConsumerWidget {
                     child: Text(
                       context.l10n.noPrayersYet,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ...kFardPrayerDefs.map((def) {
@@ -114,9 +107,7 @@ class FardPrayersScreen extends ConsumerWidget {
                               Expanded(
                                 child: Text(
                                   def.label(context.l10n),
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -138,10 +129,11 @@ class FardPrayersScreen extends ConsumerWidget {
                               def.startHint(context.l10n),
                               def.endHint(context.l10n),
                             ),
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurfaceVariant,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                                 ),
                           ),
                           const SizedBox(height: 14),
@@ -196,7 +188,9 @@ class FardPrayersScreen extends ConsumerWidget {
     PrayerStatus status,
   ) async {
     try {
-      await ref.read(prayerRepositoryProvider).upsertPrayer(
+      await ref
+          .read(prayerRepositoryProvider)
+          .upsertPrayer(
             userId: uid,
             prayerName: name,
             type: PrayerType.fard,

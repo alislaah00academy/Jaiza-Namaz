@@ -219,8 +219,10 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surfaceContainerLowest,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 20,
+        ),
         constraints: const BoxConstraints(minHeight: 58),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTokens.radiusInput),
@@ -242,9 +244,12 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppTokens.radiusInput),
           borderSide: BorderSide(color: scheme.error, width: 2),
         ),
-        labelStyle: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
-        floatingLabelStyle:
-            textTheme.titleSmall?.copyWith(color: scheme.primary),
+        labelStyle: textTheme.bodyLarge?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+        floatingLabelStyle: textTheme.titleSmall?.copyWith(
+          color: scheme.primary,
+        ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.secondaryContainer,
@@ -286,8 +291,9 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppTokens.radiusChip),
         ),
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle:
-            textTheme.bodyMedium?.copyWith(color: scheme.onInverseSurface),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
       ),
       drawerTheme: DrawerThemeData(
         backgroundColor: scheme.surface,
@@ -304,8 +310,9 @@ abstract final class AppTheme {
         indicatorColor: scheme.primaryContainer,
         selectedIconTheme: IconThemeData(color: scheme.primary),
         unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
-        selectedLabelTextStyle:
-            textTheme.labelMedium?.copyWith(color: scheme.primary),
+        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: scheme.primary,
+        ),
         unselectedLabelTextStyle: textTheme.labelMedium,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -488,8 +495,10 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: scheme.surfaceContainerLowest,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 20,
+        ),
         constraints: const BoxConstraints(minHeight: 58),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppTokens.radiusInput),
@@ -511,9 +520,12 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppTokens.radiusInput),
           borderSide: BorderSide(color: scheme.error, width: 2),
         ),
-        labelStyle: textTheme.bodyLarge?.copyWith(color: scheme.onSurfaceVariant),
-        floatingLabelStyle:
-            textTheme.titleSmall?.copyWith(color: scheme.primary),
+        labelStyle: textTheme.bodyLarge?.copyWith(
+          color: scheme.onSurfaceVariant,
+        ),
+        floatingLabelStyle: textTheme.titleSmall?.copyWith(
+          color: scheme.primary,
+        ),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: scheme.secondaryContainer,
@@ -555,8 +567,9 @@ abstract final class AppTheme {
           borderRadius: BorderRadius.circular(AppTokens.radiusChip),
         ),
         backgroundColor: scheme.inverseSurface,
-        contentTextStyle:
-            textTheme.bodyMedium?.copyWith(color: scheme.onInverseSurface),
+        contentTextStyle: textTheme.bodyMedium?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
       ),
       drawerTheme: DrawerThemeData(
         backgroundColor: scheme.surface,
@@ -573,8 +586,9 @@ abstract final class AppTheme {
         indicatorColor: scheme.primaryContainer,
         selectedIconTheme: IconThemeData(color: scheme.primary),
         unselectedIconTheme: IconThemeData(color: scheme.onSurfaceVariant),
-        selectedLabelTextStyle:
-            textTheme.labelMedium?.copyWith(color: scheme.primary),
+        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: scheme.primary,
+        ),
         unselectedLabelTextStyle: textTheme.labelMedium,
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -632,10 +646,8 @@ abstract final class AppTheme {
       fontFamilyFallback: const ['NotoNastaliqUrdu', 'NotoNaskhArabic'],
       height: 1.9,
     );
-    TextStyle? naskh(TextStyle? s) => s?.copyWith(
-      fontFamilyFallback: const ['NotoNaskhArabic'],
-      height: 1.5,
-    );
+    TextStyle? naskh(TextStyle? s) =>
+        s?.copyWith(fontFamilyFallback: const ['NotoNaskhArabic'], height: 1.5);
     return base.copyWith(
       displayLarge: nastaliq(base.displayLarge),
       displayMedium: nastaliq(base.displayMedium),
@@ -660,15 +672,13 @@ abstract final class AppTheme {
   static TextTheme _withDisplayFont(TextTheme base) {
     return base.copyWith(
       displayLarge: GoogleFonts.playfairDisplay(textStyle: base.displayLarge),
-      displayMedium:
-          GoogleFonts.playfairDisplay(textStyle: base.displayMedium),
+      displayMedium: GoogleFonts.playfairDisplay(textStyle: base.displayMedium),
       displaySmall: GoogleFonts.playfairDisplay(textStyle: base.displaySmall),
-      headlineLarge:
-          GoogleFonts.playfairDisplay(textStyle: base.headlineLarge),
-      headlineMedium:
-          GoogleFonts.playfairDisplay(textStyle: base.headlineMedium),
-      headlineSmall:
-          GoogleFonts.playfairDisplay(textStyle: base.headlineSmall),
+      headlineLarge: GoogleFonts.playfairDisplay(textStyle: base.headlineLarge),
+      headlineMedium: GoogleFonts.playfairDisplay(
+        textStyle: base.headlineMedium,
+      ),
+      headlineSmall: GoogleFonts.playfairDisplay(textStyle: base.headlineSmall),
       titleLarge: GoogleFonts.playfairDisplay(textStyle: base.titleLarge),
     );
   }

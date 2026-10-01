@@ -32,10 +32,7 @@ class GetStartedRoleScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    JaizaArchCrown(
-                      height: 230,
-                      child: const JaizaWordmark(),
-                    ),
+                    JaizaArchCrown(height: 230, child: const JaizaWordmark()),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Column(

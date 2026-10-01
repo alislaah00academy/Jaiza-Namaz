@@ -34,17 +34,15 @@ Future<void> showInviteTeacherSheet(
                 .inviteTeacher(orgId: orgId, email: email);
             if (ctx.mounted) {
               Navigator.pop(ctx);
-              AppSnackBar.success(
-                context,
-                ctx.l10n.inviteSent(email),
-              );
+              AppSnackBar.success(context, ctx.l10n.inviteSent(email));
             }
           } on TeacherAlreadyActiveException {
             if (ctx.mounted) {
               AppSnackBar.error(ctx, ctx.l10n.teacherAlreadyActive);
             }
           } catch (_) {
-            if (ctx.mounted) AppSnackBar.error(ctx, ctx.l10n.couldNotSendInvite);
+            if (ctx.mounted)
+              AppSnackBar.error(ctx, ctx.l10n.couldNotSendInvite);
           } finally {
             if (ctx.mounted) setState(() => sending = false);
           }
@@ -55,10 +53,7 @@ Future<void> showInviteTeacherSheet(
           children: [
             Text(ctx.l10n.inviteATeacher, style: t.headlineSmall),
             const SizedBox(height: 4),
-            Text(
-              ctx.l10n.inviteTeacherBody,
-              style: t.bodyMedium,
-            ),
+            Text(ctx.l10n.inviteTeacherBody, style: t.bodyMedium),
             const SizedBox(height: 18),
             TextField(
               controller: controller,
@@ -71,11 +66,7 @@ Future<void> showInviteTeacherSheet(
               onSubmitted: (_) => send(),
             ),
             const SizedBox(height: 14),
-            JzNoteCard(
-              body: Text(
-                ctx.l10n.teacherPermissionsNote,
-              ),
-            ),
+            JzNoteCard(body: Text(ctx.l10n.teacherPermissionsNote)),
             const SizedBox(height: 18),
             FilledButton(
               onPressed: sending ? null : send,
@@ -144,10 +135,7 @@ Future<void> showNewClassSheet(
           children: [
             Text(ctx.l10n.newClass, style: t.headlineSmall),
             const SizedBox(height: 4),
-            Text(
-              ctx.l10n.newClassBody,
-              style: t.bodyMedium,
-            ),
+            Text(ctx.l10n.newClassBody, style: t.bodyMedium),
             const SizedBox(height: 18),
             TextField(
               controller: name,

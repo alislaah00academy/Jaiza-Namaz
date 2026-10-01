@@ -204,8 +204,7 @@ class AppShell extends ConsumerWidget {
       final org = ref.watch(myOrgProvider).value;
       final teachers = org == null
           ? const <TeacherMembership>[]
-          : ref.watch(allTeachersForOrgProvider(org.id)).value ??
-                const [];
+          : ref.watch(allTeachersForOrgProvider(org.id)).value ?? const [];
       for (final tt in teachers) {
         if (tt.uid == uid) title = tt.name;
       }
@@ -214,8 +213,7 @@ class AppShell extends ConsumerWidget {
       // Reachable only by the owning teacher (router-guarded), so this is
       // always among their own classes.
       final classId = location.split('/')[4];
-      final classes =
-          ref.watch(classesForTeacherProvider).value ?? const [];
+      final classes = ref.watch(classesForTeacherProvider).value ?? const [];
       for (final cl in classes) {
         if (cl.id == classId) {
           title = location.endsWith('/report')
@@ -538,17 +536,20 @@ Set<String> _tabRootPaths(bool showClasses) => {
 /// Screens that draw their own top bar (search field in place of a title).
 const _selfHeadedPaths = <String>{'/app/mosques/search'};
 
-List<(IconData, IconData, String, String)> _tabsFor(
-  bool showClasses,
-  L10n l,
-) => [
-  (Icons.calendar_today_outlined, Icons.calendar_today, l.titleToday, '/app/home'),
-  if (showClasses)
-    (Icons.school_outlined, Icons.school, l.titleClasses, '/app/org'),
-  (Icons.mosque_outlined, Icons.mosque, l.titleMosques, '/app/mosques'),
-  (Icons.history_outlined, Icons.history, l.titleRecords, '/app/history'),
-  (Icons.menu_rounded, Icons.menu_rounded, l.titleMore, '/app/more'),
-];
+List<(IconData, IconData, String, String)> _tabsFor(bool showClasses, L10n l) =>
+    [
+      (
+        Icons.calendar_today_outlined,
+        Icons.calendar_today,
+        l.titleToday,
+        '/app/home',
+      ),
+      if (showClasses)
+        (Icons.school_outlined, Icons.school, l.titleClasses, '/app/org'),
+      (Icons.mosque_outlined, Icons.mosque, l.titleMosques, '/app/mosques'),
+      (Icons.history_outlined, Icons.history, l.titleRecords, '/app/history'),
+      (Icons.menu_rounded, Icons.menu_rounded, l.titleMore, '/app/more'),
+    ];
 
 /// Phone layout: the bottom bar from the redesign (Today · Mosques ·
 /// Records · More, plus Classes for Organization accounts). The tab roots

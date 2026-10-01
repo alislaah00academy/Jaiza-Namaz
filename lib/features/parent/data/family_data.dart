@@ -57,7 +57,9 @@ Set<String> fullFardDayKeysForMonth(List<PrayerLog> logs, DateTime month) {
     if (l.status != PrayerStatus.completed) continue;
     final ld = l.dateTime.toLocal();
     if (ld.year != month.year || ld.month != month.month) continue;
-    byDay.putIfAbsent(AppDateUtils.localDateKey(ld), () => {}).add(l.prayerName);
+    byDay
+        .putIfAbsent(AppDateUtils.localDateKey(ld), () => {})
+        .add(l.prayerName);
   }
   final full = <String>{};
   for (final e in byDay.entries) {
@@ -130,8 +132,10 @@ class ChildExtra {
 
   Map<String, dynamic> toJson() => {'age': age, 'gender': gender};
 
-  static ChildExtra fromJson(Map<String, dynamic> j) =>
-      ChildExtra(age: (j['age'] as num?)?.toInt(), gender: j['gender'] as String?);
+  static ChildExtra fromJson(Map<String, dynamic> j) => ChildExtra(
+    age: (j['age'] as num?)?.toInt(),
+    gender: j['gender'] as String?,
+  );
 }
 
 class ChildExtrasNotifier extends StateNotifier<Map<String, ChildExtra>> {
@@ -217,9 +221,9 @@ class FamilyReminderPrefs {
 
   final Map<String, dynamic> values;
 
-  bool flag(String k, [bool fallback = true]) =>
-      values[k] as bool? ?? fallback;
-  int number(String k, int fallback) => (values[k] as num?)?.toInt() ?? fallback;
+  bool flag(String k, [bool fallback = true]) => values[k] as bool? ?? fallback;
+  int number(String k, int fallback) =>
+      (values[k] as num?)?.toInt() ?? fallback;
   Set<String> set(String k, Set<String> fallback) =>
       (values[k] as List?)?.cast<String>().toSet() ?? fallback;
 }

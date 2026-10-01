@@ -104,31 +104,11 @@ class DailyPrayerSchedule {
 
   List<PrayerWindow> get fardWindows {
     return [
-      PrayerWindow(
-        prayer: PrayerName.fajr,
-        start: fajr,
-        end: sunrise,
-      ),
-      PrayerWindow(
-        prayer: PrayerName.zuhr,
-        start: zuhr,
-        end: asr,
-      ),
-      PrayerWindow(
-        prayer: PrayerName.asr,
-        start: asr,
-        end: maghrib,
-      ),
-      PrayerWindow(
-        prayer: PrayerName.maghrib,
-        start: maghrib,
-        end: isha,
-      ),
-      PrayerWindow(
-        prayer: PrayerName.isha,
-        start: isha,
-        end: nextFajr,
-      ),
+      PrayerWindow(prayer: PrayerName.fajr, start: fajr, end: sunrise),
+      PrayerWindow(prayer: PrayerName.zuhr, start: zuhr, end: asr),
+      PrayerWindow(prayer: PrayerName.asr, start: asr, end: maghrib),
+      PrayerWindow(prayer: PrayerName.maghrib, start: maghrib, end: isha),
+      PrayerWindow(prayer: PrayerName.isha, start: isha, end: nextFajr),
     ];
   }
 

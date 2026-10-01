@@ -11,9 +11,7 @@ abstract final class AppSnackBar {
       SnackBar(
         content: Text(
           message,
-          style: textTheme.bodyMedium?.copyWith(
-            color: scheme.onPrimary,
-          ),
+          style: textTheme.bodyMedium?.copyWith(color: scheme.onPrimary),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: scheme.primary,
@@ -32,9 +30,7 @@ abstract final class AppSnackBar {
       SnackBar(
         content: Text(
           message,
-          style: textTheme.bodyMedium?.copyWith(
-            color: scheme.onErrorContainer,
-          ),
+          style: textTheme.bodyMedium?.copyWith(color: scheme.onErrorContainer),
         ),
         behavior: SnackBarBehavior.floating,
         backgroundColor: scheme.errorContainer,

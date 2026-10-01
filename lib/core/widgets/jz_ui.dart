@@ -760,7 +760,9 @@ class JzSegmented<T> extends StatelessWidget {
                     color: entries[i].key == selected ? c.primary : null,
                     border: i == 0
                         ? null
-                        : BorderDirectional(start: BorderSide(color: c.outline)),
+                        : BorderDirectional(
+                            start: BorderSide(color: c.outline),
+                          ),
                   ),
                   alignment: Alignment.center,
                   child: Text(
@@ -795,6 +797,7 @@ class JzSearchBar extends StatelessWidget {
   });
 
   final TextEditingController? controller;
+
   /// Defaults to "Mosque name or area".
   final String? hint;
   final VoidCallback? onTap;

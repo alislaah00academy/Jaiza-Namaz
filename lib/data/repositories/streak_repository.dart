@@ -82,17 +82,13 @@ class StreakRepository {
           }
         }
 
-        tx.set(
-          streakRef,
-          {
-            'userId': userId,
-            'currentStreak': current,
-            'longestStreak': longest,
-            'lastFardPerfectDate': todayKey,
-            'badgesUnlocked': badges,
-          },
-          SetOptions(merge: true),
-        );
+        tx.set(streakRef, {
+          'userId': userId,
+          'currentStreak': current,
+          'longestStreak': longest,
+          'lastFardPerfectDate': todayKey,
+          'badgesUnlocked': badges,
+        }, SetOptions(merge: true));
       });
 
       await _maybeUnlockNawafilBadge(userId);
@@ -116,12 +112,9 @@ class StreakRepository {
       if (q.docs.length < 10) return;
 
       final streakRef = _streaks.doc(userId);
-      await streakRef.set(
-        {
-          'badgesUnlocked': FieldValue.arrayUnion(['nawafil_nur']),
-        },
-        SetOptions(merge: true),
-      );
+      await streakRef.set({
+        'badgesUnlocked': FieldValue.arrayUnion(['nawafil_nur']),
+      }, SetOptions(merge: true));
     } catch (e, st) {
       appLog('_maybeUnlockNawafilBadge', error: e, stackTrace: st);
     }

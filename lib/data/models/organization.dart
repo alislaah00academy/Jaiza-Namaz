@@ -61,9 +61,7 @@ class OrgInvite {
   final DateTime? invitedAt;
   final String? claimedByUid;
 
-  static OrgInvite? fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snap,
-  ) {
+  static OrgInvite? fromFirestore(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data();
     if (data == null) return null;
     // orgId is the parent of the parent (invites) collection reference.
@@ -159,9 +157,7 @@ class Student {
   final String name;
   final DateTime? createdAt;
 
-  static Student? fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> snap,
-  ) {
+  static Student? fromFirestore(DocumentSnapshot<Map<String, dynamic>> snap) {
     final data = snap.data();
     if (data == null) return null;
     return Student(

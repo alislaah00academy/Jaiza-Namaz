@@ -27,14 +27,8 @@ class JaizaHeroEmblem extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: LinearGradient(
           colors: isDark
-              ? [
-                  c.surfaceContainerHighest,
-                  c.surface,
-                ]
-              : [
-                  Colors.white,
-                  c.secondaryContainer.withValues(alpha: 0.85),
-                ],
+              ? [c.surfaceContainerHighest, c.surface]
+              : [Colors.white, c.secondaryContainer.withValues(alpha: 0.85)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -44,11 +38,7 @@ class JaizaHeroEmblem extends StatelessWidget {
         ),
       ),
       alignment: Alignment.center,
-      child: Icon(
-        icon,
-        size: iconSize,
-        color: c.primary,
-      ),
+      child: Icon(icon, size: iconSize, color: c.primary),
     );
   }
 }

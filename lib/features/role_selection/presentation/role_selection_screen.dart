@@ -39,13 +39,18 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
         final orgId = await ref
             .read(organizationRepositoryProvider)
             .createOrganization(adminUid: uid, name: name.trim());
-        await ref.read(userRepositoryProvider).setRole(
+        await ref
+            .read(userRepositoryProvider)
+            .setRole(
               uid: uid,
               role: UserRole.organization,
               orgId: orgId,
               orgMemberRole: OrgMemberRole.admin,
             );
-        destination = homeRouteForRole(role, orgMemberRole: OrgMemberRole.admin);
+        destination = homeRouteForRole(
+          role,
+          orgMemberRole: OrgMemberRole.admin,
+        );
       } else {
         await ref.read(userRepositoryProvider).setRole(uid: uid, role: role);
         destination = homeRouteForRole(role);
@@ -80,8 +85,8 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                       Text(
                         context.l10n.roleSelectSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: scheme.onSurfaceVariant,
-                            ),
+                          color: scheme.onSurfaceVariant,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 24),

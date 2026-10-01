@@ -15,13 +15,28 @@ void main() {
 
   test('stored enum names never change (03 §4)', () {
     expect(PrayerName.values.map((e) => e.name), [
-      'fajr', 'zuhr', 'asr', 'maghrib', 'isha', 'witr', 'tahajjud', 'ishraq',
-      'chasht', 'awwabin', 'rawatib', 'taraweeh', 'qazaGeneric',
+      'fajr',
+      'zuhr',
+      'asr',
+      'maghrib',
+      'isha',
+      'witr',
+      'tahajjud',
+      'ishraq',
+      'chasht',
+      'awwabin',
+      'rawatib',
+      'taraweeh',
+      'qazaGeneric',
     ]);
     expect(PrayerType.values.map((e) => e.name), ['fard', 'nawafil', 'qaza']);
     expect(PrayerStatus.values.map((e) => e.name), ['completed', 'missed']);
-    expect(AppMode.values.map((e) => e.name),
-        ['individual', 'parent', 'organization', 'masjidAdmin']);
+    expect(AppMode.values.map((e) => e.name), [
+      'individual',
+      'parent',
+      'organization',
+      'masjidAdmin',
+    ]);
   });
 
   test('fard list and isFard', () {
@@ -34,13 +49,18 @@ void main() {
     test('paths per subject kind', () {
       expect(const SubjectRef.self('u1').prayersPath, 'users/u1/prayers');
       expect(const SubjectRef.child('c1').prayersPath, 'children/c1/prayers');
-      expect(const SubjectRef.student('s1').dailySummariesPath,
-          'students/s1/dailySummaries');
+      expect(
+        const SubjectRef.student('s1').dailySummariesPath,
+        'students/s1/dailySummaries',
+      );
     });
 
     test('value equality (freezed)', () {
       expect(const SubjectRef.child('c1'), const SubjectRef.child('c1'));
-      expect(const SubjectRef.child('c1'), isNot(const SubjectRef.student('c1')));
+      expect(
+        const SubjectRef.child('c1'),
+        isNot(const SubjectRef.student('c1')),
+      );
     });
 
     test('JSON round-trip with a kind key', () {

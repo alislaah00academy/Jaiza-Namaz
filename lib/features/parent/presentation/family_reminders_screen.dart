@@ -43,13 +43,13 @@ class FamilyRemindersScreen extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                context.l10n.familyRemindersIntro,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.familyRemindersIntro, style: t.bodySmall),
               const SizedBox(height: 14),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: c.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(14),
@@ -112,7 +112,9 @@ class FamilyRemindersScreen extends ConsumerWidget {
               const JzDivider(),
               Row(
                 children: [
-                  Expanded(child: Text(context.l10n.howEarly, style: t.bodyLarge)),
+                  Expanded(
+                    child: Text(context.l10n.howEarly, style: t.bodyLarge),
+                  ),
                   PopupMenuButton<int>(
                     initialValue: prefs.number('earlyMinutes', 30),
                     onSelected: (v) => notifier.put('earlyMinutes', v),
@@ -133,10 +135,7 @@ class FamilyRemindersScreen extends ConsumerWidget {
               const JzDivider(),
               Text(context.l10n.whichPrayers, style: t.bodyLarge),
               const SizedBox(height: 2),
-              Text(
-                context.l10n.whichPrayersBody,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.whichPrayersBody, style: t.bodySmall),
               const SizedBox(height: 10),
               Wrap(
                 spacing: 8,
@@ -167,10 +166,18 @@ class FamilyRemindersScreen extends ConsumerWidget {
                 const JzDivider(),
                 Row(
                   children: [
-                    Expanded(child: Text(context.l10n.summaryTime, style: t.bodyLarge)),
+                    Expanded(
+                      child: Text(context.l10n.summaryTime, style: t.bodyLarge),
+                    ),
                     JzChip(
                       formatTime(
-                        DateTime(2000, 1, 1, prefs.number('summaryHour', 21), 30),
+                        DateTime(
+                          2000,
+                          1,
+                          1,
+                          prefs.number('summaryHour', 21),
+                          30,
+                        ),
                         context.l10n,
                       ),
                       gold: true,
@@ -238,10 +245,7 @@ class FamilyRemindersScreen extends ConsumerWidget {
             children: [
               Text(context.l10n.titleChildren, style: t.titleMedium),
               const SizedBox(height: 2),
-              Text(
-                context.l10n.childrenMuteBody,
-                style: t.bodySmall,
-              ),
+              Text(context.l10n.childrenMuteBody, style: t.bodySmall),
               const SizedBox(height: 10),
               if (children.isEmpty)
                 Text(context.l10n.addChildToSetUp, style: t.bodyMedium)
