@@ -50,3 +50,4 @@ emulator-data/
 
 # Node (rules/Functions test tooling)
 node_modules/
+/functions/lib/

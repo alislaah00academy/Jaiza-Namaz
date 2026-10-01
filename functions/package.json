@@ -1,0 +1,27 @@
+{
+  "name": "jaiza-functions",
+  "private": true,
+  "engines": { "node": "22" },
+  "main": "lib/src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc --watch",
+    "lint": "eslint src --ext .ts",
+    "test": "npm run build && node --test lib/test/*.test.js",
+    "test:watch": "npm run build && node --test --watch lib/test/*.test.js",
+    "serve": "npm run build && firebase emulators:start --only auth,firestore,functions,storage"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^8.57.0"
+  }
+}
