@@ -12,7 +12,12 @@
           "package_name": "com.alislaacademy.jayzanamaz.jaiza_namaz"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "170319084683-8vkp3kv1lp46ou2iaqkmsr7e4lfl55hf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyD6Hj5hMUoR4B2olPxevrHDNxSqni3jLKY"
@@ -20,7 +25,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170319084683-8vkp3kv1lp46ou2iaqkmsr7e4lfl55hf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "170319084683-8srkmqe6mql48sbe4j1ir0p0jqjbhbp8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alislaacademy.jayzanamaz.jaizaNamaz"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:170319084683:android:8803ebb1f0cfd087aaa88e",
+        "android_client_info": {
+          "package_name": "com.alislaah.jaiza"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "170319084683-8vkp3kv1lp46ou2iaqkmsr7e4lfl55hf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6Hj5hMUoR4B2olPxevrHDNxSqni3jLKY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "170319084683-8vkp3kv1lp46ou2iaqkmsr7e4lfl55hf.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "170319084683-8srkmqe6mql48sbe4j1ir0p0jqjbhbp8.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.alislaacademy.jayzanamaz.jaizaNamaz"
+              }
+            }
+          ]
         }
       }
     }

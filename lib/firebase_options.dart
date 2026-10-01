@@ -24,16 +24,8 @@ class DefaultFirebaseOptions {
         return android;
       case TargetPlatform.iOS:
         return ios;
-      case TargetPlatform.macOS:
-        return macos;
-      case TargetPlatform.windows:
-        return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
       default:
+        // Only Android, iOS and Web are supported (D-001).
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         );
@@ -52,38 +44,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD6Hj5hMUoR4B2olPxevrHDNxSqni3jLKY',
-    appId: '1:170319084683:android:51da85dfdaf33b76aaa88e',
+    appId: '1:170319084683:android:8803ebb1f0cfd087aaa88e',
     messagingSenderId: '170319084683',
     projectId: 'jaiza-namaz',
     storageBucket: 'jaiza-namaz.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyA4qP1Hm6JnREAMTEW5eqDpl6lBtZP4K4E',
-    appId: '1:170319084683:ios:35080d2a2c5d5b5eaaa88e',
+    appId: '1:170319084683:ios:2429ece5de8b5bbfaaa88e',
     messagingSenderId: '170319084683',
     projectId: 'jaiza-namaz',
     storageBucket: 'jaiza-namaz.firebasestorage.app',
-    iosBundleId: 'com.alislaacademy.jayzanamaz.jaizaNamaz',
+    iosClientId: '170319084683-s68maru0tetgocs4hd61fo2qma5v1l69.apps.googleusercontent.com',
+    iosBundleId: 'com.alislaah.jaiza',
   );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA4qP1Hm6JnREAMTEW5eqDpl6lBtZP4K4E',
-    appId: '1:170319084683:ios:35080d2a2c5d5b5eaaa88e',
-    messagingSenderId: '170319084683',
-    projectId: 'jaiza-namaz',
-    storageBucket: 'jaiza-namaz.firebasestorage.app',
-    iosBundleId: 'com.alislaacademy.jayzanamaz.jaizaNamaz',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyD2FLkeS3SNU4NokYGCM2iW1u1Z5wXGYX0',
-    appId: '1:170319084683:web:e134b559c5bdb8acaaa88e',
-    messagingSenderId: '170319084683',
-    projectId: 'jaiza-namaz',
-    authDomain: 'jaiza-namaz.firebaseapp.com',
-    storageBucket: 'jaiza-namaz.firebasestorage.app',
-    measurementId: 'G-SV6SS2KG05',
-  );
-
 }

@@ -1,10 +1,10 @@
-package com.alislaacademy.jayzanamaz.jaiza_namaz.widget
+package com.alislaah.jaiza.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.RemoteViews
-import com.alislaacademy.jayzanamaz.jaiza_namaz.R
+import com.alislaah.jaiza.R
 import es.antonborri.home_widget.HomeWidgetProvider
 import org.json.JSONObject
 import java.util.Locale

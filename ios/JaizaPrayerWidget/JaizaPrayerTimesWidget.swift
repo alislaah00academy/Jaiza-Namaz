@@ -1,7 +1,7 @@
 import SwiftUI
 import WidgetKit
 
-private let appGroupId = "group.com.alislaacademy.jayzanamaz.jaizaNamaz"
+private let appGroupId = "group.com.alislaah.jaiza"
 private let payloadKeyB = "jaiza_widget_b_payload"
 
 struct JaizaPrayerTimesEntry: TimelineEntry {

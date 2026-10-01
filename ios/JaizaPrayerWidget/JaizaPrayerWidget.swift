@@ -1,7 +1,7 @@
 import WidgetKit
 import SwiftUI
 
-private let appGroupId = "group.com.alislaacademy.jayzanamaz.jaizaNamaz"
+private let appGroupId = "group.com.alislaah.jaiza"
 private let payloadKey = "jaiza_widget_payload"
 
 struct PrayerRowModel: Identifiable {

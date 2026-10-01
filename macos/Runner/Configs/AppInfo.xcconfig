@@ -8,7 +8,7 @@
 PRODUCT_NAME = jaiza_namaz
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.alislaacademy.jayzanamaz.jaizaNamaz
+PRODUCT_BUNDLE_IDENTIFIER = com.alislaah.jaiza
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2026 com.alislaacademy.jayzanamaz. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2026 Al Islaah Academy. All rights reserved.

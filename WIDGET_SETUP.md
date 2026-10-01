@@ -20,7 +20,7 @@ Because Flutter iOS projects are Xcode-managed, the Widget Extension target must
    - `Runner` target
    - `JaizaPrayerWidget` target
 6. Add the same App Group on both targets:
-   - `group.com.alislaacademy.jayzanamaz.jaizaNamaz`
+   - `group.com.alislaah.jaiza`
 7. For the widget target, set entitlements file to:
    - `ios/JaizaPrayerWidget/JaizaPrayerWidget.entitlements`
 

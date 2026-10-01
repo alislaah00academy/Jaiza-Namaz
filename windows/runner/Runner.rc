@@ -89,11 +89,11 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.alislaacademy.jayzanamaz" "\0"
+            VALUE "CompanyName", "Al Islaah Academy" "\0"
             VALUE "FileDescription", "jaiza_namaz" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "jaiza_namaz" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.alislaacademy.jayzanamaz. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 Al Islaah Academy. All rights reserved." "\0"
             VALUE "OriginalFilename", "jaiza_namaz.exe" "\0"
             VALUE "ProductName", "jaiza_namaz" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"

@@ -1,4 +1,4 @@
-package com.alislaacademy.jayzanamaz.jaiza_namaz
+package com.alislaah.jaiza
 
 import io.flutter.embedding.android.FlutterActivity
 

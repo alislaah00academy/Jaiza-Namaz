@@ -1,4 +1,3 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 // TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
 import 'package:flutter_riverpod/legacy.dart';
 

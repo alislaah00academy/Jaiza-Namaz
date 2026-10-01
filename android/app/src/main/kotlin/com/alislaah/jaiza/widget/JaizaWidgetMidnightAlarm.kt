@@ -1,4 +1,4 @@
-package com.alislaacademy.jayzanamaz.jaiza_namaz.widget
+package com.alislaah.jaiza.widget
 
 import android.app.AlarmManager
 import android.app.PendingIntent

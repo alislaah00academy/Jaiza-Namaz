@@ -31,7 +31,7 @@ abstract final class HomeWidgetBridge {
   static StreamSubscription<Uri?>? _clickSub;
 
   /// iOS App Group used by `home_widget` (must match Xcode capability).
-  static const iosAppGroupId = 'group.com.alislaacademy.jayzanamaz.jaizaNamaz';
+  static const iosAppGroupId = 'group.com.alislaah.jaiza';
 
   /// SharedPreferences keys written by Flutter.
   static const payloadKey = 'jaiza_widget_payload';
@@ -39,7 +39,7 @@ abstract final class HomeWidgetBridge {
 
   /// Qualified Android `AppWidgetProvider` class name (must match manifest).
   static const qualifiedAndroidWidget =
-      'com.alislaacademy.jayzanamaz.jaiza_namaz.widget.JaizaPrayerWidget';
+      'com.alislaah.jaiza.widget.JaizaPrayerWidget';
 
   /// Widget kind name on iOS (Swift `struct …: Widget`).
   static const iosWidgetName = 'JaizaPrayerWidget';
@@ -49,7 +49,7 @@ abstract final class HomeWidgetBridge {
   static const prayerSettingsCacheKey = 'jaiza_prayer_settings_json';
 
   static const qualifiedAndroidWidgetTimes =
-      'com.alislaacademy.jayzanamaz.jaiza_namaz.widget.JaizaPrayerTimesWidget';
+      'com.alislaah.jaiza.widget.JaizaPrayerTimesWidget';
   static const iosWidgetNameTimes = 'JaizaPrayerTimesWidget';
 
   static Future<void> bootstrap(WidgetRef ref) async {
