@@ -1,0 +1,21 @@
+name: jaiza_core
+description: Shared Jaiza models, enums and pure logic for the app and the admin dashboard. Pure Dart — no Flutter, no Firebase (03 §2).
+publish_to: 'none'
+version: 1.0.0
+
+environment:
+  sdk: ^3.11.0
+
+resolution: workspace
+
+dependencies:
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+  meta: ^1.16.0
+
+dev_dependencies:
+  build_runner: ^2.15.1
+  freezed: ^3.2.0
+  json_serializable: ^6.14.1
+  lints: ^6.0.0
+  test: ^1.25.0

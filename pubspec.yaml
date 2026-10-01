@@ -1,5 +1,5 @@
 name: jaiza_namaz
-description: "A new Flutter project."
+description: "Jaiza — namaz tracking app by Al Islaah Academy."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -21,6 +21,11 @@ version: 1.0.0+1
 environment:
   sdk: ^3.11.0
 
+# Monorepo (D-008, 03 §2): one `flutter pub get` here resolves every package
+# with one lockfile. admin_dashboard/ joins this list in P4.
+workspace:
+  - packages/jaiza_core
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -30,6 +35,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  jaiza_core:
+    path: packages/jaiza_core
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

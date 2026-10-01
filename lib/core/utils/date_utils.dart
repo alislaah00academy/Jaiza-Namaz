@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jaiza_core/jaiza_core.dart';
 
 /// Calendar helpers for prayer queries and streaks (local device timezone).
 class AppDateUtils {
@@ -14,12 +15,7 @@ class AppDateUtils {
   }
 
   /// `yyyy-MM-dd` in local time for streak bookkeeping.
-  static String localDateKey(DateTime d) {
-    final l = d.toLocal();
-    return '${l.year.toString().padLeft(4, '0')}-'
-        '${l.month.toString().padLeft(2, '0')}-'
-        '${l.day.toString().padLeft(2, '0')}';
-  }
+  static String localDateKey(DateTime d) => DateKeys.of(d);
 
   static Timestamp dateTimeToTimestampUtc(DateTime d) {
     return Timestamp.fromDate(d.toUtc());

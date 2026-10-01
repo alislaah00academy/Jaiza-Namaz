@@ -1,23 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:jaiza_core/jaiza_core.dart';
 
 import '../../core/utils/date_utils.dart';
 
-/// Stored as lowercase string in Firestore.
-enum PrayerName {
-  fajr,
-  zuhr,
-  asr,
-  maghrib,
-  isha,
-  witr,
-  tahajjud,
-  ishraq,
-  chasht,
-  awwabin,
-  rawatib,
-  taraweeh,
-  qazaGeneric,
-}
+// The enums live in jaiza_core (shared with the dashboard, D-008); this file
+// keeps the Firestore helpers the existing code uses.
+export 'package:jaiza_core/jaiza_core.dart'
+    show PrayerName, PrayerStatus, PrayerType;
 
 extension PrayerNameX on PrayerName {
   String get firestoreValue => name;
@@ -31,8 +20,6 @@ extension PrayerNameX on PrayerName {
   }
 }
 
-enum PrayerType { fard, nawafil, qaza }
-
 extension PrayerTypeX on PrayerType {
   String get firestoreValue => name;
 
@@ -44,8 +31,6 @@ extension PrayerTypeX on PrayerType {
     return null;
   }
 }
-
-enum PrayerStatus { completed, missed }
 
 extension PrayerStatusX on PrayerStatus {
   String get firestoreValue => name;
