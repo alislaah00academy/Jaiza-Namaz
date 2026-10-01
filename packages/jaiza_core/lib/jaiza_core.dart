@@ -6,4 +6,8 @@ export 'src/enums/prayer_enums.dart';
 export 'src/logic/date_key.dart';
 export 'src/logic/prayer_log_id.dart';
 export 'src/logic/validators.dart';
+export 'src/models/daily_summary.dart';
+export 'src/models/prayer_log.dart';
+export 'src/models/qaza_stats.dart';
+export 'src/models/streak_stats.dart';
 export 'src/models/subject_ref.dart';
