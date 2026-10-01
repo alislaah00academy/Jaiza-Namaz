@@ -39,7 +39,7 @@ abstract final class LocationService {
 
   static Future<String> labelForCoordinates(double lat, double lon) async {
     try {
-      final places = await placemarkFromCoordinates(lat, lon);
+      final places = await Geocoding().placemarkFromCoordinates(lat, lon);
       if (places.isNotEmpty) {
         final p = places.first;
         final parts =

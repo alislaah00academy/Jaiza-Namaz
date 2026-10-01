@@ -15,7 +15,7 @@ class FamilyScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: FloatingActionButton.extended(
@@ -71,7 +71,7 @@ class _ChildCard extends ConsumerWidget {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final extra = ref.watch(childExtrasProvider)[childId];
-    final logs = ref.watch(personFardLogsProvider(childId)).valueOrNull ?? const [];
+    final logs = ref.watch(personFardLogsProvider(childId)).value ?? const [];
     final total = kFardPrayerDefs.length;
     final today = fardDoneOn(logs, DateTime.now());
     final week = fardDoneThisWeek(logs);

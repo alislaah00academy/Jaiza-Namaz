@@ -112,7 +112,7 @@ class _QazaEstimateScreenState extends ConsumerState<QazaEstimateScreen> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final user = ref.watch(appUserStreamProvider).valueOrNull;
+    final user = ref.watch(appUserStreamProvider).value;
     _seed(user?.qazaPlanParsed ?? QazaPlanParsed.defaults());
     final since = ref.watch(qazaTrackingSinceProvider);
 

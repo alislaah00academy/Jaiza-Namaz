@@ -150,7 +150,7 @@ class _WidgetsNotificationsScreenState
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final isTeacher =
-        ref.watch(appUserStreamProvider).valueOrNull?.orgMemberRole ==
+        ref.watch(appUserStreamProvider).value?.orgMemberRole ==
         OrgMemberRole.teacher;
 
     return ListView(
@@ -482,10 +482,10 @@ class _ClassRemindersCard extends ConsumerWidget {
     final on = ref.watch(classRemindersOnProvider);
     final minutes = ref.watch(classReminderMinutesProvider);
     final muted = ref.watch(mutedClassesProvider);
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final classes =
-        ref.watch(classesForTeacherProvider).valueOrNull ?? const [];
+        ref.watch(classesForTeacherProvider).value ?? const [];
 
     return JzCard(
       padding: const EdgeInsets.all(18),

@@ -29,7 +29,7 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
   @override
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final students = orgId == null
         ? const []
@@ -40,7 +40,7 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
                       classId: widget.classId,
                     )),
                   )
-                  .valueOrNull ??
+                  .value ??
               const [];
 
     final now = DateTime.now();
@@ -55,7 +55,7 @@ class _ClassReportScreenState extends ConsumerState<ClassReportScreen> {
     var totalDone = 0;
     for (final s in students) {
       final logs =
-          ref.watch(personFardLogsProvider(s.id)).valueOrNull ?? const [];
+          ref.watch(personFardLogsProvider(s.id)).value ?? const [];
       final done = logs.where((l) {
         final d = l.dateTime.toLocal();
         final day = DateTime(d.year, d.month, d.day);

@@ -24,15 +24,15 @@ class MoreScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
-    final user = ref.watch(appUserStreamProvider).valueOrNull;
+    final user = ref.watch(appUserStreamProvider).value;
     final qaza = ref.watch(qazaOverviewProvider);
     final nawafilOn = user?.nawafilEnabled ?? false;
     final isParent = ref.watch(isParentProvider);
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     final isOrg = user?.role == UserRole.organization;
     final isTeacher = user?.orgMemberRole == OrgMemberRole.teacher;
     final myClasses = isTeacher
-        ? ref.watch(classesForTeacherProvider).valueOrNull ?? const []
+        ? ref.watch(classesForTeacherProvider).value ?? const []
         : const [];
 
     Widget icon(IconData i, [Color? color]) =>
@@ -65,7 +65,7 @@ class MoreScreen extends ConsumerWidget {
                   JzListRow(
                     leading: icon(Icons.school_outlined),
                     title:
-                        ref.watch(myOrgByIdProvider).valueOrNull?.name ??
+                        ref.watch(myOrgByIdProvider).value?.name ??
                         'Organization',
                     subtitle: 'Teachers, classes and reports',
                     trailing: const JzChevron(),
@@ -244,7 +244,7 @@ class MoreScreen extends ConsumerWidget {
         builder: (ctx, ref, _) {
           final t = Theme.of(ctx).textTheme;
           final on =
-              ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ??
+              ref.watch(appUserStreamProvider).value?.nawafilEnabled ??
               false;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

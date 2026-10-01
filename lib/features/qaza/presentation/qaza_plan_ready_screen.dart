@@ -26,7 +26,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
 
   Future<void> _done() async {
     final uid = ref.read(currentUserProvider)?.uid;
-    final user = ref.read(appUserStreamProvider).valueOrNull;
+    final user = ref.read(appUserStreamProvider).value;
     if (uid == null) return;
     setState(() => _saving = true);
     try {
@@ -55,7 +55,7 @@ class _QazaPlanReadyScreenState extends ConsumerState<QazaPlanReadyScreen> {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final overview = ref.watch(qazaOverviewProvider);
-    final user = ref.watch(appUserStreamProvider).valueOrNull;
+    final user = ref.watch(appUserStreamProvider).value;
     final goal = _goal ?? (user?.qazaDailyTarget ?? 1).clamp(1, 999);
     final days = goal <= 0 ? 0 : (overview.remaining / goal).ceil();
     final finish = DateTime.now().add(Duration(days: days));

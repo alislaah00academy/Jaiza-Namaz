@@ -26,7 +26,7 @@ class StudentDetailScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final students = orgId == null
         ? const []
@@ -34,13 +34,13 @@ class StudentDetailScreen extends ConsumerWidget {
                   .watch(
                     studentsForClassProvider((orgId: orgId, classId: classId)),
                   )
-                  .valueOrNull ??
+                  .value ??
               const [];
     final matches = students.where((s) => s.id == studentId);
     final student = matches.isEmpty ? null : matches.first;
 
     final logs =
-        ref.watch(personFardLogsProvider(studentId)).valueOrNull ?? const [];
+        ref.watch(personFardLogsProvider(studentId)).value ?? const [];
     final now = DateTime.now();
     final todayMap = logsOnDay(logs, now);
     final doneToday = fardDoneOn(logs, now);
@@ -53,8 +53,8 @@ class StudentDetailScreen extends ConsumerWidget {
       since: since,
       fardLogs: logs,
       qazaLogs:
-          ref.watch(personQazaLogsProvider(studentId)).valueOrNull ?? const [],
-      schedule: ref.watch(currentPrayerCardProvider).valueOrNull?.today,
+          ref.watch(personQazaLogsProvider(studentId)).value ?? const [],
+      schedule: ref.watch(currentPrayerCardProvider).value?.today,
     );
 
     final monthLogs = logs.where((l) {

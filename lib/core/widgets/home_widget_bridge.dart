@@ -94,7 +94,7 @@ abstract final class HomeWidgetBridge {
     }
 
     try {
-      final user = ref.read(appUserStreamProvider).valueOrNull;
+      final user = ref.read(appUserStreamProvider).value;
       final settings =
           user?.prayerSettingsParsed ?? PrayerSettingsParsed.defaults();
       final loc = await _resolveLocation(settings);
@@ -164,7 +164,7 @@ abstract final class HomeWidgetBridge {
     }
 
     try {
-      final user = ref.read(appUserStreamProvider).valueOrNull;
+      final user = ref.read(appUserStreamProvider).value;
       final settings =
           user?.prayerSettingsParsed ?? PrayerSettingsParsed.defaults();
 
@@ -202,7 +202,7 @@ abstract final class HomeWidgetBridge {
       final today = days[0];
       final tomorrow = days[1];
       final now = DateTime.now();
-      final fardMap = ref.read(todayFardMapProvider).valueOrNull ?? {};
+      final fardMap = ref.read(todayFardMapProvider).value ?? {};
       final next = PrayerTimesService.nextFardPrayerStart(
         now: now,
         today: today,
@@ -264,7 +264,7 @@ abstract final class HomeWidgetBridge {
     String dateKey,
     WidgetRef ref,
   ) {
-    final map = ref.read(todayFardMapProvider).valueOrNull ?? {};
+    final map = ref.read(todayFardMapProvider).value ?? {};
     return {
       dateKey: {
         for (final e in map.entries)

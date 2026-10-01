@@ -51,18 +51,18 @@ class AdminTeacherScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final org = ref.watch(myOrgProvider).valueOrNull;
+    final org = ref.watch(myOrgProvider).value;
     if (org == null) {
       return const Center(child: Text('Organization not found.'));
     }
 
     final teachers =
-        ref.watch(allTeachersForOrgProvider(org.id)).valueOrNull ?? const [];
+        ref.watch(allTeachersForOrgProvider(org.id)).value ?? const [];
     final matches = teachers.where((tt) => tt.uid == teacherUid);
     if (matches.isEmpty) return const Center(child: Text('Teacher not found.'));
     final teacher = matches.first;
     final classes =
-        (ref.watch(allClassesForOrgProvider(org.id)).valueOrNull ?? const [])
+        (ref.watch(allClassesForOrgProvider(org.id)).value ?? const [])
             .where((cl) => cl.teacherUid == teacherUid)
             .toList();
     final sections = ref.watch(classSectionsProvider);
@@ -129,7 +129,7 @@ class AdminTeacherScreen extends ConsumerWidget {
                             classId: cl.id,
                           )),
                         )
-                        .valueOrNull ??
+                        .value ??
                     const [];
                 final pct = students.isEmpty
                     ? 0

@@ -40,7 +40,7 @@ class _LinkMosqueScreenState extends ConsumerState<LinkMosqueScreen> {
     await ref.read(mosqueSetupSeenProvider.notifier).set(true);
     if (!mounted) return;
     context.go(
-      homeRouteForAppUser(ref.read(appUserStreamProvider).valueOrNull),
+      homeRouteForAppUser(ref.read(appUserStreamProvider).value),
     );
   }
 

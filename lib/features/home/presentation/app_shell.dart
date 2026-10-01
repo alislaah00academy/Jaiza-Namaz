@@ -189,21 +189,21 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     var title = titleForPath(location);
     if (location.startsWith('/app/family/qaza/')) {
       final id = location.split('/').last;
-      final kids = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+      final kids = ref.watch(childrenStreamProvider).value ?? const [];
       for (final k in kids) {
         if (k.id == id) title = '${k.name}’s Qaza';
       }
     }
     if (location.startsWith('/app/org/admin/teacher/')) {
       final uid = location.split('/').last;
-      final org = ref.watch(myOrgProvider).valueOrNull;
+      final org = ref.watch(myOrgProvider).value;
       final teachers = org == null
           ? const <TeacherMembership>[]
-          : ref.watch(allTeachersForOrgProvider(org.id)).valueOrNull ??
+          : ref.watch(allTeachersForOrgProvider(org.id)).value ??
                 const [];
       for (final tt in teachers) {
         if (tt.uid == uid) title = tt.name;
@@ -214,7 +214,7 @@ class AppShell extends ConsumerWidget {
       // always among their own classes.
       final classId = location.split('/')[4];
       final classes =
-          ref.watch(classesForTeacherProvider).valueOrNull ?? const [];
+          ref.watch(classesForTeacherProvider).value ?? const [];
       for (final cl in classes) {
         if (cl.id == classId) {
           title = location.endsWith('/report') ? '${cl.name} report' : cl.name;

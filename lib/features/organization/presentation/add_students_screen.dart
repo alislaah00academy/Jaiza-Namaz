@@ -49,7 +49,7 @@ class _AddStudentsScreenState extends ConsumerState<AddStudentsScreen> {
   }
 
   Future<void> _add(List<String> names) async {
-    final appUser = ref.read(appUserStreamProvider).valueOrNull;
+    final appUser = ref.read(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final teacherUid = ref.read(currentUserProvider)?.uid;
     if (orgId == null || teacherUid == null) return;

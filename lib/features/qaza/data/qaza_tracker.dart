@@ -97,13 +97,13 @@ final qazaTrackingSinceProvider = Provider<DateTime>(
 );
 
 final qazaOverviewProvider = Provider<QazaOverview>((ref) {
-  final user = ref.watch(appUserStreamProvider).valueOrNull;
+  final user = ref.watch(appUserStreamProvider).value;
   final plan = user?.qazaPlanParsed ?? QazaPlanParsed.defaults();
   return buildQazaOverview(
     since: ref.watch(qazaTrackingSinceProvider),
-    fardLogs: ref.watch(userFardLogsProvider).valueOrNull ?? const [],
-    qazaLogs: ref.watch(userQazaLogsProvider).valueOrNull ?? const [],
-    schedule: ref.watch(currentPrayerCardProvider).valueOrNull?.today,
+    fardLogs: ref.watch(userFardLogsProvider).value ?? const [],
+    qazaLogs: ref.watch(userQazaLogsProvider).value ?? const [],
+    schedule: ref.watch(currentPrayerCardProvider).value?.today,
     estimates: {
       if (plan.setupComplete)
         for (final p in kQazaPrayerNames) p: plan.backlogFor(p).totalDays,

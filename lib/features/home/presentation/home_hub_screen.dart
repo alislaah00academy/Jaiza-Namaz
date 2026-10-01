@@ -53,11 +53,11 @@ class _HomeHubScreenState extends ConsumerState<HomeHubScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final card = ref.watch(currentPrayerCardProvider).valueOrNull;
-    final user = ref.watch(appUserStreamProvider).valueOrNull;
-    final fard = ref.watch(todayFardMapProvider).valueOrNull ?? const {};
+    final card = ref.watch(currentPrayerCardProvider).value;
+    final user = ref.watch(appUserStreamProvider).value;
+    final fard = ref.watch(todayFardMapProvider).value ?? const {};
     final nawafilOn = user?.nawafilEnabled ?? false;
-    final nawafilLogs = ref.watch(todayNawafilProvider).valueOrNull ?? const [];
+    final nawafilLogs = ref.watch(todayNawafilProvider).value ?? const [];
     final nawafilDone = kNawafilDefs
         .where(
           (d) => nawafilLogs.any(
@@ -67,7 +67,7 @@ class _HomeHubScreenState extends ConsumerState<HomeHubScreen> {
         .length;
     final qaza = ref.watch(qazaOverviewProvider);
     final isParent = ref.watch(isParentProvider);
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     final child = isParent
         ? childById(children, ref.watch(selectedChildIdProvider))
         : null;
@@ -414,7 +414,7 @@ class _StreakStrip extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final streak = ref.watch(streakStreamProvider).valueOrNull;
+    final streak = ref.watch(streakStreamProvider).value;
     final current = streak?.currentStreak ?? 0;
     final best = streak?.longestStreak ?? 0;
     final total = kFardPrayerDefs.length;
@@ -545,7 +545,7 @@ class _AddChildrenStrip extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = Theme.of(context).colorScheme;
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     return JzStripCard(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 14),
       icon: Icons.family_restroom_outlined,
@@ -576,9 +576,9 @@ class _ChildView extends ConsumerWidget {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
     final logs =
-        ref.watch(personFardLogsProvider(child.id)).valueOrNull ?? const [];
+        ref.watch(personFardLogsProvider(child.id)).value ?? const [];
     final nawafil =
-        ref.watch(personNawafilLogsProvider(child.id)).valueOrNull ?? const [];
+        ref.watch(personNawafilLogsProvider(child.id)).value ?? const [];
     final extra = ref.watch(childExtrasProvider)[child.id];
     final today = DateTime.now();
     final todayMap = logsOnDay(logs, today);
@@ -695,7 +695,7 @@ class _FamilyCard extends ConsumerWidget {
             Builder(
               builder: (context) {
                 final logs =
-                    ref.watch(personFardLogsProvider(k.id)).valueOrNull ??
+                    ref.watch(personFardLogsProvider(k.id)).value ??
                     const [];
                 final done = fardDoneOn(logs, DateTime.now());
                 final (streak, _) = fardStreak(logs);

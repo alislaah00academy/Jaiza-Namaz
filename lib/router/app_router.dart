@@ -116,7 +116,7 @@ String? _redirect(BuildContext context, GoRouterState state, Ref ref) {
   // pick Individual/Parent/Organization before reaching the app. Accounts
   // auto-attached as org teachers (invite-claim on login/signup) already
   // have a role by this point and skip straight through.
-  final appUser = ref.read(appUserStreamProvider).valueOrNull;
+  final appUser = ref.read(appUserStreamProvider).value;
   if (appUser != null && appUser.role == null) {
     if (loc == '/select-role') return null;
     return '/select-role';

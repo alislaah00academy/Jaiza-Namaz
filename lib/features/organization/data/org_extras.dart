@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/local/local_prefs.dart';
@@ -78,7 +80,7 @@ final mutedClassesProvider = StateNotifierProvider<SetPref, Set<String>>(
   var done = 0;
   for (final id in studentIds) {
     final map =
-        ref.watch(studentTodayFardMapProvider(id)).valueOrNull ?? const {};
+        ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
     if (map[prayer]?.status == PrayerStatus.completed) done++;
   }
   return (done, studentIds.length);
@@ -90,7 +92,7 @@ double classTodayFraction(dynamic ref, List<String> studentIds) {
   var sum = 0.0;
   for (final id in studentIds) {
     final map =
-        ref.watch(studentTodayFardMapProvider(id)).valueOrNull ?? const {};
+        ref.watch(studentTodayFardMapProvider(id)).value ?? const {};
     final done = kFardPrayerDefs
         .where((d) => map[d.name]?.status == PrayerStatus.completed)
         .length;

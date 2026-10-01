@@ -2,6 +2,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../core/constants/prayer_catalog.dart';
 import '../core/utils/date_utils.dart';
@@ -62,7 +64,7 @@ final authUserStreamProvider = StreamProvider<User?>(
 );
 
 final currentUserProvider = Provider<User?>(
-  (ref) => ref.watch(authUserStreamProvider).valueOrNull,
+  (ref) => ref.watch(authUserStreamProvider).value,
 );
 
 final appUserStreamProvider = StreamProvider<AppUser?>((ref) {
@@ -75,7 +77,7 @@ final appUserStreamProvider = StreamProvider<AppUser?>((ref) {
 
 /// Effective prayer widget + notification settings (defaults when missing).
 final prayerSettingsProvider = Provider<PrayerSettingsParsed>((ref) {
-  return ref.watch(appUserStreamProvider).valueOrNull?.prayerSettingsParsed ??
+  return ref.watch(appUserStreamProvider).value?.prayerSettingsParsed ??
       PrayerSettingsParsed.defaults();
 });
 
@@ -156,7 +158,7 @@ final userFardLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
 /// Fard logs mapped by [PrayerName] for a single local calendar day.
 final fardMapForDateProvider =
     Provider.family<Map<PrayerName, PrayerLog>, DateTime>((ref, day) {
-      final logs = ref.watch(userFardLogsProvider).valueOrNull ?? [];
+      final logs = ref.watch(userFardLogsProvider).value ?? [];
       final key = AppDateUtils.localDateKey(day);
       final map = <PrayerName, PrayerLog>{};
       for (final log in logs) {
@@ -172,7 +174,7 @@ final fullFardDayKeysForMonthProvider = Provider.family<Set<String>, DateTime>((
   ref,
   focusedMonth,
 ) {
-  final logs = ref.watch(userFardLogsProvider).valueOrNull ?? [];
+  final logs = ref.watch(userFardLogsProvider).value ?? [];
   final y = focusedMonth.year;
   final m = focusedMonth.month;
   final byDay = <String, Map<PrayerName, PrayerStatus>>{};
@@ -223,7 +225,7 @@ final userQazaLogsProvider = StreamProvider<List<PrayerLog>>((ref) {
 /// Nawafil logs mapped by [PrayerName] for a single local calendar day.
 final nawafilMapForDateProvider =
     Provider.family<Map<PrayerName, PrayerLog>, DateTime>((ref, day) {
-      final logs = ref.watch(userNawafilLogsProvider).valueOrNull ?? [];
+      final logs = ref.watch(userNawafilLogsProvider).value ?? [];
       final key = AppDateUtils.localDateKey(day);
       final map = <PrayerName, PrayerLog>{};
       for (final log in logs) {
@@ -240,7 +242,7 @@ final qazaLogsForDateProvider = Provider.family<List<PrayerLog>, DateTime>((
   ref,
   day,
 ) {
-  final logs = ref.watch(userQazaLogsProvider).valueOrNull ?? [];
+  final logs = ref.watch(userQazaLogsProvider).value ?? [];
   final key = AppDateUtils.localDateKey(day);
   return logs
       .where((log) => AppDateUtils.localDateKey(log.dateTime) == key)
@@ -250,7 +252,7 @@ final qazaLogsForDateProvider = Provider.family<List<PrayerLog>, DateTime>((
 /// All-time completed-Qaza count for one specific Fard prayer name (e.g.
 /// how many Qaza Fajr instances this user has logged as made up).
 final qazaCompletedForProvider = Provider.family<int, PrayerName>((ref, name) {
-  final logs = ref.watch(userQazaLogsProvider).valueOrNull ?? [];
+  final logs = ref.watch(userQazaLogsProvider).value ?? [];
   return logs
       .where(
         (log) => log.prayerName == name && log.status == PrayerStatus.completed,
@@ -260,7 +262,7 @@ final qazaCompletedForProvider = Provider.family<int, PrayerName>((ref, name) {
 
 /// Today's completed-Qaza count for one specific Fard prayer name.
 final qazaTodayCountForProvider = Provider.family<int, PrayerName>((ref, name) {
-  final logs = ref.watch(userQazaLogsProvider).valueOrNull ?? [];
+  final logs = ref.watch(userQazaLogsProvider).value ?? [];
   final todayKey = AppDateUtils.localDateKey(DateTime.now());
   return logs
       .where(
@@ -278,7 +280,7 @@ final qazaTodayCountForProvider = Provider.family<int, PrayerName>((ref, name) {
 
 /// Account type of the signed-in user; `null` until they pick one.
 final userRoleProvider = Provider<UserRole?>((ref) {
-  return ref.watch(appUserStreamProvider).valueOrNull?.role;
+  return ref.watch(appUserStreamProvider).value?.role;
 });
 
 /// True once signed in and no role has been chosen yet (legacy users included).
@@ -324,7 +326,7 @@ final childFardMapForDateProvider =
       ({String childId, DateTime day})
     >((ref, args) {
       final logs =
-          ref.watch(childAllFardProvider(args.childId)).valueOrNull ?? [];
+          ref.watch(childAllFardProvider(args.childId)).value ?? [];
       final key = AppDateUtils.localDateKey(args.day);
       final map = <PrayerName, PrayerLog>{};
       for (final log in logs) {
@@ -353,14 +355,14 @@ final myOrgProvider = StreamProvider<Organization?>((ref) {
 /// The signed-in user's org by their own `orgId` — works for admin and
 /// teacher alike (unlike [myOrgProvider], which only resolves for admins).
 final myOrgByIdProvider = StreamProvider<Organization?>((ref) {
-  final orgId = ref.watch(appUserStreamProvider).valueOrNull?.orgId;
+  final orgId = ref.watch(appUserStreamProvider).value?.orgId;
   if (orgId == null) return const Stream<Organization?>.empty();
   return ref.watch(organizationRepositoryProvider).watchOrganization(orgId);
 });
 
 /// The org this uid teaches under, if any (resolved via AppUser.orgId).
 final myTeacherMembershipProvider = StreamProvider<TeacherMembership?>((ref) {
-  final user = ref.watch(appUserStreamProvider).valueOrNull;
+  final user = ref.watch(appUserStreamProvider).value;
   final uid = user?.uid;
   final orgId = user?.orgId;
   if (uid == null || orgId == null) {
@@ -372,7 +374,7 @@ final myTeacherMembershipProvider = StreamProvider<TeacherMembership?>((ref) {
 });
 
 final classesForTeacherProvider = StreamProvider<List<SchoolClass>>((ref) {
-  final user = ref.watch(appUserStreamProvider).valueOrNull;
+  final user = ref.watch(appUserStreamProvider).value;
   final uid = user?.uid;
   final orgId = user?.orgId;
   if (uid == null || orgId == null) {

@@ -10,7 +10,7 @@ import '../data/family_data.dart';
 
 /// True when the signed-in account is a Parent.
 final isParentProvider = Provider<bool>(
-  (ref) => ref.watch(appUserStreamProvider).valueOrNull?.role == UserRole.parent,
+  (ref) => ref.watch(appUserStreamProvider).value?.role == UserRole.parent,
 );
 
 String initialOf(String name) =>
@@ -63,8 +63,8 @@ class PersonChipRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final me = ref.watch(appUserStreamProvider).valueOrNull;
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final me = ref.watch(appUserStreamProvider).value;
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     final selected = ref.watch(selectedChildIdProvider);
     final valid = selected == null || childById(children, selected) != null;
     final current = valid ? selected : null;

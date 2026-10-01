@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// TODO(riverpod3): migrate off legacy providers (04 §8 step 3).
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../../../core/constants/prayer_catalog.dart';
 import '../../../core/local/local_prefs.dart';
@@ -176,7 +178,7 @@ final childQazaOverviewProvider = Provider.family<QazaOverview, String>((
   ref,
   childId,
 ) {
-  final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+  final children = ref.watch(childrenStreamProvider).value ?? const [];
   final child = childById(children, childId);
   final createdAt = child?.createdAt;
   final since = createdAt == null
@@ -184,9 +186,9 @@ final childQazaOverviewProvider = Provider.family<QazaOverview, String>((
       : DateTime(createdAt.year, createdAt.month, createdAt.day);
   return buildQazaOverview(
     since: since,
-    fardLogs: ref.watch(personFardLogsProvider(childId)).valueOrNull ?? const [],
-    qazaLogs: ref.watch(personQazaLogsProvider(childId)).valueOrNull ?? const [],
-    schedule: ref.watch(currentPrayerCardProvider).valueOrNull?.today,
+    fardLogs: ref.watch(personFardLogsProvider(childId)).value ?? const [],
+    qazaLogs: ref.watch(personQazaLogsProvider(childId)).value ?? const [],
+    schedule: ref.watch(currentPrayerCardProvider).value?.today,
   );
 });
 
@@ -196,8 +198,8 @@ final childNeedsAttentionProvider = Provider.family<bool, String>((
   ref,
   childId,
 ) {
-  final logs = ref.watch(personFardLogsProvider(childId)).valueOrNull ?? const [];
-  final schedule = ref.watch(currentPrayerCardProvider).valueOrNull?.today;
+  final logs = ref.watch(personFardLogsProvider(childId)).value ?? const [];
+  final schedule = ref.watch(currentPrayerCardProvider).value?.today;
   if (schedule == null) return false;
   final map = logsOnDay(logs, DateTime.now());
   final now = DateTime.now();

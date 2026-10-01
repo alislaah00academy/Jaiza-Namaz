@@ -18,7 +18,7 @@ class OrgClassesTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     if (appUser?.orgMemberRole == OrgMemberRole.teacher) {
       return const _TeacherClasses();
     }
@@ -32,14 +32,14 @@ class _AdminDashboard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
-    final org = ref.watch(myOrgProvider).valueOrNull;
+    final org = ref.watch(myOrgProvider).value;
     if (org == null) {
       return const Center(child: Text('Organization not found.'));
     }
     final teachers =
-        ref.watch(allTeachersForOrgProvider(org.id)).valueOrNull ?? const [];
+        ref.watch(allTeachersForOrgProvider(org.id)).value ?? const [];
     final classes =
-        ref.watch(allClassesForOrgProvider(org.id)).valueOrNull ?? const [];
+        ref.watch(allClassesForOrgProvider(org.id)).value ?? const [];
     final sections = ref.watch(classSectionsProvider);
     var totalStudents = 0;
     var todaySum = 0.0;
@@ -47,7 +47,7 @@ class _AdminDashboard extends ConsumerWidget {
       final students =
           ref
               .watch(studentsForClassProvider((orgId: org.id, classId: c.id)))
-              .valueOrNull ??
+              .value ??
           const [];
       totalStudents += students.length;
       todaySum +=
@@ -171,7 +171,7 @@ class _AdminDashboard extends ConsumerWidget {
                                         classId: c.id,
                                       )),
                                     )
-                                    .valueOrNull ??
+                                    .value ??
                                 const [];
                             final matches = teachers.where(
                               (tt) => tt.uid == c.teacherUid,
@@ -258,7 +258,7 @@ class _TeacherRow extends ConsumerWidget {
       students +=
           ref
               .watch(studentsForClassProvider((orgId: org.id, classId: c.id)))
-              .valueOrNull
+              .value
               ?.length ??
           0;
     }
@@ -297,7 +297,7 @@ class _TeacherClasses extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
     final uid = ref.watch(currentUserProvider)?.uid;
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final membership = ref.watch(myTeacherMembershipProvider);
 
@@ -328,7 +328,7 @@ class _TeacherClasses extends ConsumerWidget {
     }
 
     final classes =
-        ref.watch(classesForTeacherProvider).valueOrNull ?? const [];
+        ref.watch(classesForTeacherProvider).value ?? const [];
     final sections = ref.watch(classSectionsProvider);
 
     return ListView(
@@ -407,9 +407,9 @@ class _ClassCard extends ConsumerWidget {
             .watch(
               studentsForClassProvider((orgId: orgId, classId: schoolClass.id)),
             )
-            .valueOrNull ??
+            .value ??
         const [];
-    final schedule = ref.watch(currentPrayerCardProvider).valueOrNull;
+    final schedule = ref.watch(currentPrayerCardProvider).value;
     final activeKey =
         schedule?.status.activePrayerKey ?? schedule?.status.nextKey;
     final activeLabel = schedule?.status.activePrayerKey != null

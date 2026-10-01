@@ -46,7 +46,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
   Widget build(BuildContext context) {
     final c = Theme.of(context).colorScheme;
     final t = Theme.of(context).textTheme;
-    final appUser = ref.watch(appUserStreamProvider).valueOrNull;
+    final appUser = ref.watch(appUserStreamProvider).value;
     final orgId = appUser?.orgId;
     final teacherUid = ref.watch(currentUserProvider)?.uid;
     if (orgId == null || teacherUid == null) {
@@ -57,9 +57,9 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
             .watch(
               studentsForClassProvider((orgId: orgId, classId: widget.classId)),
             )
-            .valueOrNull ??
+            .value ??
         const [];
-    final schedule = ref.watch(currentPrayerCardProvider).valueOrNull;
+    final schedule = ref.watch(currentPrayerCardProvider).value;
     final activeKey =
         schedule?.status.activePrayerKey ?? schedule?.status.nextKey;
     final activeDefault =
@@ -200,7 +200,7 @@ class _ClassMarkScreenState extends ConsumerState<ClassMarkScreen> {
                             final map =
                                 ref
                                     .watch(studentTodayFardMapProvider(s.id))
-                                    .valueOrNull ??
+                                    .value ??
                                 const {};
                             final markedThis =
                                 map[prayer]?.status == PrayerStatus.completed;

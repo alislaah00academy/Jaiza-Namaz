@@ -85,7 +85,7 @@ class NotificationsService {
     const settings = InitializationSettings(android: androidInit, iOS: iosInit);
 
     await _plugin.initialize(
-      settings,
+      settings: settings,
       onDidReceiveNotificationResponse: (_) {},
     );
 
@@ -135,8 +135,8 @@ class NotificationsService {
     if (kIsWeb) return;
     final key =
         '${dayContext.year.toString().padLeft(4, '0')}-${dayContext.month.toString().padLeft(2, '0')}-${dayContext.day.toString().padLeft(2, '0')}';
-    await _plugin.cancel(endReminderIdFor(key, prayer));
-    await _plugin.cancel(notificationIdFor(key, prayer));
+    await _plugin.cancel(id: endReminderIdFor(key, prayer));
+    await _plugin.cancel(id: notificationIdFor(key, prayer));
   }
 
   Future<void> cancelKnownRange({
@@ -147,9 +147,9 @@ class NotificationsService {
     if (kIsWeb) return;
     for (final dk in dateKeys) {
       for (final p in prayers) {
-        await _plugin.cancel(notificationIdFor(dk, p));
-        await _plugin.cancel(startNotificationIdFor(dk, p));
-        await _plugin.cancel(endReminderIdFor(dk, p));
+        await _plugin.cancel(id: notificationIdFor(dk, p));
+        await _plugin.cancel(id: startNotificationIdFor(dk, p));
+        await _plugin.cancel(id: endReminderIdFor(dk, p));
       }
     }
   }
@@ -209,11 +209,12 @@ class NotificationsService {
 
         if (settings.startNotificationFor(prayer) && start.isAfter(now)) {
           await _plugin.zonedSchedule(
-            startNotificationIdFor(day.dateKey, prayer),
-            'Jaiza',
-            '${_prettyPrayer(prayer)} time has begun. Don’t miss your prayer.',
-            tz.TZDateTime.from(start, tz.local),
-            const NotificationDetails(
+            id: startNotificationIdFor(day.dateKey, prayer),
+            title: 'Jaiza',
+            body:
+                '${_prettyPrayer(prayer)} time has begun. Don’t miss your prayer.',
+            scheduledDate: tz.TZDateTime.from(start, tz.local),
+            notificationDetails: const NotificationDetails(
               android: AndroidNotificationDetails(
                 _androidChannelId,
                 _androidChannelName,
@@ -231,11 +232,11 @@ class NotificationsService {
         if (isCompleted || !endReminder.isAfter(now)) continue;
 
         await _plugin.zonedSchedule(
-          endReminderIdFor(day.dateKey, prayer),
-          'Jaiza',
-          '${_prettyPrayer(prayer)} ends in 10 minutes. Have you prayed?',
-          tz.TZDateTime.from(endReminder, tz.local),
-          const NotificationDetails(
+          id: endReminderIdFor(day.dateKey, prayer),
+          title: 'Jaiza',
+          body: '${_prettyPrayer(prayer)} ends in 10 minutes. Have you prayed?',
+          scheduledDate: tz.TZDateTime.from(endReminder, tz.local),
+          notificationDetails: const NotificationDetails(
             android: AndroidNotificationDetails(
               _androidChannelId,
               _androidChannelName,
@@ -269,11 +270,11 @@ class NotificationsService {
     if (!granted) return;
     final when = tz.TZDateTime.now(tz.local).add(delay);
     await _plugin.zonedSchedule(
-      999999,
-      'Jaiza',
-      'Test notification — prayer reminders are working.',
-      when,
-      const NotificationDetails(
+      id: 999999,
+      title: 'Jaiza',
+      body: 'Test notification — prayer reminders are working.',
+      scheduledDate: when,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           _androidChannelId,
           _androidChannelName,

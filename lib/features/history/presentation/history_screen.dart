@@ -90,10 +90,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     if (uid == null) return const SizedBox.shrink();
 
-    final fardLogs = ref.watch(personFardLogsProvider(uid)).valueOrNull ?? const [];
+    final fardLogs = ref.watch(personFardLogsProvider(uid)).value ?? const [];
     final nawafilLogs =
-        ref.watch(personNawafilLogsProvider(uid)).valueOrNull ?? const [];
-    final qazaLogs = ref.watch(personQazaLogsProvider(uid)).valueOrNull ?? const [];
+        ref.watch(personNawafilLogsProvider(uid)).value ?? const [];
+    final qazaLogs = ref.watch(personQazaLogsProvider(uid)).value ?? const [];
     final full = fullFardDayKeysForMonth(fardLogs, _month);
 
     return ListView(
@@ -153,7 +153,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 personId: childId,
                 logs: nawafilLogs,
                 trackingOn: childId != null ||
-                    (ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ??
+                    (ref.watch(appUserStreamProvider).value?.nawafilEnabled ??
                         false),
               ),
               _DayQazaCard(day: _selected, logs: qazaLogs),
@@ -291,7 +291,7 @@ class _DayFardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
     final map = logsOnDay(logs, day);
-    final schedule = ref.watch(_scheduleForDayProvider(day)).valueOrNull;
+    final schedule = ref.watch(_scheduleForDayProvider(day)).value;
     final now = DateTime.now();
     final done = kFardPrayerDefs
         .where((d) => map[d.name]?.status == PrayerStatus.completed)

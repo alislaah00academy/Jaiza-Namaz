@@ -18,7 +18,7 @@ class FamilyRemindersScreen extends ConsumerWidget {
     final t = Theme.of(context).textTheme;
     final prefs = ref.watch(familyReminderPrefsProvider);
     final notifier = ref.read(familyReminderPrefsProvider.notifier);
-    final children = ref.watch(childrenStreamProvider).valueOrNull ?? const [];
+    final children = ref.watch(childrenStreamProvider).value ?? const [];
     final skippedPrayers = prefs.set('skippedPrayers', const {});
 
     return ListView(

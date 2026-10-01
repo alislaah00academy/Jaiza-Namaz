@@ -18,7 +18,7 @@ Future<void> setNawafilEnabled(
   final uid = ref.read(currentUserProvider)?.uid;
   if (uid == null) return;
   final name =
-      ref.read(appUserStreamProvider).valueOrNull?.name ??
+      ref.read(appUserStreamProvider).value?.name ??
       FirebaseAuth.instance.currentUser?.displayName ??
       'User';
   try {
@@ -40,8 +40,8 @@ class NawafilScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = Theme.of(context).textTheme;
     final enabled =
-        ref.watch(appUserStreamProvider).valueOrNull?.nawafilEnabled ?? false;
-    final logs = ref.watch(todayNawafilProvider).valueOrNull ?? const [];
+        ref.watch(appUserStreamProvider).value?.nawafilEnabled ?? false;
+    final logs = ref.watch(todayNawafilProvider).value ?? const [];
 
     if (!enabled) {
       return ListView(
