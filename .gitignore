@@ -47,3 +47,6 @@ app.*.map.json
 # Firebase Local Emulator Suite export (15 §15)
 emulator-data/
 *-debug.log
+
+# Node (rules/Functions test tooling)
+node_modules/

@@ -1,11 +1,31 @@
 rules_version = '2';
-
-// Placeholder until P1 ships the full rules from docs/system-design/07 §3.
-// Nothing in the app uses Storage yet, so everything is denied.
 service firebase.storage {
   match /b/{bucket}/o {
-    match /{allPaths=**} {
-      allow read, write: if false;
+    function signedIn() { return request.auth != null; }
+    function isPlatform() { return signedIn() && request.auth.token.platformRole in ['superAdmin', 'reviewer']; }
+    function isImage() { return request.resource.contentType.matches('image/(jpeg|png|webp)'); }
+    function isPdf()   { return request.resource.contentType == 'application/pdf'; }
+
+    match /users/{uid}/avatar.jpg {
+      allow read: if true;
+      allow write: if signedIn() && request.auth.uid == uid && isImage() && request.resource.size < 1 * 1024 * 1024;
+      allow delete: if signedIn() && request.auth.uid == uid;
     }
+
+    match /mosques/{mosqueId}/{file} {
+      allow read: if true;
+      allow write: if signedIn()
+        && request.auth.uid in firestore.get(/databases/(default)/documents/mosques/$(mosqueId)).data.adminUids
+        && isImage() && request.resource.size < 2 * 1024 * 1024;
+    }
+
+    match /mosqueRequests/{uid}/{requestId}/{file} {
+      allow read: if (signedIn() && request.auth.uid == uid) || isPlatform();
+      allow create: if signedIn() && request.auth.uid == uid
+        && (isImage() || isPdf()) && request.resource.size < 5 * 1024 * 1024;
+      allow update, delete: if false;               // write-once evidence; Functions clean up
+    }
+
+    match /{allPaths=**} { allow read, write: if false; }
   }
 }
