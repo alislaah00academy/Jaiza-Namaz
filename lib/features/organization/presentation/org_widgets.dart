@@ -41,8 +41,9 @@ Future<void> showInviteTeacherSheet(
               AppSnackBar.error(ctx, ctx.l10n.teacherAlreadyActive);
             }
           } catch (_) {
-            if (ctx.mounted)
+            if (ctx.mounted) {
               AppSnackBar.error(ctx, ctx.l10n.couldNotSendInvite);
+            }
           } finally {
             if (ctx.mounted) setState(() => sending = false);
           }

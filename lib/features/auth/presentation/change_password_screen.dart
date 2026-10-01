@@ -86,8 +86,9 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
                 textInputAction: TextInputAction.next,
                 autocorrect: false,
                 validator: (v) {
-                  if (v == null || v.isEmpty)
+                  if (v == null || v.isEmpty) {
                     return context.l10n.validationRequired;
+                  }
                   return null;
                 },
               ),
