@@ -164,6 +164,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(firebaseAuthProvider);
   final refresh = GoRouterRefreshStream(auth.userChanges());
   ref.onDispose(refresh.dispose);
+  // The redirect reads the signed-in user's profile (role); re-run it when
+  // that arrives or changes so a stale first snapshot can't strand the user.
+  ref.listen(appUserStreamProvider, (_, _) => refresh.refresh());
 
   return GoRouter(
     navigatorKey: _rootNavigatorKey,

@@ -61,7 +61,10 @@ final authRepositoryProvider = Provider<AuthRepository>(
 );
 
 final userRepositoryProvider = Provider<UserRepository>(
-  (ref) => UserRepository(ref.watch(firestoreProvider)),
+  (ref) => UserRepository(
+    ref.watch(firestoreProvider),
+    ref.watch(functionsProvider),
+  ),
 );
 
 final streakRepositoryProvider = Provider<StreakRepository>(

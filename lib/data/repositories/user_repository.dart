@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../core/logging/app_log.dart';
@@ -7,9 +8,10 @@ import '../models/user_role.dart';
 
 /// Firestore user profile at `users/{uid}`.
 class UserRepository {
-  UserRepository(this._firestore);
+  UserRepository(this._firestore, this._functions);
 
   final FirebaseFirestore _firestore;
+  final FirebaseFunctions _functions;
 
   CollectionReference<Map<String, dynamic>> get _users =>
       _firestore.collection('users');
@@ -18,43 +20,33 @@ class UserRepository {
     return _users.doc(uid).snapshots().map(AppUser.fromSnapshot);
   }
 
-  /// Creates / merges profile after registration (name + email + timestamps).
+  /// `ensureUserProfile` (08 §2.1): the server creates `users/{uid}` if it is
+  /// missing and refreshes name/lastSeenAt. Clients can't create or write
+  /// `uid/email/createdAt/modes/...` themselves (07 `users` rule).
+  Future<void> _ensureProfile({String? name}) async {
+    final trimmed = name?.trim();
+    await _functions.httpsCallable('ensureUserProfile').call<Object?>({
+      if (trimmed != null && trimmed.isNotEmpty) 'name': trimmed,
+    });
+  }
+
+  /// Creates the profile after registration (the server owns the document).
   Future<void> createUserProfile({
     required User user,
     required String name,
   }) async {
     try {
-      await _users.doc(user.uid).set({
-        'uid': user.uid,
-        'name': name.trim(),
-        'email': user.email ?? '',
-        'createdAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-        'nawafilEnabled': false,
-        'qazaBacklogYears': 0,
-        'qazaBacklogMonths': 0,
-        'qazaBacklogDays': 0,
-        'qazaDailyTarget': 1,
-      }, SetOptions(merge: true));
+      await _ensureProfile(name: name);
     } catch (e, st) {
       appLog('createUserProfile', error: e, stackTrace: st);
       rethrow;
     }
   }
 
-  /// Syncs auth fields on login without wiping extended fields.
+  /// Refreshes the profile on login without wiping extended fields.
   Future<void> syncFromAuth(User user) async {
     try {
-      final data = <String, dynamic>{
-        'uid': user.uid,
-        'email': user.email ?? '',
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
-      final dn = user.displayName;
-      if (dn != null && dn.isNotEmpty) {
-        data['name'] = dn;
-      }
-      await _users.doc(user.uid).set(data, SetOptions(merge: true));
+      await _ensureProfile(name: user.displayName);
     } catch (e, st) {
       appLog('syncFromAuth', error: e, stackTrace: st);
       rethrow;

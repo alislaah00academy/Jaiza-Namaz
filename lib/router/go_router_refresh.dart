@@ -19,6 +19,9 @@ class GoRouterRefreshStream extends ChangeNotifier {
         .toList();
   }
 
+  /// Re-runs the router's redirect (e.g. after a Riverpod provider changed).
+  void refresh() => notifyListeners();
+
   late final List<StreamSubscription<dynamic>> _subscriptions;
 
   @override

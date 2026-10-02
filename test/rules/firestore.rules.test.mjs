@@ -17,6 +17,7 @@ import {
   setDoc,
   updateDoc,
   deleteDoc,
+  increment,
   serverTimestamp,
 } from 'firebase/firestore';
 
@@ -133,6 +134,27 @@ test('a stranger cannot read or write another user\'s prayer log', async () => {
   const mallory = testEnv.authenticatedContext('mallory').firestore();
   await assertFails(getDoc(doc(mallory, `users/alice/prayers/${logId}`)));
   await assertFails(deleteDoc(doc(mallory, `users/alice/prayers/${logId}`)));
+});
+
+// ---------- qaza count increments (09 §4.2) ----------
+
+test('qaza logs accept merge + increment (as the app writes them) and cap at 50', async () => {
+  const alice = testEnv.authenticatedContext('alice').firestore();
+  const today = dateKey(0);
+  const ref = doc(alice, `users/alice/prayers/${today}_fajr_qaza`);
+  const base = {
+    dateKey: today,
+    prayerName: 'fajr',
+    type: 'qaza',
+    markedBy: 'alice',
+    source: 'app',
+    markedAt: serverTimestamp(),
+    dateTime: new Date(),
+  };
+  await assertSucceeds(setDoc(ref, { ...base, count: increment(3) }, { merge: true }));
+  await assertSucceeds(setDoc(ref, { ...base, count: increment(2) }, { merge: true }));
+  assert.equal((await assertSucceeds(getDoc(ref))).data().count, 5);
+  await assertFails(setDoc(ref, { ...base, count: increment(46) }, { merge: true }));
 });
 
 // ---------- children (Parent mode) ----------

@@ -36,9 +36,12 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
       return Center(child: Text(context.l10n.qazaFiveFardOnly));
     }
     final label = p.label(context.l10n);
-    // The repository stores one Qaza per prayer per day.
-    final doneToday = ref.watch(qazaTodayCountForProvider(p)) > 0;
-    final maxToday = doneToday ? 0 : 1;
+    // One log per prayer per day holds a `count` (rules cap it at 50).
+    final todayCount = ref.watch(qazaTodayCountForProvider(p));
+    final room = 50 - todayCount;
+    final maxToday = room <= 0
+        ? 0
+        : (summary.remaining == 0 ? 1 : summary.remaining.clamp(1, room));
     final l10n = context.l10n;
     final dayFmt = DateFormat('EEEE, d MMMM', l10n.localeName);
     final tracked = summary.trackedMissed;
@@ -122,7 +125,11 @@ class _QazaPrayerScreenState extends ConsumerState<QazaPrayerScreen> {
                     FilledButton(
                       onPressed: summary.remaining == 0
                           ? null
-                          : () => markQazaDone(context, ref, p),
+                          : () async {
+                              final n = _count.clamp(1, maxToday);
+                              await markQazaDone(context, ref, p, count: n);
+                              if (mounted) setState(() => _count = 1);
+                            },
                       child: Text(l10n.markDone),
                     ),
                   ],

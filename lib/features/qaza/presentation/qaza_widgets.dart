@@ -28,6 +28,7 @@ Future<void> markQazaDone(
   WidgetRef ref,
   PrayerName prayer, {
   String? personId,
+  int count = 1,
 }) async {
   final me = ref.read(currentUserProvider)?.uid;
   if (me == null) return;
@@ -37,7 +38,12 @@ Future<void> markQazaDone(
   try {
     await ref
         .read(prayerRepositoryProvider)
-        .incrementQaza(subject: subject, markedBy: me, prayerName: prayer);
+        .incrementQaza(
+          subject: subject,
+          markedBy: me,
+          prayerName: prayer,
+          delta: count,
+        );
     if (context.mounted) {
       AppSnackBar.success(
         context,
